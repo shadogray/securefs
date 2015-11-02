@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<con:soapui-project activeEnvironment="Default" name="SecureFile" resourceRoot="${projectDir}" soapui-version="5.0.0" xmlns:con="http://eviware.com/soapui/config"><con:settings/><con:interface xsi:type="con:WsdlInterface" wsaVersion="NONE" name="FileServiceSoapBinding" type="wsdl" bindingName="{http://securefile.telekom.at/}FileServiceSoapBinding" soapVersion="1_1" anonymous="optional" definition="http://localhost:8080/securefile/FileService?wsdl" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><con:settings/><con:definitionCache type="TEXT" rootPart="http://localhost:8080/securefile/FileService?wsdl"><con:part><con:url>http://localhost:8080/securefile/FileService?wsdl</con:url><con:content><![CDATA[<wsdl:definitions name="FileService" targetNamespace="http://securefile.telekom.at/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://securefile.telekom.at/" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http">
+  <wsdl:types>
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://securefile.telekom.at/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+      <xs:element name="read" type="tns:read"/>
+      <xs:element name="readResponse" type="tns:readResponse"/>
+      <xs:element name="write" type="tns:write"/>
+      <xs:element name="writeResponse" type="tns:writeResponse"/>
+      <xs:complexType name="read">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="relativePath" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="readResponse">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="bytes" type="xs:base64Binary"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="write">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="relativePath" type="xs:string"/>
+          <xs:element minOccurs="0" name="bytes" type="xs:base64Binary"/>
+        </xs:sequence>
+      </xs:complexType>
+      <xs:complexType name="writeResponse">
+        <xs:sequence/>
+      </xs:complexType>
+      <xs:element name="IOException" type="tns:IOException"/>
+      <xs:complexType name="IOException">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="message" type="xs:string"/>
+        </xs:sequence>
+      </xs:complexType>
+    </xs:schema>
+  </wsdl:types>
+  <wsdl:message name="readResponse">
+    <wsdl:part element="tns:readResponse" name="parameters"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="read">
+    <wsdl:part element="tns:read" name="parameters"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="writeResponse">
+    <wsdl:part element="tns:writeResponse" name="parameters"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="IOException">
+    <wsdl:part element="tns:IOException" name="IOException"></wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="write">
+    <wsdl:part element="tns:write" name="parameters"></wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="FileServiceBean">
+    <wsdl:operation name="read">
+      <wsdl:input message="tns:read" name="read"></wsdl:input>
+      <wsdl:output message="tns:readResponse" name="readResponse"></wsdl:output>
+      <wsdl:fault message="tns:IOException" name="IOException"></wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="write">
+      <wsdl:input message="tns:write" name="write"></wsdl:input>
+      <wsdl:output message="tns:writeResponse" name="writeResponse"></wsdl:output>
+      <wsdl:fault message="tns:IOException" name="IOException"></wsdl:fault>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="FileServiceSoapBinding" type="tns:FileServiceBean">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="read">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="read">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="readResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="IOException">
+        <soap:fault name="IOException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="write">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="write">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="writeResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="IOException">
+        <soap:fault name="IOException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="FileService">
+    <wsdl:port binding="tns:FileServiceSoapBinding" name="FileServiceBeanPort">
+      <soap:address location="http://localhost:8080/securefile/FileService"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>]]></con:content><con:type>http://schemas.xmlsoap.org/wsdl/</con:type></con:part></con:definitionCache><con:endpoints><con:endpoint>http://localhost:8080/securefile/FileService</con:endpoint></con:endpoints><con:operation isOneWay="false" action="" name="read" bindingOperationName="read" type="Request-Response" outputName="readResponse" inputName="read" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Decode"><con:settings><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/securefile/FileService</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://securefile.telekom.at/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <sec:read>
+         <relativePath>test_main.txt</relativePath>
+      </sec:read>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://securefile.telekom.at/FileServiceBean/read"/><con:wsrmConfig version="1.2"/></con:call></con:operation><con:operation isOneWay="false" action="" name="write" bindingOperationName="write" type="Request-Response" outputName="writeResponse" inputName="write" receivesAttachments="false" sendsAttachments="false" anonymous="optional"><con:settings/><con:call name="Encode"><con:settings><con:setting id="WsdlSettings@enable-mtom">true</con:setting><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@encode_attachments">false</con:setting><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@request-headers">&lt;xml-fragment/></con:setting><con:setting id="com.eviware.soapui.impl.wsdl.WsdlRequest@force_mtom">false</con:setting></con:settings><con:encoding>UTF-8</con:encoding><con:endpoint>http://localhost:8080/securefile/FileService</con:endpoint><con:request><![CDATA[<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:sec="http://securefile.telekom.at/">
+   <soapenv:Header/>
+   <soapenv:Body>
+      <sec:write>
+         <relativePath>test_main.txt</relativePath>
+         <bytes>cid:test_main.txt</bytes>
+      </sec:write>
+   </soapenv:Body>
+</soapenv:Envelope>]]></con:request><con:credentials><con:authType>No Authorization</con:authType></con:credentials><con:attachment><con:name>test_main.txt</con:name><con:contentType>text/plain</con:contentType><con:contentId>test_main.txt</con:contentId><con:url>test_main.txt</con:url><con:id>1c860b95-4bdc-44b0-b576-8e472315100c</con:id></con:attachment><con:jmsConfig JMSDeliveryMode="PERSISTENT"/><con:jmsPropertyConfig/><con:wsaConfig mustUnderstand="NONE" version="200508" action="http://securefile.telekom.at/FileServiceBean/write"/><con:wsrmConfig version="1.2"/></con:call></con:operation></con:interface><con:properties/><con:wssContainer/><con:oAuth2ProfileContainer/></con:soapui-project>
