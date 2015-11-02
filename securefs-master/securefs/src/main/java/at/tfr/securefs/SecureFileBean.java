@@ -21,6 +21,7 @@ import javax.ejb.Stateful;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.imageio.IIOException;
+import org.jboss.annotation.ejb.cache.simple.CacheConfig;
 
 /**
  *
@@ -29,6 +30,7 @@ import javax.imageio.IIOException;
 @Stateful
 @LocalBean
 @Remote(SecureRemoteFile.class)
+@CacheConfig(idleTimeoutSeconds = 5, removalTimeoutSeconds = 5, maxSize = 10000)
 @TransactionManagement(TransactionManagementType.BEAN)
 public class SecureFileBean implements SecureRemoteFile {
 

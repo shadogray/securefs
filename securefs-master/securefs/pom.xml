@@ -61,6 +61,12 @@
          <version>1.4.2</version>
       </dependency>
       <dependency>
+         <groupId>jboss</groupId>
+         <artifactId>jboss-annotations-ejb3</artifactId>
+         <version>4.2.3.GA</version>
+         <scope>provided</scope>
+      </dependency>
+      <dependency>
          <groupId>org.jboss.resteasy</groupId>
          <artifactId>async-http-servlet-3.0</artifactId>
       </dependency>
