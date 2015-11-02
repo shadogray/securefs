@@ -1,3 +1,9 @@
+/*
+ * Copyright 2015 Thomas Frühbeck, fruehbeck(at)aon(dot)at.
+ *
+ * Licensed under the Eclipse Public License version 1.0, available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
 package at.tfr.securefs;
 
 import at.tfr.securefs.Configuration;
@@ -68,13 +74,13 @@ public class TestWebSocket {
 			try {
 				InputStream is = Files.newInputStream(configuration.getBasePath().resolve(path));
 				messageHandler.write(is, path);
-				
+
 				Thread.sleep(2000);
-				
+
 				String outPath = path + ".out";
 				OutputStream os = Files.newOutputStream(configuration.getBasePath().resolve(outPath));
 				messageHandler.read(os, path);
-				
+
 			} catch (Exception e) {
 				e.printStackTrace();
 				try {
@@ -91,13 +97,13 @@ public class TestWebSocket {
 		@Override
 		public void onMessage(String message) {
 			System.out.println("onMessage: message=" + message);
-			
+
 			try {
 				messageHandler.handleMessage(message, messageSender);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			
+
 //			synchronized (WebsocketHandler.this) {
 //				WebsocketHandler.this.notifyAll();
 //			}
