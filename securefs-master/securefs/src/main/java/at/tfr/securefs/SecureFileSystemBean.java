@@ -20,6 +20,7 @@ import javax.ejb.Stateful;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
 import javax.inject.Inject;
+import org.jboss.annotation.ejb.cache.simple.CacheConfig;
 
 /**
  *
@@ -27,6 +28,7 @@ import javax.inject.Inject;
  */
 @Stateful
 @Remote(SecureFileSystemItf.class)
+@CacheConfig(idleTimeoutSeconds = 600, removalTimeoutSeconds = 300, maxSize = 10000)
 @TransactionManagement(TransactionManagementType.BEAN)
 public class SecureFileSystemBean implements SecureFileSystemItf {
 
