@@ -25,16 +25,8 @@
       </dependency>
 
       <dependency>
-         <groupId>javax</groupId>
-         <artifactId>javaee-api</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>io.undertow</groupId>
-         <artifactId>undertow-websockets-jsr</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.xnio</groupId>
-         <artifactId>xnio-nio</artifactId>
+         <groupId>org.jboss.logging</groupId>
+         <artifactId>jboss-logging</artifactId>
       </dependency>
       <dependency>
          <groupId>commons-io</groupId>
@@ -44,44 +36,40 @@
          <groupId>commons-lang</groupId>
          <artifactId>commons-lang</artifactId>
       </dependency>
-
-      <dependency>
-         <groupId>org.apache.cxf</groupId>
-         <artifactId>cxf-bundle</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.ws.cxf</groupId>
-         <artifactId>jbossws-cxf-transports-httpserver</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.ws.cxf</groupId>
-         <artifactId>jbossws-cxf-server</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.resteasy</groupId>
-         <artifactId>resteasy-client</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.java-websocket</groupId>
-         <artifactId>Java-WebSocket</artifactId>
-      </dependency>
       <dependency>
          <groupId>jboss</groupId>
          <artifactId>jboss-client</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.jboss</groupId>
          <artifactId>jboss-remote-naming</artifactId>
+         <scope>test</scope>
       </dependency>
+
       <dependency>
          <groupId>junit</groupId>
          <artifactId>junit</artifactId>
       </dependency>
 
-      <dependency>
-         <groupId>org.jboss.arquillian</groupId>
-         <artifactId>arquillian-junit</artifactId>
-      </dependency>
-
    </dependencies>
+
+   <profiles>
+      <profile>
+         <id>Client</id>
+         <build>
+         <plugins>
+            <plugin>
+               <groupId>org.codehaus.mojo</groupId>
+               <artifactId>exec-maven-plugin</artifactId>
+               <configuration>
+                  <mainClass>at.tfr.securefs.client.SecurefsClient</mainClass>
+               </configuration>
+            </plugin>
+         </plugins>
+         </build>
+      </profile>
+   </profiles>
+   <build>
+   </build>
 </project>

@@ -16,11 +16,11 @@ public interface SecureRemoteFile {
 
     int read() throws IOException;
 
-    byte[] read(int maxCount) throws IOException;
+    Buffer read(int maxCount) throws IOException;
 
     void write(int b) throws IOException;
 
-    void write(byte[] array) throws IOException;
+    void write(Buffer buffer) throws IOException;
 
     boolean isOpen();
 

@@ -6,10 +6,10 @@
  */
 package at.tfr.securefs.spi.fs;
 
+import at.tfr.securefs.api.Buffer;
 import at.tfr.securefs.api.SecureRemoteFile;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.ByteBuffer;
 
 /**
  *
@@ -30,11 +30,14 @@ public class SecureInputStream extends InputStream {
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
-        byte[] arr = remote.read(len-off);
-        for (int i=0; i < arr.length; i++) {
-            b[off + i] = arr[i];
+        Buffer buffer = remote.read(len-off);
+        if (buffer.getLength() <= 0) {
+            return buffer.getLength();
         }
-        return arr.length;
+        for (int i=0; i < buffer.getLength(); i++) {
+            b[off + i] = buffer.getData()[i];
+        }
+        return buffer.getLength();
     }
 
     @Override

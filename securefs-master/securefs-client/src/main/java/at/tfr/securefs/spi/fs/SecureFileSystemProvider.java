@@ -33,6 +33,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
+import org.jboss.logging.Logger;
 
 /**
  *
@@ -40,6 +41,7 @@ import java.util.concurrent.ExecutorService;
  */
 public class SecureFileSystemProvider extends FileSystemProvider {
 
+    private Logger log = Logger.getLogger(getClass());
     public static final String SEC = "sec";
     private Properties secProperties = new Properties();
     private HashMap<URI, SecureFileSystem> fileSystems = new HashMap<>();
@@ -85,12 +87,12 @@ public class SecureFileSystemProvider extends FileSystemProvider {
 
     @Override
     public void createDirectory(Path dir, FileAttribute<?>... attrs) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        proxy.createDirectory(dir.toString(), attrs);
     }
 
     @Override
     public void delete(Path path) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        proxy.deleteIfExists(path.toString());
     }
 
     @Override
@@ -105,12 +107,12 @@ public class SecureFileSystemProvider extends FileSystemProvider {
 
     @Override
     public boolean isSameFile(Path path, Path path2) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return proxy.isSameFile(path.toString(), path2.toString());
     }
 
     @Override
     public boolean isHidden(Path path) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return false;
     }
 
     @Override
@@ -175,37 +177,64 @@ public class SecureFileSystemProvider extends FileSystemProvider {
 
     @Override
     public FileSystem newFileSystem(URI uri, Map<String, ?> env) throws IOException {
-        SecureFileSystem fs = fileSystems.get(uri);
         if (env != null) {
             secProperties.putAll(env);
         }
-        if (fs == null) {
-            synchronized (fileSystems) {
-                fs = fileSystems.get(uri);
-                if (fs == null) {
-                    fs = new SecureFileSystem(this, "/", getProxy());
-                    fileSystems.put(uri, fs);
-                }
-            }
-        }
-        return fs;
+        return new SecureFileSystem(this, "/", getProxy(uri));
     }
 
     @Override
     public FileSystem getFileSystem(URI uri) {
-        Optional<FileSystem> fs = fileSystems.entrySet().stream()
-                .filter(f -> uri.toString().startsWith(f.getKey().toString()))
-                .findFirst().map(f -> f.getValue());
-        return fs.orElse(null);
+        FileSystem fs = fileSystems.get(uri);
+        if (fs == null) {
+            fs = getCurrentFileSystem(uri, null);
+        }
+        return fs;
     }
 
+    protected SecureFileSystem getCurrentFileSystem(URI uri, Map<String, ?> env) {
+        synchronized (fileSystems) {
+            SecureFileSystem fs = fileSystems.get(uri);
+            if (fs != null) {
+                try {
+                    if (!fs.isOpen()) {
+                        fs = null;
+                        log.info("FileSystem closed for URI=" + uri);
+                    }
+                } catch (Exception e) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("FileSystem closed for URI=" + uri + " : " + e, e);
+                    }
+                    log.info("FileSystem closed for URI=" + uri + " : " + e);
+                    fs = null;
+                }
+            }
+            if (fs == null) {
+                if (env != null) {
+                    secProperties.putAll(env);
+                }
+                synchronized (fileSystems) {
+                    fs = fileSystems.get(uri);
+                    if (fs == null) {
+                        fs = new SecureFileSystem(this, "/", getProxy(uri));
+                        fileSystems.put(uri, fs);
+                    }
+                    if (log.isDebugEnabled()) {
+                        log.debug("FileSystem opened for URI=" + uri);
+                    }
+                }
+            }
+            return fs;
+        }
+    }
 
-    SecureFileSystemItf getProxy() {
+    protected SecureFileSystemItf getProxy(URI uri) {
         if (proxy == null) {
             synchronized (this) {
                 if (proxy == null) {
                     try {
                         proxy = new SecureProxyProvider().getProxy(secProperties);
+                        proxy.setRootPath(uri.getPath());
                     } catch (Exception e) {
                         throw new FileSystemNotFoundException(e.toString());
                     }

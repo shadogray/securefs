@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<h:body xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core">
+	<h:form>
+		<h:panelGrid columns="4">
+			<h:outputLabel value="Key" />
+			<h:inputText value="#{shamirBean.key}" required="true" />
+			<h:outputText value="" />
+			<h:outputText value="" />
+
+			<h:outputLabel value="NrOfShares" />
+			<h:inputText value="#{shamirBean.nrOfShares}" converter="javax.faces.BigInteger" required="true" />
+			<h:outputLabel value="Threshold" />
+			<h:inputText value="#{shamirBean.threshold}" converter="javax.faces.BigInteger" required="true" />
+
+			<h:outputText value="Modulus" />
+			<h:outputText value="#{shamirBean.modulus}" />
+			<h:commandButton action="#{shamirBean.generate()}" value="Generate" />
+			<h:commandButton action="validate" value="Validate" />
+		</h:panelGrid>
+		<h:panelGrid columns="4">
+			<h:outputLabel value="UUID:" />
+			<h:outputText value="#{shamirBean.shares.get(0).publicInfo.uuid}" rendered="#{! empty shamirBean.shares}" />
+		</h:panelGrid>
+		<h:dataTable var="s" value="#{shamirBean.shares}">
+			<h:column>
+				<f:facet name="header">Index</f:facet>
+				<h:inputText value="#{s.index}" converter="javax.faces.Integer" readonly="true" />
+			</h:column>
+			<h:column>
+				<f:facet name="header">Share</f:facet>
+				<h:inputText value="#{s.share}" readonly="true" />
+			</h:column>
+		</h:dataTable>
+	</h:form>
+</h:body>

@@ -6,6 +6,7 @@
  */
 package at.tfr.securefs.spi.fs;
 
+import at.tfr.securefs.api.Buffer;
 import at.tfr.securefs.api.SecureRemoteFile;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -30,7 +31,7 @@ public class SecureOutputStream extends OutputStream {
 
     @Override
     public void write(byte[] b, int off, int len) throws IOException {
-        remote.write(Arrays.copyOfRange(b, off, len));
+        remote.write(new Buffer((b.length == len - off) ? b : Arrays.copyOfRange(b, off, len), len - off));
     }
 
     @Override

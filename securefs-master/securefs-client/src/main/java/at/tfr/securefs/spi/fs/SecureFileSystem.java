@@ -16,6 +16,7 @@ import java.nio.file.attribute.UserPrincipalLookupService;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.Arrays;
 import java.util.Set;
+import org.jboss.logging.Logger;
 
 /**
  *
@@ -23,6 +24,7 @@ import java.util.Set;
  */
 public class SecureFileSystem extends UnixFileSystem {
 
+    private Logger log = Logger.getLogger(getClass());
     SecureFileSystemItf remote;
 
     SecureFileSystem(SecureFileSystemProvider provider, String dir, SecureFileSystemItf remote) {
@@ -37,10 +39,15 @@ public class SecureFileSystem extends UnixFileSystem {
 
     @Override
     public void close() throws IOException {
-        try {
-            remote.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (remote != null) {
+            try {
+                remote.close();
+            } catch (Exception e) {
+                if (log.isDebugEnabled()) {
+                    log.info("cannot close: "+e, e);
+                }
+                log.info("cannot close: "+e);
+            }
         }
         remote = null;
     }

@@ -18,7 +18,7 @@ import javax.inject.Named;
 import com.tiemens.secretshare.math.BigIntUtilities;
 
 import at.tfr.securefs.Configuration;
-import at.tfr.securefs.Constants;
+import at.tfr.securefs.key.KeyConstants;
 import at.tfr.securefs.key.Shamir;
 import at.tfr.securefs.key.UiShare;
 
@@ -33,7 +33,7 @@ public class ValidationBean implements Serializable {
 	private int nrOfShares;
 	private List<UiShare> shares = new ArrayList<>();
 	private BigInteger secret;
-	public static Map<String, BigInteger> moduli = Constants.moduli;
+	private static Map<String, BigInteger> moduli = KeyConstants.moduli;
 
 	public String combine() {
 
@@ -45,15 +45,15 @@ public class ValidationBean implements Serializable {
 
 		return "";
 	}
-	
+
 	@PostConstruct
 	private void init() {
-		nrOfShares = Constants.nrOfSharesForTest;
-		threshold = Constants.thresholdForTest;
-		modulus = Constants.modulusForTest;
-		shares.addAll(Constants.sharesForTest);
+		nrOfShares = KeyConstants.nrOfSharesForTest;
+		threshold = KeyConstants.thresholdForTest;
+		modulus = KeyConstants.modulusForTest;
+		shares.addAll(KeyConstants.sharesForTest);
 	}
-	
+
 	public String activate() {
 		configuration.setSecret(secret);
 		return "";
@@ -62,9 +62,9 @@ public class ValidationBean implements Serializable {
 	public BigInteger getSecret() {
 		return secret;
 	}
-	
+
 	public String getSecretAsString() {
-		if (secret == null) 
+		if (secret == null)
 			return "";
 		return BigIntUtilities.Human.createHumanString(secret);
 	}

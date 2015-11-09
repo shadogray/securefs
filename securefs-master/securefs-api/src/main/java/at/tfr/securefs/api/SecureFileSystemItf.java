@@ -7,12 +7,9 @@
 package at.tfr.securefs.api;
 
 import java.io.IOException;
-import java.nio.file.FileStore;
 import java.nio.file.OpenOption;
-import java.nio.file.Path;
-import java.nio.file.PathMatcher;
 import java.nio.file.WatchService;
-import java.nio.file.attribute.UserPrincipalLookupService;
+import java.nio.file.attribute.FileAttribute;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.Set;
 
@@ -22,9 +19,15 @@ import java.util.Set;
  */
 public interface SecureFileSystemItf {
 
+    void setRootPath(String root) throws IOException;
+
     void close() throws IOException;
 
+    void createDirectory(String path, FileAttribute<?>... attrs) throws IOException;
+
     boolean deleteIfExists(String path) throws IOException;
+
+    boolean isSameFile(String path, String path2) throws IOException;
 
     SecureRemoteFile newOutputStream(String path, OpenOption... options) throws IOException;
 

@@ -29,6 +29,11 @@
             <scope>provided</scope>
          </dependency>
          <dependency>
+            <groupId>org.jboss.logging</groupId>
+            <artifactId>jboss-logging</artifactId>
+            <version>3.1.4.GA</version>
+         </dependency>
+         <dependency>
             <groupId>io.undertow</groupId>
             <artifactId>undertow-websockets-jsr</artifactId>
             <version>1.0.15.Final</version>
@@ -109,7 +114,10 @@
 
    <modules>
       <module>securefs-api</module>
+      <module>securefs-common</module>
       <module>securefs</module>
       <module>securefs-client</module>
+      <module>securefs-json</module>
+      <module>securefs-client-test</module>
    </modules>
 </project>
