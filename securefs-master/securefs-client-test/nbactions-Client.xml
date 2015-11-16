@@ -25,7 +25,7 @@
                 <goal>org.codehaus.mojo:exec-maven-plugin:1.2.1:exec</goal>
             </goals>
             <properties>
-                <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -classpath %classpath at.tfr.securefs.client.SecurefsClient -b sec:///tmp/test  -f dir1/dir2/bigfile.iso</exec.args>
+                <exec.args>-Xdebug -Xrunjdwp:transport=dt_socket,server=n,address=${jpda.address} -classpath %classpath at.tfr.securefs.client.SecurefsClient -b sec:///tmp/test -a true -t 10 -f data/test/test.txt,data/test/test_main.txt</exec.args>
                 <exec.executable>java</exec.executable>
                 <jpda.listen>true</jpda.listen>
                 <exec.workingdir>/raid/home/thomas/workspace-sec/securefs/securefs-master/securefs-client-test/target</exec.workingdir>

@@ -7,7 +7,6 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 
-import javax.enterprise.context.ApplicationScoped;
 
 import org.jboss.logging.Logger;
 import org.xnio.ChannelListener;
@@ -31,7 +30,6 @@ import at.tfr.securefs.api.json.MessageSender;
 import at.tfr.securefs.api.json.Message.MessageSubType;
 import at.tfr.securefs.api.json.Message.MessageType;
 
-@ApplicationScoped
 public class ClientMessageHandlerImpl implements MessageHandler {
 
 	private Logger log = Logger.getLogger(getClass());

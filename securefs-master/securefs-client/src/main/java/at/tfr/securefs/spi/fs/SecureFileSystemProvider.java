@@ -177,10 +177,13 @@ public class SecureFileSystemProvider extends FileSystemProvider {
 
     @Override
     public FileSystem newFileSystem(URI uri, Map<String, ?> env) throws IOException {
+        Properties props = (Properties)secProperties.clone();
         if (env != null) {
-            secProperties.putAll(env);
+            props.putAll(env);
         }
-        return new SecureFileSystem(this, "/", getProxy(uri));
+        SecureFileSystemProvider provider = new SecureFileSystemProvider();
+        provider.proxy = getProxy(uri, props);
+        return new SecureFileSystem(provider, "/", provider.proxy);
     }
 
     @Override
@@ -216,7 +219,7 @@ public class SecureFileSystemProvider extends FileSystemProvider {
                 synchronized (fileSystems) {
                     fs = fileSystems.get(uri);
                     if (fs == null) {
-                        fs = new SecureFileSystem(this, "/", getProxy(uri));
+                        fs = new SecureFileSystem(this, "/", getCurrentProxy(uri));
                         fileSystems.put(uri, fs);
                     }
                     if (log.isDebugEnabled()) {
@@ -228,19 +231,24 @@ public class SecureFileSystemProvider extends FileSystemProvider {
         }
     }
 
-    protected SecureFileSystemItf getProxy(URI uri) {
+    protected SecureFileSystemItf getCurrentProxy(URI uri) {
         if (proxy == null) {
             synchronized (this) {
                 if (proxy == null) {
-                    try {
-                        proxy = new SecureProxyProvider().getProxy(secProperties);
-                        proxy.setRootPath(uri.getPath());
-                    } catch (Exception e) {
-                        throw new FileSystemNotFoundException(e.toString());
-                    }
+                    proxy = getProxy(uri, secProperties);
                 }
             }
         }
         return proxy;
+    }
+
+    protected SecureFileSystemItf getProxy(URI uri, Properties env) throws FileSystemNotFoundException {
+        try {
+            SecureFileSystemItf p = new SecureProxyProvider().getProxy(env);
+            p.setRootPath(uri.getPath());
+            return p;
+        } catch (Exception e) {
+            throw new FileSystemNotFoundException(e.toString());
+        }
     }
 }

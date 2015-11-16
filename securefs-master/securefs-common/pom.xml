@@ -87,7 +87,6 @@ available at * http://www.eclipse.org/legal/epl-v10.html -->
    </dependencies>
 
    <build>
-      <finalName>securefs-common</finalName>
       <plugins>
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>

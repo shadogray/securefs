@@ -60,13 +60,29 @@ public class SecureFileBean implements SecureRemoteFile {
 	}
 
 	@Override
-	public Buffer read(int maxCount) throws IOException {
+	public Buffer read(final int maxCount) throws IOException {
 		if (in == null)
 			throw new IIOException("not readable: " + path);
 		byte[] arr = new byte[maxCount];
-		int count = in.read(arr, 0, maxCount);
-		if (count <= 0) {
-			return new Buffer(count);
+		int count = 0;
+		for (int nextCount = 0; count < maxCount; count += nextCount) {
+
+			try {
+				nextCount = in.read(arr, count, maxCount - count);
+			} catch (ArrayIndexOutOfBoundsException a) {
+				log.warn("iteration failed: path=" + path + ", nextCount=" + nextCount + ", count=" + count
+						+ ", maxCount=" + maxCount);
+				throw new ArrayIndexOutOfBoundsException(
+						"iteration failed: nextCount=" + nextCount + ", count=" + count + ", maxCount=" + maxCount);
+			}
+
+			if (nextCount < 0 && count == 0) {
+				return new Buffer(nextCount);
+			}
+
+			if (nextCount < 0) {
+				break;
+			}
 		}
 		return new Buffer((count == arr.length) ? arr : Arrays.copyOfRange(arr, 0, count), count);
 	}

@@ -74,32 +74,38 @@
    <profiles>
       <profile>
          <id>Client</id>
+         <properties>
+            <exec.async>false</exec.async>
+            <exec.threads>10</exec.threads>
+            <exec.baseDir>sec://${basedir}/target/</exec.baseDir>
+            <exec.files>data/test/test.txt,data/test/test_main.txt</exec.files>
+         </properties>
          <build>
-         <plugins>
-            <plugin>
-               <groupId>org.codehaus.mojo</groupId>
-               <artifactId>exec-maven-plugin</artifactId>
-               <version>1.4.0</version>
-               <configuration>
-                  <executable>java</executable>
-                  <mainClass>at.tfr.securefs.client.SecurefsClient</mainClass>
-                  <arguments>
-                     <argument>-classpath</argument>
-                     <classpath/>
-                     <argument>at.tfr.securefs.client.SecurefsClient</argument>
-                     <argument>-b</argument>
-                     <argument>sec:///tmp/test</argument>
-                     <argument>-a</argument>
-                     <argument>${exec.async}</argument>
-                     <argument>-t</argument>
-                     <argument>${exec.threads}</argument>
-                     <argument>-f</argument>
-                     <argument>${exec.files}</argument>
-                  </arguments>
-                  <workingDirectory>/raid/home/thomas/workspace-sec/securefs/securefs-master/securefs-client-test/target</workingDirectory>
-               </configuration>
-            </plugin>
-         </plugins>
+            <plugins>
+               <plugin>
+                  <groupId>org.codehaus.mojo</groupId>
+                  <artifactId>exec-maven-plugin</artifactId>
+                  <version>1.4.0</version>
+                  <configuration>
+                     <executable>java</executable>
+                     <mainClass>at.tfr.securefs.client.SecurefsClient</mainClass>
+                     <arguments>
+                        <argument>-classpath</argument>
+                        <classpath/>
+                        <argument>at.tfr.securefs.client.SecurefsClient</argument>
+                        <argument>-b</argument>
+                        <argument>${exec.baseDir}</argument>
+                        <argument>-a</argument>
+                        <argument>${exec.async}</argument>
+                        <argument>-t</argument>
+                        <argument>${exec.threads}</argument>
+                        <argument>-f</argument>
+                        <argument>${exec.files}</argument>
+                     </arguments>
+                     <workingDirectory>${basedir}/target/classes</workingDirectory>
+                  </configuration>
+               </plugin>
+            </plugins>
          </build>
       </profile>
    </profiles>

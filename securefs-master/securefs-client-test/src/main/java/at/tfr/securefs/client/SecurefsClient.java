@@ -14,7 +14,6 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,7 +29,6 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.joda.time.DateTime;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 /**
  *
@@ -80,6 +78,12 @@ public class SecurefsClient implements Runnable {
         try (FileSystem fs = FileSystems.newFileSystem(new URI(baseDir), null)) {
 
             for (Path path : files) {
+
+                if (!path.toFile().exists()) {
+                    System.err.println("NoSuchFile: "+path+ " currentWorkdir="+Paths.get("./").toAbsolutePath());
+                    continue;
+                }
+
                 if (path.getParent() != null) {
                     fs.provider().createDirectory(path.getParent());
                 }
@@ -89,7 +93,7 @@ public class SecurefsClient implements Runnable {
 
                 System.out.println("Sending file: "+ start + " : " + sec);
 
-                IOUtils.copy(Files.newInputStream(path), secOs);
+                IOUtils.copyLarge(Files.newInputStream(path), secOs, new byte[128*1024]);
                 secOs.close();
 
                 Path out = path.getParent().resolve(path.getFileName()
@@ -98,14 +102,14 @@ public class SecurefsClient implements Runnable {
                 Files.createDirectories(out.getParent());
 
                 final InputStream secIs = Files.newInputStream(sec);
-                IOUtils.copy(secIs, Files.newOutputStream(out));
+                IOUtils.copyLarge(secIs, Files.newOutputStream(out), new byte[128*1024]);
                 secIs.close();
 
                 long inputChk = FileUtils.checksumCRC32(path.toFile());
                 long outputChk = FileUtils.checksumCRC32(out.toFile());
 
                 if (inputChk != outputChk) {
-                    throw new IOException("failure to write/read: in=" + path + ", out=" + out);
+                    throw new IOException("Checksum Failed: failure to write/read: in=" + path + ", out=" + out);
                 }
                 System.out.println("Checked Checksums: "+ new DateTime() + " : " + inputChk + " / " + outputChk);
             }
