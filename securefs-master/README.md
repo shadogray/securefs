@@ -32,13 +32,13 @@ INFO  [at.tfr.securefs.Configuration] (EJB default - 10) BasePath = /tmp/SECUREF
 The client FS for the SecureFS service. It provides a Java 1.8 compliant filesystem implementation.
 
 ## securefs-client-test
-This module provides a sample implementation of the Stream API of SecureFS as JavaSE implemntation.
+This module provides a sample implementation of the Stream API of SecureFS as JavaSE implementation.
 It provides a simple API and may be run as maven exec:exec task. On any input argument error a usage will be dumped.
 
-### Command line parameters - Usage
+### SecurefsClient: Command Line Parameters - Usage
 
 ```
-usage: SecureFile
+usage: SecurefsClient
  -a <arg>   Asynchronous tests
  -b <arg>   Base Directory of Server FileSystem
  -f <arg>   Files to run to/from Server, comma separated list
