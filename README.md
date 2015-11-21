@@ -2,6 +2,7 @@
 A client/server filesystem based on EE7 EnterpriseBeans to provide authenticated access to encrypted files 
 
 #Sample Usage
+### Streaming API
 For a simple example how to use this file system see 
 * code of [SecurefsClient](securefs-master/securefs-client-test/src/main/java/at/tfr/securefs/client/SecurefsClient.java "at.tfr.securefs.client.SecurefsClient.java") in project [securefs-client-test](securefs-master/securefs-client-test/)
 * invoke SecurefsClient 
@@ -11,9 +12,12 @@ usage: SecureFile
  -b <arg>   Base Directory of Server FileSystem
  -f <arg>   Files to run to/from Server, comma separated list
  -t <arg>   Number of concurrent Threads
-
 ```
-* Sample Script ./setupTest.sh
+### SecureFS FileService WebService 
+For a simple example how to use this file system see 
+* code of [SecurefsFileServiceClient](securefs-master/securefs-client-test/src/main/java/at/tfr/securefs/client/SecurefsFileServiceClient.java "at.tfr.securefs.client.SecurefsFileServiceClient.java") in project [securefs-client-test](securefs-master/securefs-client-test/)
+
+## Sample Script ./setupTest.sh
 ```
 Sending file: 2015-11-21T12:26:09.936+01:00 : ./input/dir1/dir2/small.txt
 Reading file: 2015-11-21T12:26:10.740+01:00 : ./input/dir1/dir2/small.txt.out
@@ -26,14 +30,14 @@ Checked Checksums: 2015-11-21T12:26:19.294+01:00 : 4135937012 / 4135937012
 [INFO] ------------------------------------------------------------------------
 ``` 
 
-### Prerequisite: Download and unpack Wildfly
+# Setup
+### Setup-Prerequisite: Download and unpack Wildfly
 
     cd /work/java/
     wget http://download.jboss.org/wildfly/9.0.2.Final/wildfly-9.0.2.Final.zip 
     unzip wildfly-9.0.2.Final.zip
 
-Setup
-=====
+## Setup SecureFS Service
 
 ###1. Clone this repo to local path and switch to it
 
