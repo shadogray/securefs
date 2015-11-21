@@ -3,7 +3,7 @@ A client/server filesystem based on EE7 EnterpriseBeans to provide authenticated
 
 #Sample Usage
 For a simple example how to use this file system see 
-* code of at.tfr.securefs.client.SecurefsClient in project securefs-client-test
+* code of [SecurefsClient](securefs-master/securefs-client-test/src/main/java/at/tfr/securefs/client/SecurefsClient.java title="at.tfr.securefs.client.SecurefsClient") in project [securefs-client-test](securefs-master/securefs-client-test/)
 * invoke SecurefsClient 
 ```
 usage: SecureFile
