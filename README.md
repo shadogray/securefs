@@ -35,20 +35,20 @@ Checked Checksums: 2015-11-21T12:26:19.294+01:00 : 4135937012 / 4135937012
 Setup
 =====
 
-1. Clone this repo to local path and switch to it
+###1. Clone this repo to local path and switch to it
 
-2. Build the WebApplication - first w/o activated tests, since some tests rely on deployed and running server
+###2. Build the WebApplication - first w/o activated tests, since some tests rely on deployed and running server
 
     cd securefs/securefs-master/
     mvn clean install -DskipTests
     cp cp securefs/target/securefs.war /work/java/wildfly-9.0.2.Final/standalone/deployments/
 
-3. Start Widlfly
+###3. Start Widlfly
 
     cd /work/java/wildfly-9.0.2.Final/
     bin/standalone.sh -c standalone.xml
 
-  1. Check startup of Securefs webapp
+####3.1. Check startup of Securefs webapp
 
 ```
 2015-11-21 11:24:04,146 INFO  [org.jboss.as.ejb3.deployment.processors.EjbJndiBindingsDeploymentUnitProcessor] (MSC service thread 1-4) JNDI bindings for sessio
@@ -66,11 +66,11 @@ n bean named SecureFileBean in deployment unit deployment "securefs.war" are as 
  address=http://localhost:8080/securefs/FileService
 ```
 
-4. rerun full maven build
+###4. Rerun full maven build
 
    mvn clean install
 
-  1. check result of build
+####4.1. check result of build
 
 ```
 [INFO] securefs-api ...................................... SUCCESS [  1.665 s]
