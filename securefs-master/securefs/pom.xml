@@ -69,6 +69,7 @@
       <dependency>
          <groupId>org.jboss.resteasy</groupId>
          <artifactId>async-http-servlet-3.0</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>javax.validation</groupId>
@@ -78,20 +79,24 @@
          <groupId>org.jboss.resteasy</groupId>
          <artifactId>resteasy-jaxrs</artifactId>
          <version>3.0.13.Final</version>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.jboss.resteasy</groupId>
          <artifactId>resteasy-jackson2-provider</artifactId>
          <version>3.0.13.Final</version>
+         <scope>test</scope>
       </dependency>
 
       <dependency>
          <groupId>io.undertow</groupId>
          <artifactId>undertow-websockets-jsr</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.jboss.xnio</groupId>
          <artifactId>xnio-nio</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>commons-io</groupId>
@@ -105,36 +110,43 @@
       <dependency>
          <groupId>org.apache.cxf</groupId>
          <artifactId>cxf-bundle</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.jboss.ws.cxf</groupId>
          <artifactId>jbossws-cxf-transports-httpserver</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.jboss.ws.cxf</groupId>
          <artifactId>jbossws-cxf-server</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.jboss.resteasy</groupId>
          <artifactId>resteasy-client</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.java-websocket</groupId>
          <artifactId>Java-WebSocket</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>jboss</groupId>
          <artifactId>jboss-client</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>org.jboss</groupId>
          <artifactId>jboss-remote-naming</artifactId>
+         <scope>test</scope>
       </dependency>
       <dependency>
          <groupId>junit</groupId>
          <artifactId>junit</artifactId>
+         <scope>test</scope>
       </dependency>
-
       <dependency>
          <groupId>org.jboss.arquillian</groupId>
          <artifactId>arquillian-junit</artifactId>
