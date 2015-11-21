@@ -17,7 +17,8 @@ usage: SecureFile
 For a simple example how to use this file system see 
 * code of [SecurefsFileServiceClient](securefs-master/securefs-client-test/src/main/java/at/tfr/securefs/client/SecurefsFileServiceClient.java "at.tfr.securefs.client.SecurefsFileServiceClient.java") in project [securefs-client-test](securefs-master/securefs-client-test/)
 
-## Sample Script ./setupTest.sh
+## Sample Script [setupTest.sh](secure-master/setupTest.sh)
+This script simply demonstrates usage of the maven goals to run the SecurefsClient easily.
 ```
 Sending file: 2015-11-21T12:26:09.936+01:00 : ./input/dir1/dir2/small.txt
 Reading file: 2015-11-21T12:26:10.740+01:00 : ./input/dir1/dir2/small.txt.out
