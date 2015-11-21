@@ -37,7 +37,8 @@ Setup
 
 ###1. Clone this repo to local path and switch to it
 
-###2. Build the WebApplication - first w/o activated tests, since some tests rely on deployed and running server
+###2. Build the WebApplication
+First w/o activated tests, since some tests rely on deployed and running server
 
     cd securefs/securefs-master/
     mvn clean install -DskipTests
@@ -68,7 +69,9 @@ n bean named SecureFileBean in deployment unit deployment "securefs.war" are as 
 
 ###4. Rerun full maven build
 
-   mvn clean install
+```
+mvn clean install
+```
 
 ####4.1. check result of build
 
