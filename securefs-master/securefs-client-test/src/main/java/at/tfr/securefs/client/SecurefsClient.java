@@ -68,7 +68,7 @@ public class SecurefsClient implements Runnable {
 
         } catch (Throwable e) {
             HelpFormatter hf = new HelpFormatter();
-            hf.printHelp("SecureFile", client.options);
+            hf.printHelp(SecurefsClient.class.getSimpleName(), client.options);
             e.printStackTrace();
         }
     }
