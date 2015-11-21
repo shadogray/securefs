@@ -9,7 +9,7 @@
    <modelVersion>4.0.0</modelVersion>
    <groupId>at.tfr.securefs</groupId>
    <artifactId>securefs-master</artifactId>
-   <version>1.0-SNAPSHOT</version>
+   <version>1.0.1.Final</version>
    <packaging>pom</packaging>
    <properties>
       <version.weld-servlet>1.1.0.Final</version.weld-servlet>
