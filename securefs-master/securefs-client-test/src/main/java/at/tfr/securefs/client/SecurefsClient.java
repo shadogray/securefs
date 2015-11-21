@@ -37,16 +37,16 @@ import org.joda.time.DateTime;
 public class SecurefsClient implements Runnable {
 
     private Options options = new Options();
-    String baseDir;
-    List<Path> files = new ArrayList<>();
-    boolean asyncTest = false;
-    int threads = 1;
+    private String baseDir;
+    private List<Path> files = new ArrayList<>();
+    private boolean asyncTest = false;
+    private int threads = 1;
 
     {
-        options.addOption("b", true, "Base Directory of Server FileSystem");
+        options.addOption("b", true, "Base Directory of Server FileSystem, must conform to: sec://<path>");
         options.addOption("f", true, "Files to run to/from Server, comma separated list");
-        options.addOption("a", true, "Asynchronous tests");
-        options.addOption("t", true, "Number of concurrent Threads");
+        options.addOption("a", true, "Asynchronous tests, default: "+asyncTest);
+        options.addOption("t", true, "Number of concurrent Threads, default: "+threads);
     }
 
     public static void main(String[] args) throws Exception {

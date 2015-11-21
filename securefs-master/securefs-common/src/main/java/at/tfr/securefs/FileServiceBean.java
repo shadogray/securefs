@@ -1,5 +1,6 @@
 package at.tfr.securefs;
 
+import at.tfr.securefs.api.FileService;
 import at.tfr.securefs.Configuration;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -25,8 +26,8 @@ import org.jboss.logging.Logger;
 import at.tfr.securefs.key.SecretKeySpecBean;
 
 @MTOM(enabled = true)
-@WebService(serviceName = "FileService")
-public class FileServiceBean {
+@WebService(serviceName = "FileService", portName = "FileServicePort")
+public class FileServiceBean implements FileService {
 
 	private Logger log = Logger.getLogger(getClass());
     @Inject
@@ -36,8 +37,11 @@ public class FileServiceBean {
 
     @MTOM(enabled = true, threshold = 10240)
     @WebMethod
+    @Override
     public void write(@WebParam(name = "relativePath") String relPath, @WebParam(name = "bytes") byte[] b) throws IOException {
-        Path path = configuration.getBasePath().resolve(relPath);
+        Path path = SecureFileSystemBean.resolvePath(configuration.getBasePath(), relPath);
+        Path parent = path.getParent();
+        Files.createDirectories(parent); // create parent directories unconditionally
         OutputStream encrypter = getEncrypter(path);
         try {
             IOUtils.copy(new ByteArrayInputStream(b), encrypter);
@@ -49,6 +53,7 @@ public class FileServiceBean {
     @MTOM(enabled = true, threshold = 10240)
     @WebMethod
     @WebResult(name = "bytes")
+    @Override
     public byte[] read(@WebParam(name = "relativePath") String relPath) throws IOException {
 
         Path path = configuration.getBasePath().resolve(relPath);

@@ -108,6 +108,42 @@
             </plugins>
          </build>
       </profile>
+      <profile>
+         <id>FileServiceClient</id>
+         <properties>
+            <exec.async>false</exec.async>
+            <exec.threads>10</exec.threads>
+            <exec.fileServiceUrl>http://localhost:8080/securefs/FileService</exec.fileServiceUrl>
+            <exec.files>data/test/test.txt,data/test/test_main.txt</exec.files>
+         </properties>
+         <build>
+            <plugins>
+               <plugin>
+                  <groupId>org.codehaus.mojo</groupId>
+                  <artifactId>exec-maven-plugin</artifactId>
+                  <version>1.4.0</version>
+                  <configuration>
+                     <executable>java</executable>
+                     <mainClass>at.tfr.securefs.client.SecurefsClient</mainClass>
+                     <arguments>
+                        <argument>-classpath</argument>
+                        <classpath/>
+                        <argument>at.tfr.securefs.client.SecurefsFileServiceClient</argument>
+                        <argument>-u</argument>
+                        <argument>${exec.fileServiceUrl}</argument>
+                        <argument>-a</argument>
+                        <argument>${exec.async}</argument>
+                        <argument>-t</argument>
+                        <argument>${exec.threads}</argument>
+                        <argument>-f</argument>
+                        <argument>${exec.files}</argument>
+                     </arguments>
+                     <workingDirectory>${basedir}/target/classes</workingDirectory>
+                  </configuration>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
    </profiles>
    <build>
    </build>

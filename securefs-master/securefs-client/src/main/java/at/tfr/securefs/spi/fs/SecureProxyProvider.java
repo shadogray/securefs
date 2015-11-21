@@ -8,10 +8,12 @@ package at.tfr.securefs.spi.fs;
 
 import at.tfr.securefs.api.SecureFileSystemItf;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Properties;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import org.jboss.logging.Logger;
 
 /**
  *
@@ -19,23 +21,26 @@ import javax.naming.NamingException;
  */
 public class SecureProxyProvider {
 
+    private Logger log = Logger.getLogger(getClass());
     public static final String SEC_PROPERTIES = "/securefs.properties";
 
     public SecureFileSystemItf getProxy(Properties secProperties) throws NamingException {
-        try {
-            InputStream is = this.getClass().getResourceAsStream(SEC_PROPERTIES);
-            if (is != null) {
-                secProperties.load(is);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
         // setup the ejb: namespace URL factory
         //secProperties.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
         secProperties.put(Context.INITIAL_CONTEXT_FACTORY, "org.jboss.naming.remote.client.InitialContextFactory");
         secProperties.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
-        //secProperties.put(Context.PROVIDER_URL, "remote://localhost:4447");
-        //secProperties.put("jboss.naming.client.ejb.context", "false");
+        try {
+            URL propUrl = this.getClass().getResource(SEC_PROPERTIES);
+            if (propUrl != null) {
+                try (InputStream is = propUrl.openStream()) {
+                    secProperties.load(is);
+                    log.debug("loaded properties from: "+propUrl);
+                }
+            }
+        } catch (Exception e) {
+            log.debug("cannot load properties: "+e, e);
+            log.warn("cannot load properties: "+e);
+        }
         // create the InitialContext
         final Context context = new InitialContext(secProperties);
         // Lookup the secFs bean using the ejb:

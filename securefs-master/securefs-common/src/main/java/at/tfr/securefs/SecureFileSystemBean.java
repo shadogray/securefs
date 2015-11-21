@@ -78,9 +78,7 @@ public class SecureFileSystemBean implements SecureFileSystemItf {
     }
 
     protected Path resolvePath(String path) {
-        path = path.replaceAll("^(\\.+/|/)*", "");
-        final Path p = rootPath.resolve(path);
-        return p;
+        return resolvePath(rootPath, path);
     }
 
     @Override
@@ -164,6 +162,12 @@ public class SecureFileSystemBean implements SecureFileSystemItf {
     @Override
     public String getSeparator() {
         return "/";
+    }
+
+    public static Path resolvePath(final Path rootPath, String path) {
+        path = path.replaceAll("^(\\.+/|/)*", "");
+        final Path p = rootPath.resolve(path);
+        return p;
     }
 
 }

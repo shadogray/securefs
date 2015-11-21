@@ -33,9 +33,13 @@ The client FS for the SecureFS service. It provides a Java 1.8 compliant filesys
 
 ## securefs-client-test
 This module provides a sample implementation of the Stream API of SecureFS as JavaSE implementation.
-It provides a simple API and may be run as maven exec:exec task. On any input argument error a usage will be dumped.
+Two client implementations are available:
+* SecurefsClient - implements Streaming API
+* SecurefsFileServiceClient - implements WebService API
 
-### SecurefsClient: Command Line Parameters - Usage
+Both provide a simple command line and may be run as Maven Exec goal. On any input argument error a usage will be dumped.
+
+### SecurefsClient - Command Line Parameters & Usage
 
 ```
 usage: SecurefsClient
@@ -44,8 +48,8 @@ usage: SecurefsClient
  -f <arg>   Files to run to/from Server, comma separated list
  -t <arg>   Number of concurrent Threads
 ```
-### Maven Exec Task
-The simplest use case is the execution of the preconfigured maven exec task:
+### Maven Exec Goal - Profile Client
+The simplest use case is the execution of the preconfigured Maven Exec goal:
 ```
 	mvn -pl securefs-client-test -P Client exec:exec
 ```
@@ -88,3 +92,39 @@ INFO: EJBCLIENT000016: Channel Channel ID d9f85a49 (outbound) of Remoting connec
 [INFO] ------------------------------------------------------------------------
 ```
 
+### SecurefsFileServiceClient - Command Line Parameters & Usage
+This Client implements the SecureFS FileService.
+```
+usage: SecurefsFileServiceClient
+ -a <arg>   Asynchronous tests, default: false
+ -f <arg>   Files to run to/from Server, comma separated list
+ -t <arg>   Number of concurrent Threads, default: 1
+ -u <arg>   Service URL, default:
+            http://localhost:8080/securefs/FileService?wsdl
+```
+
+### Maven Exec Goal - Profile FileServiceClient
+```
+mvn -pl securefs-client-test -P FileServiceClient exec:exec
+```
+
+The following command line parameters are available:
+```
+exec.fileServiceUrl    	default: http://localhost:8080/securefs/FileService?wsdl
+exec.async      	default: false
+exec.threads    	default: 10
+exec.files      	default: data/test/test.txt,data/test/test_main.txt
+```
+will produce an output similar to:
+```
+Thread[main,5,main]: Sending file: 2015-11-21T18:59:09.520+01:00 : data/test/test.txt
+Thread[main,5,main]: Reading file: 2015-11-21T18:59:10.004+01:00 : data/test/test.txt.out
+Thread[main,5,main]: Checked Checksums: 2015-11-21T18:59:10.048+01:00 : 2486928614 / 2486928614
+Thread[main,5,main]: Sending file: 2015-11-21T18:59:09.520+01:00 : data/test/test_main.txt
+Thread[main,5,main]: Reading file: 2015-11-21T18:59:10.103+01:00 : data/test/test_main.txt.out
+Thread[main,5,main]: Checked Checksums: 2015-11-21T18:59:10.130+01:00 : 4109673046 / 4109673046
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+
+```
