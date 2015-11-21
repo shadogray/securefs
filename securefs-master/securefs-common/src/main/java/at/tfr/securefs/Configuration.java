@@ -20,6 +20,7 @@ import org.jboss.logging.Logger;
 import at.tfr.securefs.key.KeyConstants;
 import at.tfr.securefs.key.Shamir;
 import at.tfr.securefs.key.UiShare;
+import java.net.URL;
 
 @ApplicationScoped
 public class Configuration {
@@ -48,14 +49,17 @@ public class Configuration {
 	    		}
 	    	}
     	}
-    	
-    	
+
+
         Properties secProps = new Properties();
         secProps.putAll(System.getProperties());
         try {
-            InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream(SECUREFS_SERVER_PROPERTIES);
-            if (is != null) {
-                secProps.load(is);
+            URL propUrl = Thread.currentThread().getContextClassLoader().getResource(SECUREFS_SERVER_PROPERTIES);
+            if (propUrl != null) {
+                try (InputStream is = propUrl.openStream()) {
+                    secProps.load(is);
+                    log.info("loaded from: "+propUrl);
+                }
             }
         } catch (Throwable e) {
             log.warn("failure to read Properties: ", e);

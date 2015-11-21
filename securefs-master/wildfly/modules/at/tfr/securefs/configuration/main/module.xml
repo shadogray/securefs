@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module xmlns="urn:jboss:module:1.1" name="at.tfr.securefs.configuration">
+    <properties>
+        <property name="test.property" value="foo"/>
+    </properties>
+    <resources>
+	    <resource-root path="../"/>
+    </resources>
+</module>

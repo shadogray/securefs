@@ -80,7 +80,7 @@ public class SecurefsClient implements Runnable {
             for (Path path : files) {
 
                 if (!path.toFile().exists()) {
-                    System.err.println("NoSuchFile: "+path+ " currentWorkdir="+Paths.get("./").toAbsolutePath());
+                    System.err.println(Thread.currentThread()+": NoSuchFile: "+path+ " currentWorkdir="+Paths.get("./").toAbsolutePath());
                     continue;
                 }
 
@@ -91,14 +91,14 @@ public class SecurefsClient implements Runnable {
                         + (asyncTest ? "." + Thread.currentThread().getId() : ""));
                 final OutputStream secOs = Files.newOutputStream(sec);
 
-                System.out.println("Sending file: "+ start + " : " + sec);
+                System.out.println(Thread.currentThread()+": Sending file: "+ start + " : " + sec);
 
                 IOUtils.copyLarge(Files.newInputStream(path), secOs, new byte[128*1024]);
                 secOs.close();
 
                 Path out = path.getParent().resolve(path.getFileName()
                         + (asyncTest ? "." + Thread.currentThread().getId() : "") + ".out");
-                System.out.println("Reading file: "+ new DateTime() + " : " + out);
+                System.out.println(Thread.currentThread()+": Reading file: "+ new DateTime() + " : " + out);
                 Files.createDirectories(out.getParent());
 
                 final InputStream secIs = Files.newInputStream(sec);
@@ -109,9 +109,9 @@ public class SecurefsClient implements Runnable {
                 long outputChk = FileUtils.checksumCRC32(out.toFile());
 
                 if (inputChk != outputChk) {
-                    throw new IOException("Checksum Failed: failure to write/read: in=" + path + ", out=" + out);
+                    throw new IOException(Thread.currentThread()+": Checksum Failed: failure to write/read: in=" + path + ", out=" + out);
                 }
-                System.out.println("Checked Checksums: "+ new DateTime() + " : " + inputChk + " / " + outputChk);
+                System.out.println(Thread.currentThread()+": Checked Checksums: "+ new DateTime() + " : " + inputChk + " / " + outputChk);
             }
         } catch (Throwable t) {
             t.printStackTrace();

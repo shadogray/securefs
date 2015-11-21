@@ -1,0 +1,7 @@
+<jboss-deployment-structure>
+   <deployment>
+      <dependencies>
+         <module name="at.tfr.securefs.configuration" optional="true"/>
+      </dependencies>
+   </deployment>
+</jboss-deployment-structure>
