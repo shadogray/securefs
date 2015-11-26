@@ -1,7 +1,8 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright 2015 Thomas Frühbeck, fruehbeck(at)aon(dot)at.
+ *
+ * Licensed under the Eclipse Public License version 1.0, available at
+ * http://www.eclipse.org/legal/epl-v10.html
  */
 package at.tfr.securefs;
 
@@ -40,118 +41,131 @@ import at.tfr.securefs.api.SecureRemoteFile;
 @TransactionManagement(TransactionManagementType.BEAN)
 public class SecureFileBean implements SecureRemoteFile {
 
-	private Logger log = Logger.getLogger(getClass());
-	@Resource
-	private SessionContext context;
-	private InputStream in;
-	private OutputStream out;
-	private Path path;
+    private Logger log = Logger.getLogger(getClass());
+    @Resource
+    private SessionContext context;
+    private InputStream in;
+    private OutputStream out;
+    private Path path;
 
-	@PostConstruct
-	public void init() {
-		log.debug("created");
-	}
+    @PostConstruct
+    public void init() {
+        log.debug("created ctx=" + context);
+    }
 
-	@Override
-	public int read() throws IOException {
-		if (in == null)
-			throw new IIOException("not readable: " + path);
-		return in.read();
-	}
+    @Override
+    public int read() throws IOException {
+        if (in == null) {
+            throw new IIOException("not readable: " + path);
+        }
+        return in.read();
+    }
 
-	@Override
-	public Buffer read(final int maxCount) throws IOException {
-		if (in == null)
-			throw new IIOException("not readable: " + path);
-		byte[] arr = new byte[maxCount];
-		int count = 0;
-		for (int nextCount = 0; count < maxCount; count += nextCount) {
+    @Override
+    public Buffer read(final int maxCount) throws IOException {
+        if (in == null) {
+            throw new IIOException("not readable: " + path);
+        }
+        byte[] arr = new byte[maxCount];
+        int count = 0;
+        for (int nextCount = 0; count < maxCount; count += nextCount) {
 
-			try {
-				nextCount = in.read(arr, count, maxCount - count);
-			} catch (ArrayIndexOutOfBoundsException a) {
-				log.warn("iteration failed: path=" + path + ", nextCount=" + nextCount + ", count=" + count
-						+ ", maxCount=" + maxCount);
-				throw new ArrayIndexOutOfBoundsException(
-						"iteration failed: nextCount=" + nextCount + ", count=" + count + ", maxCount=" + maxCount);
-			}
+            try {
+                nextCount = in.read(arr, count, maxCount - count);
+            } catch (ArrayIndexOutOfBoundsException a) {
+                log.warn("iteration failed: path=" + path + ", nextCount=" + nextCount + ", count=" + count
+                        + ", maxCount=" + maxCount);
+                throw new ArrayIndexOutOfBoundsException(
+                        "iteration failed: nextCount=" + nextCount + ", count=" + count + ", maxCount=" + maxCount);
+            }
 
-			if (nextCount < 0 && count == 0) {
-				return new Buffer(nextCount);
-			}
+            if (nextCount < 0 && count == 0) {
+                return new Buffer(nextCount);
+            }
 
-			if (nextCount < 0) {
-				break;
-			}
-		}
-		return new Buffer((count == arr.length) ? arr : Arrays.copyOfRange(arr, 0, count), count);
-	}
+            if (nextCount < 0) {
+                break;
+            }
+        }
+        return new Buffer((count == arr.length) ? arr : Arrays.copyOfRange(arr, 0, count), count);
+    }
 
-	@Override
-	public void write(int b) throws IOException {
-		if (out == null)
-			throw new IIOException("not writeable: " + path);
-		out.write(b);
-	}
+    @Override
+    public void write(int b) throws IOException {
+        if (out == null) {
+            throw new IIOException("not writeable: " + path);
+        }
+        out.write(b);
+    }
 
-	@Override
-	public void write(Buffer buffer) throws IOException {
-		if (out == null)
-			throw new IIOException("not writeable: " + path);
-		out.write(buffer.getData(), 0, buffer.getLength());
-		out.flush();
-	}
+    @Override
+    public void write(Buffer buffer) throws IOException {
+        if (out == null) {
+            throw new IIOException("not writeable: " + path);
+        }
+        out.write(buffer.getData(), 0, buffer.getLength());
+        out.flush();
+    }
 
-	@Override
-	public boolean isOpen() {
-		return in != null || out != null;
-	}
+    @Override
+    public boolean isOpen() {
+        return in != null || out != null;
+    }
 
-	@Override
-	@Remove
-	@PreDestroy
-	public void close() throws IOException {
-		if (isOpen()) {
-			log.info("close: " + path);
-		}
-		if (in != null) {
-			in.close();
-			in = null;
-		}
-		if (out != null) {
-			out.close();
-			out = null;
-		}
-		log.debug("closed: " + path);
-	}
+    @Override
+    @Remove
+    @PreDestroy
+    public void close() {
+        if (isOpen()) {
+            log.info("close: " + path + " ctx=" + context);
+        }
+        if (in != null) {
+            try {
+                in.close();
+            } catch (Throwable t) {
+                log.info("cannot close IN correctly: " + path + " : " + t, t);
+                in = null;
+            }
+        }
+        if (out != null) {
+            try {
+                out.close();
+                out = null;
+            } catch (Throwable t) {
+                log.info("cannot close OUT correctly: " + path + " : " + t, t);
+                in = null;
+            }
+        }
+        log.debug("closed: " + path + " ctx=" + context);
+    }
 
-	public InputStream getIn() {
-		return in;
-	}
+    public InputStream getIn() {
+        return in;
+    }
 
-	public void setIn(InputStream in) {
-		this.in = in;
-	}
+    public void setIn(InputStream in) {
+        this.in = in;
+    }
 
-	public OutputStream getOut() {
-		return out;
-	}
+    public OutputStream getOut() {
+        return out;
+    }
 
-	public void setOut(OutputStream out) {
-		this.out = out;
-	}
+    public void setOut(OutputStream out) {
+        this.out = out;
+    }
 
-	public Path getPath() {
-		return path;
-	}
+    public Path getPath() {
+        return path;
+    }
 
-	public void setPath(Path path) {
-		this.path = path;
-		log.debug("setPath: " + path);
-	}
+    public void setPath(Path path) {
+        this.path = path;
+        log.debug("setPath: " + path + " ctx=" + context);
+    }
 
-	public SecureRemoteFile getRemote() {
-		return context.getBusinessObject(SecureRemoteFile.class);
-	}
+    public SecureRemoteFile getRemote() {
+        return context.getBusinessObject(SecureRemoteFile.class);
+    }
 
 }

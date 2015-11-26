@@ -1,3 +1,9 @@
+/*
+ * Copyright 2015 Thomas Frühbeck, fruehbeck(at)aon(dot)at.
+ *
+ * Licensed under the Eclipse Public License version 1.0, available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
 package at.tfr.securefs.key;
 
 import java.math.BigInteger;
@@ -14,7 +20,7 @@ public class Shamir {
 
 	public BigInteger combine(int nrOfShares, int threshold, BigInteger modulus, List<UiShare> shares) {
 		List<ShareInfo> shareInfos = new ArrayList<>();
-		
+
 		PublicInfo info = new SecretShare.PublicInfo(nrOfShares, threshold, modulus, "Combine:" + new Date());
 		for (UiShare s : shares) {
 			shareInfos.add(new ShareInfo(s.getIndex(), parse(s.getShare()), info));

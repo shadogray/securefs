@@ -1,3 +1,9 @@
+/*
+ * Copyright 2015 Thomas Frühbeck, fruehbeck(at)aon(dot)at.
+ *
+ * Licensed under the Eclipse Public License version 1.0, available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
 package at.tfr.securefs;
 
 import java.io.InputStream;
@@ -21,6 +27,7 @@ import at.tfr.securefs.key.KeyConstants;
 import at.tfr.securefs.key.Shamir;
 import at.tfr.securefs.key.UiShare;
 import java.net.URL;
+import java.util.Set;
 
 @ApplicationScoped
 public class Configuration {
@@ -41,15 +48,23 @@ public class Configuration {
     @PostConstruct
     private void init() {
 
-    	if (log.isDebugEnabled()) {
-	    	for (Provider p : Security.getProviders()) {
-	    		System.out.println("Provider: "+p.getClass()+", Name="+p.getName()+", Info="+p.getInfo());
-	    		for (Service s : p.getServices()) {
-	    			System.out.println("Service: "+s.getClassName()+", "+s.getAlgorithm()+", ");
-	    		}
-	    	}
-    	}
-
+        if (log.isDebugEnabled()) {
+            for (Provider p : Security.getProviders()) {
+                try {
+                    log.debug("Provider: " + p.getClass() + ", Name=" + p.getName() + ", Info=" + p.getInfo());
+                    final Set<Service> services = p.getServices();
+                    if (services == null) {
+                        log.debug("Provider has no services: " + p);
+                    } else {
+                        for (Service s : services) {
+                            log.debug("Service: " + s.getClassName() + ", " + s.getAlgorithm() + ", ");
+                        }
+                    }
+                } catch (Throwable t) {
+                    log.info("cannot print info: Provider=" + p + " : " + t, t);
+                }
+            }
+        }
 
         Properties secProps = new Properties();
         secProps.putAll(System.getProperties());
@@ -58,31 +73,31 @@ public class Configuration {
             if (propUrl != null) {
                 try (InputStream is = propUrl.openStream()) {
                     secProps.load(is);
-                    log.info("loaded from: "+propUrl);
+                    log.info("loaded from: " + propUrl);
                 }
             }
         } catch (Throwable e) {
             log.warn("failure to read Properties: ", e);
         }
 
-    keyAlgorithm = secProps.getProperty(SECUREFS_SERVER_PFX+"keyAlgorithm", keyAlgorithm);
-    log.info("KeyAlgorithm = "+keyAlgorithm);
-    cipherAlgorithm = secProps.getProperty(SECUREFS_SERVER_PFX+"cipherAlgorithm", cipherAlgorithm);
-    log.info("CipherAlgorithm = "+cipherAlgorithm);
-    paddingCipherAlgorithm = secProps.getProperty(SECUREFS_SERVER_PFX+"paddingCipherAlgorithm", paddingCipherAlgorithm);
-    log.info("PaddingCipherAlgorithm = "+paddingCipherAlgorithm);
-    salt = secProps.getProperty(SECUREFS_SERVER_PFX+"salt", salt);
-    log.info("Salt = "+salt);
-    test = Boolean.parseBoolean(secProps.getProperty(SECUREFS_SERVER_PFX+"test", ""+test));
-    log.info("Test = "+test);
+        keyAlgorithm = secProps.getProperty(SECUREFS_SERVER_PFX + "keyAlgorithm", keyAlgorithm);
+        log.info("KeyAlgorithm = " + keyAlgorithm);
+        cipherAlgorithm = secProps.getProperty(SECUREFS_SERVER_PFX + "cipherAlgorithm", cipherAlgorithm);
+        log.info("CipherAlgorithm = " + cipherAlgorithm);
+        paddingCipherAlgorithm = secProps.getProperty(SECUREFS_SERVER_PFX + "paddingCipherAlgorithm", paddingCipherAlgorithm);
+        log.info("PaddingCipherAlgorithm = " + paddingCipherAlgorithm);
+        salt = secProps.getProperty(SECUREFS_SERVER_PFX + "salt", salt);
+        log.info("Salt = " + salt);
+        test = Boolean.parseBoolean(secProps.getProperty(SECUREFS_SERVER_PFX + "test", "" + test));
+        log.info("Test = " + test);
 
-    try {
-        if (StringUtils.isNotBlank(secProps.getProperty(SECUREFS_SERVER_PFX+"basePath"))) {
-            basePath = Paths.get(secProps.getProperty(SECUREFS_SERVER_PFX+"basePath"));
-        } else {
-            basePath = Files.createTempDirectory("securefs");
-        }
-        log.info("BasePath = "+basePath);
+        try {
+            if (StringUtils.isNotBlank(secProps.getProperty(SECUREFS_SERVER_PFX + "basePath"))) {
+                basePath = Paths.get(secProps.getProperty(SECUREFS_SERVER_PFX + "basePath"));
+            } else {
+                basePath = Files.createTempDirectory("securefs");
+            }
+            log.info("BasePath = " + basePath);
         } catch (Exception e) {
             log.warn("cannot open basePath", e);
         }

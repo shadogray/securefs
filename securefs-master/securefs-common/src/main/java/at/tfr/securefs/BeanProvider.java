@@ -1,26 +1,24 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright 2015 Thomas Frühbeck, fruehbeck(at)aon(dot)at.
+ *
+ * Licensed under the Eclipse Public License version 1.0, available at
+ * http://www.eclipse.org/legal/epl-v10.html
  */
 package at.tfr.securefs;
 
 import javax.ejb.EJB;
-import javax.ejb.Stateless;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
+import javax.enterprise.context.RequestScoped;
 
 /**
  *
  * @author Thomas Frühbeck
  */
-@Stateless
+@RequestScoped
 public class BeanProvider {
 
-    @EJB
+    @EJB(beanName = "SecureFileBean")
     private SecureFileBean secureFileBean;
 
-    @Produces
     public SecureFileBean getFileBean() {
         return secureFileBean;
     }

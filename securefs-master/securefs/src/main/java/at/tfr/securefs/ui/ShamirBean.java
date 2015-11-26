@@ -1,3 +1,9 @@
+/*
+ * Copyright 2015 Thomas Frühbeck, fruehbeck(at)aon(dot)at.
+ *
+ * Licensed under the Eclipse Public License version 1.0, available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
 package at.tfr.securefs.ui;
 
 import java.math.BigInteger;
@@ -27,9 +33,9 @@ public class ShamirBean {
 	private SecureRandom random;
 
 	public String generate() {
-		
+
 		random = new SecureRandom();
-		
+
         SecretShare.PublicInfo publicInfo =
                 new SecretShare.PublicInfo(nrOfShares, threshold, null, key);
         SecretShare secretShare = new SecretShare(publicInfo);
@@ -38,17 +44,17 @@ public class ShamirBean {
         modulus = SecretShare.createAppropriateModulusForSecret(secret);
 
         splitOutput = secretShare.split(secret, random);
-		
+
 		return FacesContext.getCurrentInstance().getViewRoot().getViewId()+"?faces-redirect=true";
 	}
-	
+
 	public List<ShareInfo> getShares() {
 		if (splitOutput == null) {
 			return Collections.<ShareInfo>emptyList();
 		}
 		return splitOutput.getShareInfos();
 	}
-	
+
 	public String getKey() {
 		return key;
 	}
@@ -71,5 +77,5 @@ public class ShamirBean {
 	public BigInteger getModulus() {
 		return modulus;
 	}
-	
+
 }
