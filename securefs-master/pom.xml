@@ -88,6 +88,12 @@
             <groupId>jboss</groupId>
             <artifactId>jboss-client</artifactId>
             <version>4.0.2</version>
+            <exclusions>
+               <exclusion>
+                  <groupId>org.jboss.xnio</groupId>
+                  <artifactId>xnio-nio</artifactId>
+               </exclusion>
+            </exclusions>
             <scope>test</scope>
          </dependency>
          <dependency>

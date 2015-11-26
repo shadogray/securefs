@@ -7,18 +7,17 @@
 package at.tfr.securefs;
 
 import javax.ejb.EJB;
-import javax.ejb.Stateless;
+import javax.enterprise.context.RequestScoped;
 import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
 
 /**
  *
  * @author Thomas Frühbeck
  */
-@Stateless
+@RequestScoped
 public class BeanProvider {
 
-    @EJB
+    @EJB(beanName = "SecureFileBean")
     private SecureFileBean secureFileBean;
 
     @Produces

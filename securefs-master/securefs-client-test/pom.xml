@@ -31,6 +31,10 @@
       </dependency>
 
       <dependency>
+         <groupId>org.jboss.xnio</groupId>
+         <artifactId>xnio-nio</artifactId>
+      </dependency>
+      <dependency>
          <groupId>jboss</groupId>
          <artifactId>jboss-client</artifactId>
       </dependency>
@@ -52,11 +56,6 @@
          <groupId>org.jboss</groupId>
          <artifactId>jboss-remote-naming</artifactId>
          <scope>compile</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.xnio</groupId>
-         <artifactId>xnio-nio</artifactId>
-         <version>3.3.2.Final</version>
       </dependency>
       <dependency>
          <groupId>joda-time</groupId>
