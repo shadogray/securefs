@@ -8,7 +8,6 @@ package at.tfr.securefs;
 
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
-import javax.enterprise.inject.Produces;
 
 /**
  *
@@ -20,7 +19,6 @@ public class BeanProvider {
     @EJB(beanName = "SecureFileBean")
     private SecureFileBean secureFileBean;
 
-    @Produces
     public SecureFileBean getFileBean() {
         return secureFileBean;
     }
