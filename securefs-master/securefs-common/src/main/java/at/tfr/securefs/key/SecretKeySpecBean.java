@@ -72,4 +72,7 @@ public class SecretKeySpecBean {
 		this.configuration = configuration;
 	}
 
+	public void setSecretBean(SecretBean secretBean) {
+		this.secretBean = secretBean;
+	}
 }

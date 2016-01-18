@@ -43,7 +43,7 @@ public class Main {
 	protected List<UiShare> shares;
 	protected Configuration configuration = new Configuration();
 	protected SecretBean secretBean = new SecretBean(configuration, null);
-	protected SecretKeySpecBean sksBean = new SecretKeySpecBean();
+	protected SecretKeySpecBean sksBean = new SecretKeySpecBean(configuration, secretBean);
 	protected Path basePath;
 
 	public static void main(String[] args) throws Exception {
@@ -68,7 +68,7 @@ public class Main {
 		configuration.setBasePath(basePath);
 
 		secret = new Shamir().combine(nrOfShares, threshold, modulus, shares);
-		sksBean.setConfiguration(configuration);
+		
 		secretBean.setSecret(secret);
 		Path filePath = basePath.resolve(file);
 
