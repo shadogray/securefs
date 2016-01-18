@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html>
-<h:body xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core">
-	<h:messages />
-	<h:form>
-		<h:panelGrid columns="2">
-			<h:outputLabel value="Share:" />
-			<h:inputText value="#{revokeBean.key}" converter="javax.faces.BigInteger"/>
-			<h:outputLabel value="" />
-			<h:commandButton action="#{revokeBean.revoke()}" value="Revoke Share" />
-		</h:panelGrid>
-	</h:form>
-		
-	<h:dataTable value="#{revokedKeysBean.revokedKeys}" var="s">
-		<h:column>
-			<f:facet name="header">Revoked Shares</f:facet>
-			<h:outputText value="#{s}" />
-		</h:column>
-	</h:dataTable>
-</h:body>
+<h:html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:f="http://java.sun.com/jsf/core">
+<h:form>
+	<h:panelGrid columns="2">
+		<h:outputLabel value="Share:" />
+		<h:inputText styleClass="form-control" value="#{revokeBean.key}" converter="javax.faces.BigInteger" />
+		<h:outputLabel value="" />
+		<h:commandButton class="btn btn-default" action="#{revokeBean.revoke()}" value="Revoke Share" />
+	</h:panelGrid>
+</h:form>
+
+<h:dataTable value="#{revokedKeysBean.revokedKeys}" var="s" styleClass="table-bordered table-hover">
+	<h:column>
+		<f:facet name="header">Revoked Shares</f:facet>
+		<h:outputText value="#{s}" />
+	</h:column>
+</h:dataTable>
+</h:html>

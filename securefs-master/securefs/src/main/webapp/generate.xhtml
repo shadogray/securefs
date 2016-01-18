@@ -1,39 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<h:body xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core">
-	<h:form>
-		<h:panelGrid columns="4">
-			<h:outputLabel value="Key" />
-			<h:inputText value="#{shamirBean.key}" required="true" />
-			<h:outputText value="" />
-			<h:outputText value="" />
+<h:html xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core">
+<h:form>
+	<h:panelGrid styleClass="table-hover" columns="2">
+		<h:outputLabel value="Key:" />
+		<h:inputText styleClass="form-control" value="#{shamirBean.key}" required="true" />
 
-			<h:outputLabel value="NrOfShares" />
-			<h:inputText value="#{shamirBean.nrOfShares}" converter="javax.faces.BigInteger" required="true" />
-			<h:outputLabel value="Threshold" />
-			<h:inputText value="#{shamirBean.threshold}" converter="javax.faces.BigInteger" required="true" />
+		<h:outputLabel value="NrOfShares:" />
+		<h:inputText styleClass="form-control" value="#{shamirBean.nrOfShares}" converter="javax.faces.BigInteger"
+			required="true" />
 
-			<h:outputText value="Modulus" />
-			<h:outputText value="#{shamirBean.modulus}" />
-			<h:commandButton action="#{shamirBean.generate()}" value="Generate" />
-		</h:panelGrid>
-		<h:panelGrid columns="4">
-			<h:outputLabel value="UUID:" />
-			<h:outputText value="#{shamirBean.shares.get(0).publicInfo.uuid}" rendered="#{! empty shamirBean.shares}" />
-		</h:panelGrid>
+		<h:outputLabel value="Threshold:" />
+		<h:inputText styleClass="form-control" value="#{shamirBean.threshold}" converter="javax.faces.BigInteger"
+			required="true" />
 
-		<h:panelGrid columns="2">
-		
-			<h:dataTable var="s" value="#{shamirBean.shares}">
-				<h:column>
-					<f:facet name="header">Index</f:facet>
-					<h:outputText value="#{s.index}" converter="javax.faces.Integer" readonly="true" />
-				</h:column>
-				<h:column>
-					<f:facet name="header">Share</f:facet>
-					<h:outputText value="#{s.share}" readonly="true" />
-				</h:column>
-			</h:dataTable>
+		<h:outputLabel value="Modulus:" />
+		<h:inputTextarea styleClass="form-control" value="#{shamirBean.modulus}" readonly="true" />
 
-		</h:panelGrid>			
-	</h:form>
-</h:body>
+		<h:outputLabel value="" />
+		<h:commandButton styleClass="form-control" action="#{shamirBean.generate()}" value="Generate" />
+	</h:panelGrid>
+</h:form>
+
+<h:dataTable styleClass="table-bordered table-hover" var="s" value="#{shamirBean.shares}">
+	<h:column>
+		<f:facet name="header">Index</f:facet>
+		<h:outputText value="#{s.index}" converter="javax.faces.Integer" readonly="true" />
+	</h:column>
+	<h:column>
+		<f:facet name="header">Share</f:facet>
+		<h:outputText value="#{s.share}" readonly="true" />
+	</h:column>
+</h:dataTable>
+</h:html>

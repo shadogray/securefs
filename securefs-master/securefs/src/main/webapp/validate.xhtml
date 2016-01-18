@@ -1,41 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html>
-<h:body xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core">
-	<h:messages />
-	<h:form>
-		<h:panelGrid columns="2">
+<h:html xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core">
+	<h:form >
+		<h:panelGrid columns="2" styleClass="table-hover">
 			<h:outputLabel value="Modulus" />
 			<h:selectOneListbox value="#{validationBean.modulus}" size="1" required="true">
 				<f:selectItem noSelectionOption="true" />
 				<f:selectItems value="#{validationBean.moduli}" var="m" itemLabel="#{m.key}" itemValue="#{m.value}" />
 			</h:selectOneListbox>
 			<h:outputLabel value="NrOfShares" />
-			<h:inputText value="#{validationBean.nrOfShares}" converter="javax.faces.Integer" />
+			<h:inputText styleClass="form-control" value="#{validationBean.nrOfShares}" converter="javax.faces.Integer" />
 			<h:outputLabel value="Threshold" />
-			<h:inputText value="#{validationBean.threshold}" converter="javax.faces.Integer" />
+			<h:inputText styleClass="form-control" value="#{validationBean.threshold}" converter="javax.faces.Integer" />
 
 			<h:outputLabel value="Status:" />
 			<h:outputText value="#{validationBean.activated ? 'Key Activated' : 'No Key'}" />
 			
 			<h:outputLabel value="0) Reset:" />
-			<h:commandButton action="#{validationBean.reset()}" value="Reset" />
+			<h:commandButton styleClass="form-control" action="#{validationBean.reset()}" value="Reset" />
 			<h:outputLabel value="1) Combine Keys:" />
-			<h:commandButton action="#{validationBean.combine()}" value="Combine" />
+			<h:commandButton styleClass="form-control" action="#{validationBean.combine()}" value="Combine" />
 			<h:outputLabel value="2) Validate Secret:" />
-			<h:commandButton action="#{validationBean.validate()}" value="#{validationBean.combined ? 'Validate' : 'disabled'}" disabled="#{!validationBean.combined}"/>
+			<h:commandButton styleClass="form-control" action="#{validationBean.validate()}" value="#{validationBean.combined ? 'Validate' : 'disabled'}" disabled="#{!validationBean.combined}"/>
 			<h:outputLabel value="3) Activate Secret:" />
-			<h:commandButton action="#{validationBean.activate()}" value="#{validationBean.validated ? 'Activate' : 'disabled'}" disabled="#{!validationBean.combined || !validationBean.validated}"/>
+			<h:commandButton styleClass="form-control" action="#{validationBean.activate()}" value="#{validationBean.validated ? 'Activate' : 'disabled'}" disabled="#{!validationBean.combined || !validationBean.validated}"/>
 			<h:outputLabel value="3a) Activate New Secret:" />
-			<h:commandButton action="#{validationBean.activate()}" value="#{validationBean.combined ? 'ActivateNewSecret' : 'disabled'}" disabled="#{!validationBean.combined}" onclick="return confirm('Do you want to activate a new Secret?')"/>
+			<h:commandButton styleClass="form-control" action="#{validationBean.activate()}" value="#{validationBean.combined ? 'ActivateNewSecret' : 'disabled'}" disabled="#{!validationBean.combined}" onclick="return confirm('Do you want to activate a new Secret?')"/>
 		</h:panelGrid>
-		<h:dataTable value="#{validationBean.dataModel}" var="s">
+		<h:dataTable styleClass="table-bordered table-hover" value="#{validationBean.dataModel}" var="s">
 			<h:column>
 				<f:facet name="header">Index</f:facet>
-				<h:inputText value="#{s.index}" converter="javax.faces.Integer" />
+				<h:inputText styleClass="form-control" value="#{s.index}" converter="javax.faces.Integer" />
 			</h:column>
 			<h:column>
 				<f:facet name="header">Share</f:facet>
-				<h:inputText value="#{s.share}" converter="javax.faces.BigInteger"/>
+				<h:inputText styleClass="form-control" value="#{s.share}" converter="javax.faces.BigInteger"/>
 			</h:column>
 			<h:column>
 				<f:facet name="header">Submit</f:facet>
@@ -43,4 +42,4 @@
 			</h:column>
 		</h:dataTable>
 	</h:form>
-</h:body>
+</h:html>
