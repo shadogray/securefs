@@ -16,5 +16,6 @@ public interface FileService {
 
     byte[] read(String relPath) throws IOException;
     void write(String relPath, byte[] b) throws IOException;
+    boolean delete(String relPath) throws IOException;
 
 }

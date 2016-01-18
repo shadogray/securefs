@@ -15,21 +15,25 @@
 			<h:outputText value="Modulus" />
 			<h:outputText value="#{shamirBean.modulus}" />
 			<h:commandButton action="#{shamirBean.generate()}" value="Generate" />
-			<h:commandButton action="validate" value="Validate" />
 		</h:panelGrid>
 		<h:panelGrid columns="4">
 			<h:outputLabel value="UUID:" />
 			<h:outputText value="#{shamirBean.shares.get(0).publicInfo.uuid}" rendered="#{! empty shamirBean.shares}" />
 		</h:panelGrid>
-		<h:dataTable var="s" value="#{shamirBean.shares}">
-			<h:column>
-				<f:facet name="header">Index</f:facet>
-				<h:inputText value="#{s.index}" converter="javax.faces.Integer" readonly="true" />
-			</h:column>
-			<h:column>
-				<f:facet name="header">Share</f:facet>
-				<h:inputText value="#{s.share}" readonly="true" />
-			</h:column>
-		</h:dataTable>
+
+		<h:panelGrid columns="2">
+		
+			<h:dataTable var="s" value="#{shamirBean.shares}">
+				<h:column>
+					<f:facet name="header">Index</f:facet>
+					<h:outputText value="#{s.index}" converter="javax.faces.Integer" readonly="true" />
+				</h:column>
+				<h:column>
+					<f:facet name="header">Share</f:facet>
+					<h:outputText value="#{s.share}" readonly="true" />
+				</h:column>
+			</h:dataTable>
+
+		</h:panelGrid>			
 	</h:form>
 </h:body>

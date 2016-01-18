@@ -108,6 +108,13 @@ public class SecurefsFileServiceClient implements Runnable {
                     throw new IOException(Thread.currentThread()+": Checksum Failed: failure to write/read: in=" + path + ", out=" + out);
                 }
                 System.out.println(Thread.currentThread()+": Checked Checksums: "+ new DateTime() + " : " + inputChk + " / " + outputChk);
+
+                boolean deleted = svc.getFileServicePort().delete(path.toString());
+                if (!deleted) {
+                    throw new IOException(Thread.currentThread()+": Delete Failed: failure to delete: in=" + path);
+                } else {
+                    System.out.println(Thread.currentThread()+": Deleted File: in=" + path);
+                }
             }
         } catch (Throwable t) {
             t.printStackTrace();

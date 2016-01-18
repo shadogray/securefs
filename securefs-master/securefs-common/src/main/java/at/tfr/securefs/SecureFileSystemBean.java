@@ -47,7 +47,7 @@ public class SecureFileSystemBean implements SecureFileSystemItf {
     @Inject
     private BeanProvider beanProvider;
     @Inject
-    private FileServiceBean fileServiceBean;
+    private CrypterProvider crypterProvider;
     private Path rootPath;
 
     @PostConstruct
@@ -87,7 +87,7 @@ public class SecureFileSystemBean implements SecureFileSystemItf {
         Path p = resolvePath(path);
         SecureFileBean rf = beanProvider.getFileBean();
         rf.setPath(p);
-        rf.setOut(fileServiceBean.getEncrypter(p));
+        rf.setOut(crypterProvider.getEncrypter(p));
         return rf.getRemote();
     }
 
@@ -96,7 +96,7 @@ public class SecureFileSystemBean implements SecureFileSystemItf {
         Path p = resolvePath(path);
         SecureFileBean rf = beanProvider.getFileBean();
         rf.setPath(p);
-        rf.setIn(fileServiceBean.getDecrypter(p));
+        rf.setIn(crypterProvider.getDecrypter(p));
         return rf.getRemote();
     }
 

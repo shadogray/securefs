@@ -25,7 +25,9 @@ public class UiShare implements Serializable {
 	}
 
 	public void setIndex(int index) {
-		this.index = index;
+		if (index > 0) {
+			this.index = index;
+		}
 	}
 
 	public String getShare() {
@@ -33,6 +35,8 @@ public class UiShare implements Serializable {
 	}
 
 	public void setShare(String share) {
-		this.share = share;
+		if (share != null && share.length() > 0) {
+			this.share = share;
+		}
 	}
 }

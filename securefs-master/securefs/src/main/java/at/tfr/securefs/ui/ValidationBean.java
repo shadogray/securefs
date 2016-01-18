@@ -13,43 +13,53 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
+import javax.ejb.Singleton;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.model.DataModel;
 import javax.faces.model.ListDataModel;
-import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import com.tiemens.secretshare.math.BigIntUtilities;
+import org.jboss.logging.Logger;
 
 import at.tfr.securefs.Configuration;
+import at.tfr.securefs.CrypterProvider;
+import at.tfr.securefs.RevokedKeysBean;
+import at.tfr.securefs.SecretBean;
+import at.tfr.securefs.SecureFiles;
 import at.tfr.securefs.key.KeyConstants;
+import at.tfr.securefs.key.SecretKeySpecBean;
 import at.tfr.securefs.key.Shamir;
 import at.tfr.securefs.key.UiShare;
 
 @Named
-@ViewScoped
+@Singleton
 public class ValidationBean implements Serializable {
 
-	@Inject
-	private Configuration configuration;
+	Logger log = Logger.getLogger(getClass());
+	
 	private BigInteger modulus;
 	private int threshold;
 	private int nrOfShares;
 	private List<UiShare> shares = new ArrayList<>();
 	private BigInteger secret;
 	private static Map<String, BigInteger> moduli = KeyConstants.moduli;
+	private boolean combined;
+	private boolean validated;
 
-	public String combine() {
+	private SecretBean secretBean;
+	private Configuration configuration;
+	private RevokedKeysBean revokedKeysBean;
 
-		try {
-			secret = new Shamir().combine(nrOfShares, threshold, modulus, shares);
-		} catch (Exception e) {
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(e.getMessage()));
-		}
+	public ValidationBean() {
+	}
 
-		return "";
+	@Inject
+	public ValidationBean(Configuration configuration, SecretBean secretBean, RevokedKeysBean revokedKeysBean) {
+		this.configuration = configuration;
+		this.secretBean = secretBean;
+		this.revokedKeysBean = revokedKeysBean;
 	}
 
 	@PostConstruct
@@ -60,19 +70,65 @@ public class ValidationBean implements Serializable {
 		shares.addAll(KeyConstants.sharesForTest);
 	}
 
-	public String activate() {
-		configuration.setSecret(secret);
+	public String reset() {
+		shares.clear();
+		secret = null;
+		combined = false;
+		validated = false;
+		return "";
+	}
+	
+	public String combine() {
+		combined = false;
+		validated = false;
+		try {
+			List<String> revokedKeys = revokedKeysBean.getRevokedKeys();
+			if (revokedKeys != null && !revokedKeys.isEmpty()) {
+				for (UiShare share : shares) {
+					if (revokedKeys.contains(""+share.getShare())) {
+						throw new Exception("Invalid Use of RevokedKey: " + share.getShare());
+					}
+				}
+			}
+			secret = new Shamir().combine(nrOfShares, threshold, modulus, shares);
+			combined = true;
+		} catch (Exception e) {
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(), null));
+		}
 		return "";
 	}
 
-	public BigInteger getSecret() {
-		return secret;
+	public String validate() {
+		validated = false;
+		try {
+			// initialize test beans
+			SecretBean sb = new SecretBean(configuration, null);
+			SecretKeySpecBean sskb = new SecretKeySpecBean(configuration, sb);
+			CrypterProvider cp = new CrypterProvider(sskb);
+			SecureFiles sf = new SecureFiles(cp);
+			RevokedKeysBean rkb = new RevokedKeysBean(sf, configuration);
+			// execute
+			sb.setSecret(secret);
+			List<String> keys = rkb.readAndValidate();
+			validated = true;
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("Read " + configuration.getRevokedKeysPath() + " successfully, lines: " + keys.size()));
+			
+		} catch (Exception e) {
+			log.error("validation failed: " + e, e);
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(), null));
+		}
+		return "";
 	}
-
-	public String getSecretAsString() {
-		if (secret == null)
-			return "";
-		return BigIntUtilities.Human.createHumanString(secret);
+	
+	public String activate() {
+		try {
+			secretBean.setSecret(secret);
+			reset();
+		} catch (Exception e) {
+			log.error("activation failed: " + e, e);
+			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(), null));
+		}
+		return "";
 	}
 
 	public BigInteger getModulus() {
@@ -126,5 +182,27 @@ public class ValidationBean implements Serializable {
 	public BigInteger convertModulus(String key) {
 		return moduli.get(key);
 	}
+
+	public boolean isCombined() {
+		return combined;
+	}
+
+	public void setCombined(boolean combined) {
+		this.combined = combined;
+	}
+
+	public boolean isValidated() {
+		return validated;
+	}
+
+	public void setValidated(boolean validated) {
+		this.validated = validated;
+	}
+
+	public boolean isActivated() {
+		return secretBean.hasSecret();
+	}
+
+	// String SecretAsString: BigIntUtilities.Human.createHumanString(secret);
 
 }

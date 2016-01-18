@@ -25,6 +25,7 @@ import javax.crypto.CipherOutputStream;
 import org.apache.commons.io.IOUtils;
 
 import at.tfr.securefs.Configuration;
+import at.tfr.securefs.SecretBean;
 import at.tfr.securefs.key.KeyConstants;
 import at.tfr.securefs.key.SecretKeySpecBean;
 import at.tfr.securefs.key.Shamir;
@@ -41,6 +42,7 @@ public class Main {
 	protected BigInteger secret;
 	protected List<UiShare> shares;
 	protected Configuration configuration = new Configuration();
+	protected SecretBean secretBean = new SecretBean(configuration, null);
 	protected SecretKeySpecBean sksBean = new SecretKeySpecBean();
 	protected Path basePath;
 
@@ -67,7 +69,7 @@ public class Main {
 
 		secret = new Shamir().combine(nrOfShares, threshold, modulus, shares);
 		sksBean.setConfiguration(configuration);
-		configuration.setSecret(secret);
+		secretBean.setSecret(secret);
 		Path filePath = basePath.resolve(file);
 
 		cipher = sksBean.getCipher(configuration.getSalt(), mode);

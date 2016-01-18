@@ -1,4 +1,5 @@
-
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
 <h:body xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core">
 	<h:messages />
 	<h:form>
@@ -12,12 +13,20 @@
 			<h:inputText value="#{validationBean.nrOfShares}" converter="javax.faces.Integer" />
 			<h:outputLabel value="Threshold" />
 			<h:inputText value="#{validationBean.threshold}" converter="javax.faces.Integer" />
-			<h:outputLabel value="Key" />
-			<h:inputText value="#{validationBean.secret}" readonly="true" />
-			<h:outputLabel value="KeyAsString" />
-			<h:inputText value="#{validationBean.secretAsString}" readonly="true" />
-			<h:commandButton action="#{validationBean.combine()}" value="Validate" />
-			<h:commandButton action="#{validationBean.activate()}" value="Activate" />
+
+			<h:outputLabel value="Status:" />
+			<h:outputText value="#{validationBean.activated ? 'Key Activated' : 'No Key'}" />
+			
+			<h:outputLabel value="0) Reset:" />
+			<h:commandButton action="#{validationBean.reset()}" value="Reset" />
+			<h:outputLabel value="1) Combine Keys:" />
+			<h:commandButton action="#{validationBean.combine()}" value="Combine" />
+			<h:outputLabel value="2) Validate Secret:" />
+			<h:commandButton action="#{validationBean.validate()}" value="#{validationBean.combined ? 'Validate' : 'disabled'}" disabled="#{!validationBean.combined}"/>
+			<h:outputLabel value="3) Activate Secret:" />
+			<h:commandButton action="#{validationBean.activate()}" value="#{validationBean.validated ? 'Activate' : 'disabled'}" disabled="#{!validationBean.combined || !validationBean.validated}"/>
+			<h:outputLabel value="3a) Activate New Secret:" />
+			<h:commandButton action="#{validationBean.activate()}" value="#{validationBean.combined ? 'ActivateNewSecret' : 'disabled'}" disabled="#{!validationBean.combined}" onclick="return confirm('Do you want to activate a new Secret?')"/>
 		</h:panelGrid>
 		<h:dataTable value="#{validationBean.dataModel}" var="s">
 			<h:column>
@@ -26,7 +35,11 @@
 			</h:column>
 			<h:column>
 				<f:facet name="header">Share</f:facet>
-				<h:inputText value="#{s.share}" />
+				<h:inputText value="#{s.share}" converter="javax.faces.BigInteger"/>
+			</h:column>
+			<h:column>
+				<f:facet name="header">Submit</f:facet>
+				<h:commandButton action="#{validationBean.combine()}" value="Combine" />
 			</h:column>
 		</h:dataTable>
 	</h:form>

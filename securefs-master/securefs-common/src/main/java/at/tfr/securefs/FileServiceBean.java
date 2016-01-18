@@ -39,21 +39,23 @@ public class FileServiceBean implements FileService {
     @Inject
     private Configuration configuration;
     @Inject
-    private SecretKeySpecBean sskBean;
+    private CrypterProvider crypterProvider;
 
     @MTOM(enabled = true, threshold = 10240)
     @WebMethod
     @Override
     public void write(@WebParam(name = "relativePath") String relPath, @WebParam(name = "bytes") byte[] b) throws IOException {
         Path path = SecureFileSystemBean.resolvePath(configuration.getBasePath(), relPath);
+        log.debug("write File: " + relPath + " to " + path);
         Path parent = path.getParent();
         Files.createDirectories(parent); // create parent directories unconditionally
-        OutputStream encrypter = getEncrypter(path);
+        OutputStream encrypter = crypterProvider.getEncrypter(path);
         try {
             IOUtils.copy(new ByteArrayInputStream(b), encrypter);
         } finally {
             encrypter.close();
         }
+        log.info("written File: " + path);
     }
 
     @MTOM(enabled = true, threshold = 10240)
@@ -63,35 +65,32 @@ public class FileServiceBean implements FileService {
     public byte[] read(@WebParam(name = "relativePath") String relPath) throws IOException {
 
         Path path = configuration.getBasePath().resolve(relPath);
-        InputStream decrypter = getDecrypter(path);
+        log.debug("read File: " + relPath + " from " + path);
+        InputStream decrypter = crypterProvider.getDecrypter(path);
         try {
             return IOUtils.toByteArray(decrypter);
         } finally {
             decrypter.close();
+            log.info("read File: " + path);
         }
     }
 
-    @WebMethod(exclude = true)
-    public OutputStream getEncrypter(Path path) throws IOException {
-        try {
-            Cipher cipher = sskBean.getCipher(path.getFileName().toString(), Cipher.ENCRYPT_MODE);
-            return new CipherOutputStream(Files.newOutputStream(path, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING),
-                    cipher);
-        } catch (Exception e) {
-        	log.warn("cannot get Encrypter: "+e);
-            throw new IOException("cannot encrypt path " + path + " : " + e, e);
-        }
+    /**
+     * Delete file if it exists.
+     * @param relPath
+     * @return
+     * @throws IOException
+     * @see Files#deleteIfExists(java.nio.file.Path) 
+     */
+    @WebMethod
+    @Override
+    public boolean delete(String relPath) throws IOException {
+        Path path = configuration.getBasePath().resolve(relPath);
+        log.debug("delete File: " + relPath + " as " + path);
+        boolean deleted = Files.deleteIfExists(path);
+        log.info("deleted File: " + path + " : " + deleted);
+		return deleted;
     }
 
-    @WebMethod(exclude = true)
-    public InputStream getDecrypter(Path path) throws IOException {
-        try {
-            Cipher cipher = sskBean.getCipher(path.getFileName().toString(), Cipher.DECRYPT_MODE);
-            return new CipherInputStream(Files.newInputStream(path, StandardOpenOption.READ), cipher);
-        } catch (Exception e) {
-        	log.warn("cannot get Decrypter: "+e);
-            throw new IOException("cannot read path " + path + " : " + e, e);
-        }
-    }
 
 }

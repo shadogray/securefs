@@ -8,17 +8,22 @@ package at.tfr.securefs;
 
 import java.io.InputStream;
 import java.math.BigInteger;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.Provider;
 import java.security.Provider.Service;
 import java.security.Security;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.context.ApplicationScoped;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
+import javax.inject.Inject;
 
 import org.apache.commons.lang.StringUtils;
 import org.jboss.logging.Logger;
@@ -26,16 +31,23 @@ import org.jboss.logging.Logger;
 import at.tfr.securefs.key.KeyConstants;
 import at.tfr.securefs.key.Shamir;
 import at.tfr.securefs.key.UiShare;
-import java.net.URL;
-import java.util.Set;
 
-@ApplicationScoped
+@Startup
+@Singleton
 public class Configuration {
 
-    private Logger log = Logger.getLogger(getClass());
+	private Logger log = Logger.getLogger(getClass());
+
+	private static final String BASE_PATH = "basePath";
+	private static final String TEST = "test";
+	private static final String PADDING_CIPHER_ALGORITHM = "paddingCipherAlgorithm";
+	private static final String CIPHER_ALGORITHM = "cipherAlgorithm";
+	private static final String KEY_ALGORITHM = "keyAlgorithm";
+	private static final String REVOKED_KEYS = "RevokedKeys";
     public static final String SECUREFS_SERVER_PROPERTIES = "securefs-server.properties";
     public static final String SECUREFS_SERVER_PFX = "securefs.server.";
     private Path basePath;
+    private Path revokedKeysPath;
     private String keyAlgorithm = "AES";
     private String cipherAlgorithm = "AES/CBC/PKCS5Padding";
     private String paddingCipherAlgorithm = "AES/CBC/PKCS5Padding";
@@ -43,7 +55,6 @@ public class Configuration {
     private int keyStrength = 128;
     private boolean test = true;
     private String salt = "saltsaltsaltsalt";
-    private BigInteger secret;
 
     @PostConstruct
     private void init() {
@@ -80,24 +91,26 @@ public class Configuration {
             log.warn("failure to read Properties: ", e);
         }
 
-        keyAlgorithm = secProps.getProperty(SECUREFS_SERVER_PFX + "keyAlgorithm", keyAlgorithm);
+        keyAlgorithm = secProps.getProperty(SECUREFS_SERVER_PFX + KEY_ALGORITHM, keyAlgorithm);
         log.info("KeyAlgorithm = " + keyAlgorithm);
-        cipherAlgorithm = secProps.getProperty(SECUREFS_SERVER_PFX + "cipherAlgorithm", cipherAlgorithm);
+        cipherAlgorithm = secProps.getProperty(SECUREFS_SERVER_PFX + CIPHER_ALGORITHM, cipherAlgorithm);
         log.info("CipherAlgorithm = " + cipherAlgorithm);
-        paddingCipherAlgorithm = secProps.getProperty(SECUREFS_SERVER_PFX + "paddingCipherAlgorithm", paddingCipherAlgorithm);
+        paddingCipherAlgorithm = secProps.getProperty(SECUREFS_SERVER_PFX + PADDING_CIPHER_ALGORITHM, paddingCipherAlgorithm);
         log.info("PaddingCipherAlgorithm = " + paddingCipherAlgorithm);
         salt = secProps.getProperty(SECUREFS_SERVER_PFX + "salt", salt);
         log.info("Salt = " + salt);
-        test = Boolean.parseBoolean(secProps.getProperty(SECUREFS_SERVER_PFX + "test", "" + test));
+        test = Boolean.parseBoolean(secProps.getProperty(SECUREFS_SERVER_PFX + TEST, "" + test));
         log.info("Test = " + test);
 
         try {
-            if (StringUtils.isNotBlank(secProps.getProperty(SECUREFS_SERVER_PFX + "basePath"))) {
-                basePath = Paths.get(secProps.getProperty(SECUREFS_SERVER_PFX + "basePath"));
+            if (StringUtils.isNotBlank(secProps.getProperty(SECUREFS_SERVER_PFX + BASE_PATH))) {
+                basePath = Paths.get(secProps.getProperty(SECUREFS_SERVER_PFX + BASE_PATH));
             } else {
                 basePath = Files.createTempDirectory("securefs");
             }
             log.info("BasePath = " + basePath);
+            revokedKeysPath = basePath.resolve(REVOKED_KEYS);
+       
         } catch (Exception e) {
             log.warn("cannot open basePath", e);
         }
@@ -111,21 +124,10 @@ public class Configuration {
         this.basePath = basePath;
     }
 
-    public BigInteger getSecret() {
-        if (secret == null && test) {
-            int nrOfShares = KeyConstants.nrOfSharesForTest;
-            int threshold = KeyConstants.thresholdForTest;
-            BigInteger modulus = KeyConstants.modulusForTest;
-            List<UiShare> shares = KeyConstants.sharesForTest;
-            secret = new Shamir().combine(nrOfShares, threshold, modulus, shares);
-        }
-        return secret;
-    }
-
-    public void setSecret(BigInteger secret) {
-        this.secret = secret;
-    }
-
+    public Path getRevokedKeysPath() {
+		return revokedKeysPath;
+	}
+    
     public int getIterationCount() {
         return iterationCount;
     }
@@ -181,4 +183,7 @@ public class Configuration {
         return path.getFileName().toString();
     }
 
+    public boolean isTest() {
+		return test;
+	}
 }

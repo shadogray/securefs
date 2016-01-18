@@ -25,21 +25,23 @@ import javax.faces.bean.ApplicationScoped;
 import javax.inject.Inject;
 
 import at.tfr.securefs.Configuration;
+import at.tfr.securefs.SecretBean;
 
 @ApplicationScoped
 public class SecretKeySpecBean {
 
 	private int INIT_VECTOR_BYTE = 0xEF;
 	private IvParameterSpec ivSpec;
-	private SecretKeySpec secretKeySpec;
+	private SecretBean secretBean;
 	private Configuration configuration;
 
 	public SecretKeySpecBean() {
 	}
 
 	@Inject
-	public SecretKeySpecBean(Configuration configuration) {
+	public SecretKeySpecBean(Configuration configuration, SecretBean secretBean) {
 		this.configuration = configuration;
+		this.secretBean = secretBean;
 	}
 
 	public Cipher getCipher(String salt, int mode) throws UnsupportedEncodingException, NoSuchAlgorithmException,
@@ -50,7 +52,7 @@ public class SecretKeySpecBean {
 		}
 
 		SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-		KeySpec spec = new PBEKeySpec(configuration.getSecret().toString(16).toCharArray(), salt.getBytes("UTF8"),
+		KeySpec spec = new PBEKeySpec(secretBean.getSecret().toString(16).toCharArray(), salt.getBytes("UTF8"),
 				configuration.getIterationCount(), configuration.getKeyStrength());
 
 		SecretKey secretKey = factory.generateSecret(spec);
