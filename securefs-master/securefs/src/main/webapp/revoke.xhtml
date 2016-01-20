@@ -1,8 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<h:html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:fn="http://java.sun.com/jsp/jstl/functions"
 	xmlns:f="http://java.sun.com/jsf/core">
+<h2>Revoke Share</h2>
 <h:form>
+	<h:messages errorClass="bg-danger" warnClass="bg-warning" infoClass="bg-success"/>
 	<h:panelGrid columns="2">
 		<h:outputLabel value="Share:" />
 		<h:inputText styleClass="form-control" value="#{revokeBean.key}" converter="javax.faces.BigInteger" />
@@ -17,4 +20,4 @@
 		<h:outputText value="#{s}" />
 	</h:column>
 </h:dataTable>
-</h:html>
+</html>

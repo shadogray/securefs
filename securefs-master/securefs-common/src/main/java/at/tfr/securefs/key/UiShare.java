@@ -11,6 +11,7 @@ import java.io.Serializable;
 public class UiShare implements Serializable {
 	int index;
 	String share;
+	String realShare;
 
 	public UiShare() {
 	}
@@ -20,6 +21,10 @@ public class UiShare implements Serializable {
 		this.share = share;
 	}
 
+	public UiShare copy() {
+		return new UiShare(index, share);
+	}
+	
 	public int getIndex() {
 		return index;
 	}
@@ -38,5 +43,50 @@ public class UiShare implements Serializable {
 		if (share != null && share.length() > 0) {
 			this.share = share;
 		}
+	}
+	
+	public UiShare index(int index) {
+		setIndex(index);
+		return this;
+	}
+	
+	public UiShare share(String share) {
+		setShare(share);
+		return this;
+	}
+
+	public String getRealShare() {
+		return realShare;
+	}
+
+	private void setRealShare(String realShare) {
+		this.realShare = realShare;
+	}
+	
+	public void toReal() {
+		this.realShare = this.share;
+	}
+	
+	public boolean isValid() {
+		if (realShare != null) {
+			return index > 0;
+		}
+		return true;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof UiShare && share != null) {
+			UiShare o = (UiShare)obj;
+			return index == o.index && share.equals(o.share);
+		}
+		return super.equals(obj);
+	}
+	
+	@Override
+	public int hashCode() {
+		if (share != null) 
+			return index + share.hashCode();
+		return super.hashCode();
 	}
 }

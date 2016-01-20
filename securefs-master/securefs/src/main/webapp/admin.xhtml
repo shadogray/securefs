@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+<h:html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
 	xmlns:ui="http://java.sun.com/jsf/facelets">
 <h:head>
 	<meta charset="utf-8" />
@@ -60,12 +60,19 @@
 	</div>
 
 	<div class="container">
+		<h:messages errorClass="has-error" warnClass="has-warning" />
+	</div>
+
+	<div class="container">
 		<div class="row">
 			<div class="col-md-4">
-				<ui:include src="validate.xhtml" />
+				<ui:include src="generate.xhtml" />
 			</div>
 			<div class="col-md-4">
-				<h:button outcome="admin" value="Administration"/>
+				<ui:include src="activateNew.xhtml" />
+			</div>
+			<div class="col-md-4">
+				<ui:include src="revoke.xhtml" />
 			</div>
 		</div>
 	</div>
@@ -77,4 +84,4 @@
 	<!-- Placed at the end of the document so the pages load faster -->
 	<h:outputScript library="js" name="jquery.min.js" />
 </h:body>
-</html>
+</h:html>

@@ -1,20 +1,26 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<h:html xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core">
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core">
+<h2>Generate New Shares</h2>
 <h:form>
+	<h:messages errorClass="bg-danger" warnClass="bg-warning" infoClass="bg-success"/>
 	<h:panelGrid styleClass="table-hover" columns="2">
-		<h:outputLabel value="Key:" />
+		<h:outputLabel value="Key: " />
 		<h:inputText styleClass="form-control" value="#{shamirBean.key}" required="true" />
 
-		<h:outputLabel value="NrOfShares:" />
+		<h:outputLabel value="Modulus: " />
+		<h:selectOneMenu value="#{validationBean.modulus}">
+			<f:selectItem />
+			<f:selectItems value="#{validationBean.moduli}" var="m" itemLabel="#{m.key}" itemValue="#{m.value}" />
+		</h:selectOneMenu>
+
+		<h:outputLabel value="NrOfShares: " />
 		<h:inputText styleClass="form-control" value="#{shamirBean.nrOfShares}" converter="javax.faces.BigInteger"
 			required="true" />
 
-		<h:outputLabel value="Threshold:" />
+		<h:outputLabel value="Threshold: " />
 		<h:inputText styleClass="form-control" value="#{shamirBean.threshold}" converter="javax.faces.BigInteger"
 			required="true" />
-
-		<h:outputLabel value="Modulus:" />
-		<h:inputTextarea styleClass="form-control" value="#{shamirBean.modulus}" readonly="true" />
 
 		<h:outputLabel value="" />
 		<h:commandButton styleClass="form-control" action="#{shamirBean.generate()}" value="Generate" />
@@ -31,4 +37,4 @@
 		<h:outputText value="#{s.share}" readonly="true" />
 	</h:column>
 </h:dataTable>
-</h:html>
+</html>

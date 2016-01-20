@@ -1,45 +1,92 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html>
-<h:html xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core">
-	<h:form >
-		<h:panelGrid columns="2" styleClass="table-hover">
-			<h:outputLabel value="Modulus" />
-			<h:selectOneListbox value="#{validationBean.modulus}" size="1" required="true">
-				<f:selectItem noSelectionOption="true" />
-				<f:selectItems value="#{validationBean.moduli}" var="m" itemLabel="#{m.key}" itemValue="#{m.value}" />
-			</h:selectOneListbox>
-			<h:outputLabel value="NrOfShares" />
-			<h:inputText styleClass="form-control" value="#{validationBean.nrOfShares}" converter="javax.faces.Integer" />
-			<h:outputLabel value="Threshold" />
-			<h:inputText styleClass="form-control" value="#{validationBean.threshold}" converter="javax.faces.Integer" />
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j">
 
-			<h:outputLabel value="Status:" />
-			<h:outputText value="#{validationBean.activated ? 'Key Activated' : 'No Key'}" />
-			
-			<h:outputLabel value="0) Reset:" />
-			<h:commandButton styleClass="form-control" action="#{validationBean.reset()}" value="Reset" />
-			<h:outputLabel value="1) Combine Keys:" />
-			<h:commandButton styleClass="form-control" action="#{validationBean.combine()}" value="Combine" />
-			<h:outputLabel value="2) Validate Secret:" />
-			<h:commandButton styleClass="form-control" action="#{validationBean.validate()}" value="#{validationBean.combined ? 'Validate' : 'disabled'}" disabled="#{!validationBean.combined}"/>
-			<h:outputLabel value="3) Activate Secret:" />
-			<h:commandButton styleClass="form-control" action="#{validationBean.activate()}" value="#{validationBean.validated ? 'Activate' : 'disabled'}" disabled="#{!validationBean.combined || !validationBean.validated}"/>
-			<h:outputLabel value="3a) Activate New Secret:" />
-			<h:commandButton styleClass="form-control" action="#{validationBean.activate()}" value="#{validationBean.combined ? 'ActivateNewSecret' : 'disabled'}" disabled="#{!validationBean.combined}" onclick="return confirm('Do you want to activate a new Secret?')"/>
+<h2>Validate and Activate Key</h2>
+<h:form id="validateForm">
+	<h:messages errorClass="bg-danger" warnClass="bg-warning" infoClass="bg-success"/>
+	<h:panelGrid columns="3" styleClass="table-hover">
+		<h:outputLabel value="Modulus" />
+		<h:selectOneListbox value="#{validationBean.modulus}" size="1" required="true">
+			<f:selectItem noSelectionOption="true" />
+			<f:selectItems value="#{validationBean.moduli}" var="m" itemLabel="#{m.key}" itemValue="#{m.value}" />
+		</h:selectOneListbox>
+		<h:outputText value="" />
+		
+		<h:outputLabel value="NrOfShares" />
+		<h:inputText styleClass="form-control" value="#{validationBean.nrOfShares}" converter="javax.faces.Integer" />
+		<h:outputText value="" />
+		<h:outputLabel value="Threshold" />
+		<h:inputText styleClass="form-control" value="#{validationBean.threshold}" converter="javax.faces.Integer" />
+		<h:outputText value="" />
+
+		<h:outputLabel value="Status:" />
+		<h:outputText value="#{validationBean.activated ? 'Key Activated' : 'No Key'}" />
+		<h:outputText value="" />
+
+		<h:outputLabel value="0) Reset:" />
+		<h:commandButton id="reset" styleClass="form-control" action="#{validationBean.reset()}" value="Reset" />
+		<h:message for="reset"/>
+
+		<h:outputLabel value="1) Combine Keys:" />
+		<h:commandButton id="combine" styleClass="form-control" action="#{validationBean.combine()}" value="Combine" />
+		<h:message for="combine"/>
+
+		<h:outputLabel value="2) Validate Secret:" />
+		<h:commandButton id="validate" styleClass="form-control" action="#{validationBean.validate()}"
+			value="#{validationBean.combined ? 'Validate' : 'disabled'}" disabled="#{!validationBean.combined}" />
+		<h:message for="validate"/>
+
+		<h:outputLabel value="3) Activate Secret:" />
+		<h:commandButton id="activate" styleClass="form-control" action="#{validationBean.activate()}"
+			value="#{validationBean.validated ? 'Activate' : 'disabled'}"
+			disabled="#{!validationBean.combined || !validationBean.validated}" />
+		<h:message for="activate"/>
+	</h:panelGrid>
+	<rich:dataTable id="sharesTable" styleClass="table-bordered table-hover" value="#{validationBean.dataModel}" var="s"
+		iterationStatusVar="it">
+		<h:column>
+			<f:facet name="header">Index</f:facet>
+			<h:inputText styleClass="form-control" value="#{s.index}" disabled="#{true}"/>
+		</h:column>
+		<h:column>
+			<f:facet name="header">Share</f:facet>
+			<h:inputText styleClass="form-control #{s.valid ? '' : 'has-error'}" value="#{s.share}" disabled="#{true}" />
+		</h:column>
+		<h:column>
+			<f:facet name="header">Submit</f:facet>
+			<a4j:commandButton styleClass="no-decor" render="editSharePanel" execute="@this" value="Edit"
+				oncomplete="#{rich:component('editSharePanel')}.show()" resetValues="true" disabled="#{not empty s.share}">
+				<f:setPropertyActionListener value="#{it.index}" target="#{validationBean.editedShareIndex}" />
+				<f:setPropertyActionListener value="#{s}" target="#{validationBean.editedShare}" />
+			</a4j:commandButton>
+		</h:column>
+	</rich:dataTable>
+
+	<rich:popupPanel id="editSharePanel" domElementAttachment="parent">
+		<h:panelGrid columns="3">
+			<h:outputLabel value="Index:" />
+			<h:inputText id="sharesTableIndex" styleClass="form-control" value="#{validationBean.editedShare.index}"
+				converter="javax.faces.Integer" disabled="#{validationBean.editedShare.index != 0}">
+				<f:validateLongRange minimum="1" />
+			</h:inputText>
+			<h:message for="sharesTableIndex"/>
+
+			<h:outputLabel value="Share:" />
+			<h:inputText id="sharesTableShare" styleClass="form-control #{s.valid ? '' : 'has-error'}"
+				value="#{validationBean.editedShare.share}" converter="javax.faces.BigInteger"
+				validator="#{shareValidator.validateShare}" disabled="#{not empty validationBean.editedShare.share}" >
+				<f:validateRequired/>
+			</h:inputText>
+			<h:message for="sharesTableShare"/>
+
+			<a4j:commandButton value="Cancel" onclick="#{rich:component('editSharePanel')}.hide(); return false;" />
+			<a4j:commandButton value="Update" action="#{validationBean.updateShare()}" execute="editSharePanel" render="sharesTable"
+				oncomplete="if (#{facesContext.maximumSeverity == null}) { #{rich:component('editSharePanel')}.hide(); }">
+			</a4j:commandButton>
 		</h:panelGrid>
-		<h:dataTable styleClass="table-bordered table-hover" value="#{validationBean.dataModel}" var="s">
-			<h:column>
-				<f:facet name="header">Index</f:facet>
-				<h:inputText styleClass="form-control" value="#{s.index}" converter="javax.faces.Integer" />
-			</h:column>
-			<h:column>
-				<f:facet name="header">Share</f:facet>
-				<h:inputText styleClass="form-control" value="#{s.share}" converter="javax.faces.BigInteger"/>
-			</h:column>
-			<h:column>
-				<f:facet name="header">Submit</f:facet>
-				<h:commandButton action="#{validationBean.combine()}" value="Combine" />
-			</h:column>
-		</h:dataTable>
-	</h:form>
-</h:html>
+	</rich:popupPanel>
+
+</h:form>
+</html>

@@ -12,13 +12,14 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.faces.context.FacesContext;
 import javax.inject.Named;
 
 import com.tiemens.secretshare.engine.SecretShare;
 import com.tiemens.secretshare.engine.SecretShare.ShareInfo;
 import com.tiemens.secretshare.engine.SecretShare.SplitSecretOutput;
 import com.tiemens.secretshare.math.BigIntUtilities;
+
+import at.tfr.securefs.ui.util.UI;
 
 @Named
 @ApplicationScoped
@@ -41,11 +42,13 @@ public class ShamirBean {
         SecretShare secretShare = new SecretShare(publicInfo);
 
         secret = BigIntUtilities.Human.createBigInteger(key);
-        modulus = SecretShare.createAppropriateModulusForSecret(secret);
+        if (modulus == null) {
+        	modulus = SecretShare.createAppropriateModulusForSecret(secret);
+        }
 
         splitOutput = secretShare.split(secret, random);
 
-		return FacesContext.getCurrentInstance().getViewRoot().getViewId()+"?faces-redirect=true";
+		return UI.redirect();
 	}
 
 	public List<ShareInfo> getShares() {
