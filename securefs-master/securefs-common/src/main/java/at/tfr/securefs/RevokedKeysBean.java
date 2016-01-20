@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.enterprise.event.Observes;
@@ -25,6 +26,7 @@ import at.tfr.securefs.event.KeyChanged;
 @Named
 @Startup
 @Singleton
+@RolesAllowed({"operator", "admin"})
 public class RevokedKeysBean {
 
 	private Logger log = Logger.getLogger(getClass());
@@ -59,6 +61,7 @@ public class RevokedKeysBean {
         }
     }
 	
+	@RolesAllowed("admin")
 	public List<String> revoke(BigInteger key) throws IOException {
 		if (key != null && !revokedKeys.contains(key.toString())) {
 			revokedKeys.add(key.toString());

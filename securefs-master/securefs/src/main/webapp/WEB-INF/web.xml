@@ -7,6 +7,47 @@
 	</context-param>
 
 	<welcome-file-list>
-		<welcome-file>/faces/index.xhtml</welcome-file>
+		<welcome-file>/faces/secfs/operation.xhtml</welcome-file>
 	</welcome-file-list>
+
+	<security-role>
+		<description>Administrator</description>
+		<role-name>admin</role-name>
+	</security-role>
+	<security-role>
+		<description>Operator</description>
+		<role-name>operator</role-name>
+	</security-role>
+	<security-role>
+		<description>User</description>
+		<role-name>user</role-name>
+	</security-role>
+	<security-constraint>
+		<display-name>SecureFS-Admin</display-name>
+		<web-resource-collection>
+			<web-resource-name>admin</web-resource-name>
+			<url-pattern>/faces/admin/*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>admin</role-name>
+		</auth-constraint>
+	</security-constraint>
+	<security-constraint>
+		<web-resource-collection>
+			<web-resource-name>secfs</web-resource-name>
+			<url-pattern>/faces/secfs/*</url-pattern>
+		</web-resource-collection>
+		<auth-constraint>
+			<role-name>admin</role-name>
+			<role-name>operator</role-name>
+		</auth-constraint>
+	</security-constraint>
+	<login-config>
+		<auth-method>FORM</auth-method>
+		<form-login-config>
+			<form-login-page>/faces/login.xhtml</form-login-page>
+			<form-error-page>/faces/login.xhtml</form-error-page>
+		</form-login-config>
+	</login-config>
+
 </web-app>

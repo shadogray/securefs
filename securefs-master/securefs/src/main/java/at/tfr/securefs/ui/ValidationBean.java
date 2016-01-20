@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.security.DeclareRoles;
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.Singleton;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -39,6 +41,7 @@ import at.tfr.securefs.ui.util.UI;
 
 @Named
 @Singleton
+@RolesAllowed({"operator", "admin"})
 public class ValidationBean implements Serializable {
 
 	private static final String XXXXXXXXXXX = "xxxxxxxxxxx";
@@ -158,6 +161,7 @@ public class ValidationBean implements Serializable {
 		return keys;
 	}
 
+	@RolesAllowed("admin")
 	public String activate() {
 		try {
 			validateShares();
