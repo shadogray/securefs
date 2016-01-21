@@ -10,12 +10,15 @@ import java.nio.file.StandardOpenOption;
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
+import javax.ejb.Stateless;
 import javax.inject.Inject;
 
 import org.jboss.logging.Logger;
 
 import at.tfr.securefs.key.SecretKeySpecBean;
 
+@Stateless
+//@RolesAllowed({"admin", "operator", "user"})
 public class CrypterProvider {
 
 	private Logger log = Logger.getLogger(getClass());

@@ -6,35 +6,28 @@
  */
 package at.tfr.securefs;
 
-import at.tfr.securefs.api.FileService;
-import at.tfr.securefs.Configuration;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 
-import javax.annotation.security.RolesAllowed;
-import javax.crypto.Cipher;
-import javax.crypto.CipherInputStream;
-import javax.crypto.CipherOutputStream;
 import javax.inject.Inject;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.WebService;
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.ws.soap.MTOM;
 
 import org.apache.commons.io.IOUtils;
 import org.jboss.logging.Logger;
 
-import at.tfr.securefs.key.SecretKeySpecBean;
+import at.tfr.securefs.api.FileService;
 
 @MTOM(enabled = true)
 @WebService(serviceName = "FileService", portName = "FileServicePort")
-@RolesAllowed({"user"})
 public class FileServiceBean implements FileService {
 
 	private Logger log = Logger.getLogger(getClass());
@@ -42,8 +35,10 @@ public class FileServiceBean implements FileService {
     private Configuration configuration;
     @Inject
     private CrypterProvider crypterProvider;
+    @Inject
+    private HttpServletRequest request;
 
-    @MTOM(enabled = true, threshold = 10240)
+	@MTOM(enabled = true, threshold = 10240)
     @WebMethod
     @Override
     public void write(@WebParam(name = "relativePath") String relPath, @WebParam(name = "bytes") byte[] b) throws IOException {
@@ -57,7 +52,7 @@ public class FileServiceBean implements FileService {
         } finally {
             encrypter.close();
         }
-        log.info("written File: " + path);
+        logInfo("written File: " + path, null);
     }
 
     @MTOM(enabled = true, threshold = 10240)
@@ -73,7 +68,7 @@ public class FileServiceBean implements FileService {
             return IOUtils.toByteArray(decrypter);
         } finally {
             decrypter.close();
-            log.info("read File: " + path);
+            logInfo("read File: " + path, null);
         }
     }
 
@@ -90,9 +85,12 @@ public class FileServiceBean implements FileService {
         Path path = configuration.getBasePath().resolve(relPath);
         log.debug("delete File: " + relPath + " as " + path);
         boolean deleted = Files.deleteIfExists(path);
-        log.info("deleted File: " + path + " : " + deleted);
+        logInfo("deleted File: " + path + " : " + deleted, null);
 		return deleted;
     }
 
+    private void logInfo(String info, Throwable t) {
+    	log.info("User: "+request.getUserPrincipal()+" : "+info + (t!=null ? " : " + t.getMessage() : ""), t);
+    }
 
 }

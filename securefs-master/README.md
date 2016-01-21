@@ -15,6 +15,13 @@ This module directory structure is to be copied to your Wildfly's modules direct
 ```
 cp -r securefs-master/wildfly/at ${JBOSS_HOME}/modules/
 ```
+### Wildfly Security
+Add users and roles to Wildfly ApplicationRealm
+```
+bin/add-user.sh -a -g admin -u admin -p 'xxxxx' 
+bin/add-user.sh -a -g operator -u operator -p 'xxxxx' 
+bin/add-user.sh -a -g user -u user -p 'User08154711!' # this password is configured in jboss-ejb-client.properties
+```
 
 #### Check correct loading of properties
 See wildfly server.log on startup of the application (e.g. first access to SecureFS service):

@@ -2,6 +2,7 @@
    <deployment>
       <dependencies>
          <module name="at.tfr.securefs.configuration" optional="true"/>
+         <!-- <module name="org.jboss.resteasy.resteasy-jackson2-provider"/> -->
       </dependencies>
    </deployment>
 </jboss-deployment-structure>

@@ -23,6 +23,9 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import javax.xml.ws.BindingProvider;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -44,6 +47,8 @@ public class SecurefsFileServiceClient implements Runnable {
     private List<Path> files = new ArrayList<>();
     private boolean asyncTest = false;
     private int threads = 1;
+    private String username = "user";
+    private String password = "User08154711!";
 
 
     {
@@ -51,6 +56,8 @@ public class SecurefsFileServiceClient implements Runnable {
         options.addOption("f", true, "Files to run to/from Server, comma separated list");
         options.addOption("a", true, "Asynchronous tests, default: "+asyncTest);
         options.addOption("t", true, "Number of concurrent Threads, default: "+threads);
+        options.addOption("i", true, "Indentiy, default: "+username);
+        options.addOption("p", true, "Password, default: "+password);
     }
 
     public static void main(String[] args) throws Exception {
@@ -81,6 +88,9 @@ public class SecurefsFileServiceClient implements Runnable {
         DateTime start = new DateTime();
         try {
             FileService svc = new FileService(new URL(fileServiceUrl));
+            BindingProvider binding = (BindingProvider)svc.getFileServicePort();
+            binding.getRequestContext().put(BindingProvider.USERNAME_PROPERTY, username);
+            binding.getRequestContext().put(BindingProvider.PASSWORD_PROPERTY, password);
 
             for (Path path : files) {
 

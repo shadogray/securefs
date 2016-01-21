@@ -114,6 +114,8 @@
             <exec.threads>10</exec.threads>
             <exec.fileServiceUrl>http://localhost:8080/securefs/FileService</exec.fileServiceUrl>
             <exec.files>data/test/test.txt,data/test/test_main.txt</exec.files>
+            <exec.identity>user</exec.identity>
+            <exec.password>User08154711!</exec.password>
          </properties>
          <build>
             <plugins>
@@ -136,6 +138,10 @@
                         <argument>${exec.threads}</argument>
                         <argument>-f</argument>
                         <argument>${exec.files}</argument>
+                        <argument>-i</argument>
+                        <argument>${exec.identity}</argument>
+                        <argument>-p</argument>
+                        <argument>${exec.password}</argument>
                      </arguments>
                      <workingDirectory>${basedir}/target/classes</workingDirectory>
                   </configuration>

@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.security.RolesAllowed;
+import javax.annotation.security.RunAs;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.enterprise.event.Observes;
@@ -26,6 +27,7 @@ import at.tfr.securefs.event.KeyChanged;
 @Startup
 @Singleton
 @RolesAllowed({"operator", "admin"})
+@RunAs("admin")
 public class RevokedKeysBean {
 
 	private Logger log = Logger.getLogger(getClass());
