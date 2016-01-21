@@ -92,7 +92,8 @@ public class TestFileSystem {
     }
 
     protected static URI getTestFileSystemURI() throws URISyntaxException {
-        return new URI("sec://"+Paths.get("./").toAbsolutePath());
+    	return new URI("sec://"+Paths.get("./").toAbsolutePath().toUri().toString().replace("file://", ""));
+    	//return new URI("sec://"+Paths.get("./").toAbsolutePath());
     }
 
     @Test

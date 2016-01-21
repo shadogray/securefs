@@ -111,11 +111,17 @@ public class ValidationBean implements Serializable {
 		combined = false;
 		validated = false;
 		try {
+			List<UiShare> badShares = uiShares.stream().filter(s-> s.getIndex() <= 0 || s.getShare() == null).collect(Collectors.toList());
+			if (!badShares.isEmpty()) {
+				FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Found "+badShares.size()+" invalid Shares", null));
+				return null;
+			}
 			List<String> revokedKeys = revokedKeysBean.getRevokedKeys();
 			if (revokedKeys != null && !revokedKeys.isEmpty()) {
 				for (UiShare share : uiShares) {
 					if (revokedKeys.contains("" + share.getRealShare())) {
-						throw new Exception("Invalid Use of RevokedKey: " + share.getRealShare());
+						FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid Use of RevokedKey: " + share.getRealShare(), null));
+						return null;
 					}
 				}
 			}
@@ -125,7 +131,7 @@ public class ValidationBean implements Serializable {
 		} catch (Exception e) {
 			log.warn("Combination failed: " + e, e);
 			FacesContext.getCurrentInstance().addMessage(null,
-					new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(), null));
+					new FacesMessage(FacesMessage.SEVERITY_ERROR, "Combination failed: " + e.getMessage(), null));
 			return null;
 		}
 		return UI.redirect();

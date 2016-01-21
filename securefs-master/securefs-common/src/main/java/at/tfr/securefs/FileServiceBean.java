@@ -16,6 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
+import javax.annotation.security.RolesAllowed;
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
@@ -33,6 +34,7 @@ import at.tfr.securefs.key.SecretKeySpecBean;
 
 @MTOM(enabled = true)
 @WebService(serviceName = "FileService", portName = "FileServicePort")
+@RolesAllowed({"user"})
 public class FileServiceBean implements FileService {
 
 	private Logger log = Logger.getLogger(getClass());

@@ -9,20 +9,22 @@ package at.tfr.securefs;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.LocalBean;
 import javax.ejb.Remote;
 import javax.ejb.Remove;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateful;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
 import javax.imageio.IIOException;
+import javax.persistence.PostLoad;
 
 import org.jboss.annotation.ejb.cache.simple.CacheConfig;
 import org.jboss.logging.Logger;
@@ -38,19 +40,20 @@ import at.tfr.securefs.api.SecureRemoteFile;
 @LocalBean
 @Remote(SecureRemoteFile.class)
 @CacheConfig(idleTimeoutSeconds = 15, removalTimeoutSeconds = 5, maxSize = 10000)
-@TransactionManagement(TransactionManagementType.BEAN)
-public class SecureFileBean implements SecureRemoteFile {
+@RolesAllowed("user")
+public class SecureFileBean implements SecureRemoteFile, Serializable {
 
     private Logger log = Logger.getLogger(getClass());
     @Resource
-    private SessionContext context;
-    private InputStream in;
-    private OutputStream out;
-    private Path path;
+    private SessionContext ctx;
+    private transient InputStream in;
+    private transient OutputStream out;
+    private String pathName;
+    private transient Path path;
 
     @PostConstruct
     public void init() {
-        log.debug("created ctx=" + context);
+        log.debug("created ctx=" + ctx);
     }
 
     @Override
@@ -117,13 +120,13 @@ public class SecureFileBean implements SecureRemoteFile {
     @PreDestroy
     public void close() {
         if (isOpen()) {
-            log.info("close: " + path + " ctx=" + context);
+            logInfo("close: " + path + " ctx=" + ctx, null);
         }
         if (in != null) {
             try {
                 in.close();
             } catch (Throwable t) {
-                log.info("cannot close IN correctly: " + path + " : " + t, t);
+                logInfo("cannot close IN correctly: " + path + " : " + t, t);
                 in = null;
             }
         }
@@ -132,11 +135,11 @@ public class SecureFileBean implements SecureRemoteFile {
                 out.close();
                 out = null;
             } catch (Throwable t) {
-                log.info("cannot close OUT correctly: " + path + " : " + t, t);
+                logInfo("cannot close OUT correctly: " + path + " : " + t, t);
                 in = null;
             }
         }
-        log.debug("closed: " + path + " ctx=" + context);
+        log.debug("closed: " + path + " ctx=" + ctx);
     }
 
     public InputStream getIn() {
@@ -161,11 +164,20 @@ public class SecureFileBean implements SecureRemoteFile {
 
     public void setPath(Path path) {
         this.path = path;
-        log.debug("setPath: " + path + " ctx=" + context);
+        this.pathName = path.toString();
+        log.debug("setPath: " + path + " ctx=" + ctx);
     }
 
     public SecureRemoteFile getRemote() {
-        return context.getBusinessObject(SecureRemoteFile.class);
+        return ctx.getBusinessObject(SecureRemoteFile.class);
+    }
+    
+    @PostLoad
+    public void load() {
+    	path = Paths.get(pathName);
     }
 
+    private void logInfo(String info, Throwable t) {
+    	log.info("User: "+ctx.getCallerPrincipal()+" : "+info + (t!=null ? " : " + t.getMessage() : ""), t);
+    }
 }

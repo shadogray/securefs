@@ -43,6 +43,7 @@ public class Configuration {
 	private static final String PADDING_CIPHER_ALGORITHM = "paddingCipherAlgorithm";
 	private static final String CIPHER_ALGORITHM = "cipherAlgorithm";
 	private static final String KEY_ALGORITHM = "keyAlgorithm";
+	private static final String KEY_STRENGTH = "keyStrength";
 	private static final String REVOKED_KEYS = "RevokedKeys";
     public static final String SECUREFS_SERVER_PROPERTIES = "securefs-server.properties";
     public static final String SECUREFS_SERVER_PFX = "securefs.server.";
@@ -52,7 +53,7 @@ public class Configuration {
     private String cipherAlgorithm = "AES/CBC/PKCS5Padding";
     private String paddingCipherAlgorithm = "AES/CBC/PKCS5Padding";
     private int iterationCount = 128;
-    private int keyStrength = 128;
+    private int keyStrength = 256;
     private boolean test = true;
     private String salt = "saltsaltsaltsalt";
 
@@ -93,6 +94,8 @@ public class Configuration {
 
         keyAlgorithm = secProps.getProperty(SECUREFS_SERVER_PFX + KEY_ALGORITHM, keyAlgorithm);
         log.info("KeyAlgorithm = " + keyAlgorithm);
+        keyStrength = Integer.parseInt(secProps.getProperty(SECUREFS_SERVER_PFX + KEY_STRENGTH, ""+keyStrength));
+        log.info("KeyStrength = " + keyStrength);
         cipherAlgorithm = secProps.getProperty(SECUREFS_SERVER_PFX + CIPHER_ALGORITHM, cipherAlgorithm);
         log.info("CipherAlgorithm = " + cipherAlgorithm);
         paddingCipherAlgorithm = secProps.getProperty(SECUREFS_SERVER_PFX + PADDING_CIPHER_ALGORITHM, paddingCipherAlgorithm);

@@ -41,7 +41,7 @@ public class LoginBean {
 			log.info("logged in: "+username+" roles: "+request.getUserPrincipal());
 		} catch (ServletException e) {
 			context.addMessage(null, new FacesMessage("Login failed."));
-			return "error";
+			return "/login";
 		}
 		return "/secfs/operation";
 	}

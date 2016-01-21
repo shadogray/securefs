@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j">
 <h2>Generate New Shares</h2>
-<h:form>
-	<h:messages errorClass="bg-danger" warnClass="bg-warning" infoClass="bg-success"/>
+<h:form id="generateForm">
+	<rich:focus />
+	<h:messages errorClass="bg-danger" warnClass="bg-warning" infoClass="bg-success" />
 	<h:panelGrid styleClass="table-hover" columns="2">
 		<h:outputLabel value="Key: " />
-		<h:inputText styleClass="form-control" value="#{shamirBean.key}" required="true" />
+		<h:inputText styleClass="form-control" value="#{shamirBean.key}" required="true" >
+		</h:inputText>
 
 		<h:outputLabel value="Modulus: " />
 		<h:selectOneMenu value="#{validationBean.modulus}">
@@ -16,12 +19,16 @@
 
 		<h:outputLabel value="NrOfShares: " />
 		<h:inputText styleClass="form-control" value="#{shamirBean.nrOfShares}" converter="javax.faces.BigInteger"
-			required="true" />
+			required="true" >
+		</h:inputText>
 
 		<h:outputLabel value="Threshold: " />
 		<h:inputText styleClass="form-control" value="#{shamirBean.threshold}" converter="javax.faces.BigInteger"
-			required="true" />
+			required="true">
+		</h:inputText>
 
+		<h:outputLabel value="" />
+		<h:commandButton styleClass="form-control" action="#{shamirBean.reset()}" value="Reset" immediate="true"/>
 		<h:outputLabel value="" />
 		<h:commandButton styleClass="form-control" action="#{shamirBean.generate()}" value="Generate" />
 	</h:panelGrid>

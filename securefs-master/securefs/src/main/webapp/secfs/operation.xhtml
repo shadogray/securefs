@@ -1,82 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:ui="http://java.sun.com/jsf/facelets">
-<h:head>
-	<meta charset="utf-8" />
-	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-	<meta name="description" content="SecureFS Virtual-Appliance Control" />
-	<meta name="author" content="Thomas Frühbeck" />
-
-	<title>SecureFS</title>
-
-	<!-- Bootstrap core CSS -->
-	<h:outputStylesheet library="css" name="bootstrap.min.css" />
-
-	<!-- Custom styles for this template -->
-	<h:outputStylesheet library="css" name="jumbotron.css" />
-	<h:outputStylesheet>
-	.jumbotron {
-	    padding-bottom: 8px;
-	    padding-top: 8px;
-	}	
-	</h:outputStylesheet>
-</h:head>
-
-<h:body>
-
-	<nav class="navbar navbar-inverse navbar-fixed-top">
-		<div class="container">
-			<div class="navbar-header">
-				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
-					aria-expanded="false" aria-controls="navbar">
-					<span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span
-						class="icon-bar"></span>
-				</button>
-				<a class="navbar-brand" href="#">SecureFS</a>
-			</div>
-			<div id="navbar" class="navbar-collapse collapse">
-				<h:form class="navbar-form navbar-right">
-					<h:commandLink class="btn btn-success" value="Logout" action="#{loginBean.logout()}"/>
-				</h:form>
-			</div>
-			<!--/.navbar-collapse -->
-		</div>
-	</nav>
-
-	<!-- Main jumbotron for a primary marketing message or call to action -->
-	<div class="jumbotron">
-		<div class="container">
-			<h1>SecureFS</h1>
-		</div>
-	</div>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:ui="http://java.sun.com/jsf/facelets" template="/resources/template.xhtml">
 
 	<div class="container">
-		<div class="row">
-			<div class="col-md-4">
-				<h:button outcome="/secfs/operation" value="Operation"/>
-			</div>
-			<div class="col-md-4">
-				<h:button outcome="/admin/admin" value="Administration"/>
-			</div>
-		</div>
+		<h:messages errorClass="bg-danger" warnClass="bg-warning" infoClass="bg-success"/>
 	</div>
 
-	<div class="container">
-		<div class="row">
-			<div class="col-md-4">
-				<ui:include src="validate.xhtml" />
-			</div>
-		</div>
-	</div>
-	<!-- /container -->
-
-
-	<!-- Bootstrap core JavaScript
-    ================================================== -->
-	<!-- Placed at the end of the document so the pages load faster -->
-	<h:outputScript library="js" name="jquery.min.js" />
-</h:body>
-</html>
+	<ui:define name="container1">
+		<h:panelGroup styleClass="col-md-4">
+			<p></p>
+			<ui:include src="validate.xhtml" />
+		</h:panelGroup>
+	</ui:define>
+</ui:composition>

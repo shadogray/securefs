@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j">
 <h2>Activate New Key</h2>
 <h:form>
-	<h:messages errorClass="bg-danger" warnClass="bg-warning" infoClass="bg-success"/>
+	<rich:focus />
+	<h:messages errorClass="bg-danger" warnClass="bg-warning" infoClass="bg-success" />
 	<h:panelGrid columns="2" styleClass="table-hover">
 		<h:outputLabel value="Modulus" />
 		<h:selectOneListbox value="#{validationBean.modulus}" size="1" required="true">
@@ -11,10 +13,14 @@
 			<f:selectItems value="#{validationBean.moduli}" var="m" itemLabel="#{m.key}" itemValue="#{m.value}" />
 		</h:selectOneListbox>
 		<h:outputLabel value="NrOfShares" />
-		<h:inputText styleClass="form-control" value="#{validationBean.nrOfShares}" converter="javax.faces.Integer" />
+		<h:inputText styleClass="form-control" value="#{validationBean.nrOfShares}" converter="javax.faces.Integer" >
+			<f:ajax render="@form"/>
+		</h:inputText>
 		<h:outputLabel value="Threshold" />
-		<h:inputText styleClass="form-control" value="#{validationBean.threshold}" converter="javax.faces.Integer" />
-
+		<h:inputText styleClass="form-control" value="#{validationBean.threshold}" converter="javax.faces.Integer" >
+			<f:ajax render="@form"/>
+		</h:inputText>
+		
 		<h:outputLabel value="Status:" />
 		<h:outputText value="#{validationBean.activated ? 'Key Activated' : 'No Key'}" />
 
@@ -30,11 +36,12 @@
 	<h:dataTable styleClass="table-bordered table-hover" value="#{validationBean.dataModel}" var="s">
 		<h:column>
 			<f:facet name="header">Index</f:facet>
-			<h:inputText styleClass="form-control" value="#{s.index}" converter="javax.faces.Integer" disabled="#{s.index != 0}"/>
+			<h:inputText styleClass="form-control" value="#{s.index}" converter="javax.faces.Integer" disabled="#{s.index != 0}" />
 		</h:column>
 		<h:column>
 			<f:facet name="header">Share</f:facet>
-			<h:inputText styleClass="form-control" value="#{s.share}" converter="javax.faces.BigInteger" disabled="#{not empty s.share}"/>
+			<h:inputText styleClass="form-control" value="#{s.share}" converter="javax.faces.BigInteger"
+				disabled="#{not empty s.share}" />
 		</h:column>
 		<h:column>
 			<f:facet name="header">Submit</f:facet>

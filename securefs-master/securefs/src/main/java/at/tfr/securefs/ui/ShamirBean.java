@@ -33,6 +33,13 @@ public class ShamirBean {
 	private BigInteger modulus;
 	private SecureRandom random;
 
+	public String reset() {
+		secret = null;
+		modulus = null;
+		splitOutput = null;
+		return UI.redirect();
+	}
+	
 	public String generate() {
 
 		random = new SecureRandom();

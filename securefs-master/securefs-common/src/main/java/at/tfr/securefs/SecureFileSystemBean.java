@@ -7,6 +7,7 @@
 package at.tfr.securefs;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
@@ -18,11 +19,12 @@ import java.nio.file.spi.FileSystemProvider;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.Remote;
 import javax.ejb.Remove;
+import javax.ejb.SessionContext;
 import javax.ejb.Stateful;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
 import javax.inject.Inject;
 
 import org.jboss.annotation.ejb.cache.simple.CacheConfig;
@@ -38,21 +40,25 @@ import at.tfr.securefs.api.SecureRemoteFile;
 @Stateful
 @Remote(SecureFileSystemItf.class)
 @CacheConfig(idleTimeoutSeconds = 950, removalTimeoutSeconds = 900, maxSize = 1000)
-@TransactionManagement(TransactionManagementType.BEAN)
-public class SecureFileSystemBean implements SecureFileSystemItf {
+@RolesAllowed("user")
+public class SecureFileSystemBean implements SecureFileSystemItf, Serializable {
 
     private Logger log = Logger.getLogger(getClass());
+    @Resource
+    private SessionContext ctx;
     @Inject
-    private Configuration config;
+    private transient Configuration config;
     @Inject
-    private BeanProvider beanProvider;
+    private transient BeanProvider beanProvider;
     @Inject
-    private CrypterProvider crypterProvider;
-    private Path rootPath;
+    private transient CrypterProvider crypterProvider;
+    private String rootPathName;
+    private transient Path rootPath;
 
     @PostConstruct
     public void init() {
         rootPath = config.getBasePath();
+        rootPathName = rootPath.toString();
         log.debug("init: " + rootPath);
     }
 
@@ -60,7 +66,7 @@ public class SecureFileSystemBean implements SecureFileSystemItf {
     public void createDirectory(String path, FileAttribute<?>... attrs) throws IOException {
         Path p = resolvePath(path);
         Files.createDirectories(p, attrs);
-        log.info("createDirectory: " + path);
+        logInfo("createDirectory: " + path);
     }
 
     @Override
@@ -69,7 +75,7 @@ public class SecureFileSystemBean implements SecureFileSystemItf {
         if (p == null) {
             return false;
         }
-        log.info("deleteIfExists: " + p);
+        logInfo("deleteIfExists: " + p);
         return rootPath.getFileSystem().provider().deleteIfExists(p);
     }
 
@@ -116,6 +122,9 @@ public class SecureFileSystemBean implements SecureFileSystemItf {
 
     @Override
     public void setRootPath(String root) throws IOException {
+    	if (root.matches("^/\\w:/.*$")) { // for Windows
+    		root = root.replaceFirst("/", "");
+    	}
         Path p = Paths.get(root);
         if (p.isAbsolute() && !p.toFile().exists()) {
             throw new IOException("Invalid Absolute RootPath: " + root);
@@ -126,13 +135,14 @@ public class SecureFileSystemBean implements SecureFileSystemItf {
             }
         }
         rootPath = p;
-        log.info("setRootPath: " + rootPath);
+        rootPathName = rootPath.toString();
+        logInfo("setRootPath: " + rootPath);
     }
 
     @Override
     @Remove
     public void close() throws IOException {
-        log.info("Closing FileSystem: " + rootPath);
+        logInfo("Closing FileSystem: " + rootPath);
     }
 
     @Override
@@ -171,4 +181,11 @@ public class SecureFileSystemBean implements SecureFileSystemItf {
         return p;
     }
 
+    public void load() {
+    	rootPath = Paths.get(rootPathName);
+    }
+    
+    private void logInfo(String info) {
+    	log.info("User: "+ctx.getCallerPrincipal()+" : "+info);
+    }
 }

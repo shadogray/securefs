@@ -18,7 +18,6 @@ import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.commons.lang.StringUtils;
 import org.jboss.logging.Logger;
 
 import at.tfr.securefs.event.KeyChanged;
