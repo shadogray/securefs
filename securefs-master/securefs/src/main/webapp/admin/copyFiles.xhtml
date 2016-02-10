@@ -43,17 +43,23 @@
 					<h:outputText value="#{copyFilesBean.keyGenerated ? 'Key Generated' : 'No Key'}" />
 
 					<h:outputLabel value="1) Combine Shares:" />
-					<h:commandButton styleClass="form-control" action="#{copyFilesBean.combine()}" value="Combine">
+					<h:commandButton id="combine" styleClass="form-control" actionListener="#{copyFilesBean.combine()}" value="Combine">
 						<f:ajax render="@form" />
 					</h:commandButton>
 					<h:outputLabel value="2) Copy Files:" />
-					<h:commandButton styleClass="form-control" action="#{copyFilesBean.copyFiles()}"
+					<h:commandButton id="invokeCopyFiles" styleClass="form-control" actionListener="#{asyncBean.invokeCopyFiles()}"
 						value="#{copyFilesBean.combined ? 'CopyFiles' : 'disabled'}" disabled="#{!copyFilesBean.combined}"
 						onclick="return confirm('Do you want to copy files?')">
 						<f:ajax render="@form" />
 					</h:commandButton>
-					<h:outputLabel value="3) Reset:" />
-					<h:commandButton styleClass="form-control" action="#{copyFilesBean.reset()}" value="Reset">
+					<h:outputLabel value="3) Verify:" />
+					<h:commandButton id="verify" styleClass="form-control" actionListener="#{asyncBean.invokeVerify()}"
+						value="Verify">
+						<f:ajax render="@form" />
+					</h:commandButton>
+					<h:outputLabel value="4) Stop/Reset:" />
+					<h:commandButton id="resetCopyFiles" styleClass="form-control" actionListener="#{copyFilesBean.reset()}"
+						value="Reset">
 						<f:ajax render="@form" />
 					</h:commandButton>
 				</h:panelGrid>
@@ -80,13 +86,18 @@
 					</h:column>
 				</h:dataTable>
 			</h:panelGroup>
-			<h:panelGroup id="copyFilesStatus">
+			
+			<h:panelGroup id="copyFilesStatus" styleClass="col-md-12">
 				<a4j:poll render="copyFilesStatus" interval="5000" enabled="#{copyFilesBean.copyFilesData.copyActive}" />
 				<h:panelGrid columns="2">
 					<h:outputLabel value="Current CopyFrom:" />
 					<h:outputText value="#{copyFilesBean.copyFilesData.currentFromPath}" />
 					<h:outputLabel value="Current CopyTo:" />
 					<h:outputText value="#{copyFilesBean.copyFilesData.currentToPath}" />
+				</h:panelGrid>
+				<h:panelGrid columns="1">
+					<h:outputLabel value="LastError:" />
+					<h:outputText value="#{copyFilesBean.copyFilesData.lastErrorStackTrace}" />
 				</h:panelGrid>
 			</h:panelGroup>
 		</h:form>

@@ -35,6 +35,7 @@ import javax.inject.Named;
 import javax.transaction.UserTransaction;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang.StringUtils;
 import org.infinispan.Cache;
 import org.jboss.logging.Logger;
@@ -95,12 +96,13 @@ public class CopyFilesBean implements Serializable {
 		}
 	}
 
-	public String reset() {
+	public void reset() {
+		copyFilesData.setCopyActive(false);
+		copyFilesData.setLastError(null);
 		copyFilesData.getValidationData().clear();
 		newSecret = null;
 		combined = false;
 		updateCache();
-		return UI.redirect();
 	}
 
 	public void updateShare() {
@@ -111,10 +113,9 @@ public class CopyFilesBean implements Serializable {
 		}
 	}
 
-	public String updateShares() {
+	public void updateShares() {
 		copyFilesData.getValidationData().getUiShares().stream().forEach(s -> s.toReal().setShare(XXXXXXXXXXX));
 		updateCache();
-		return UI.redirect();
 	}
 
 	public String combine() {
@@ -141,8 +142,12 @@ public class CopyFilesBean implements Serializable {
 		return UI.redirect();
 	}
 
+	/**
+	 * run the copy process, has to be called by asyncBean, so no FacesContext
+	 */
 	@RolesAllowed(Role.ADMIN)
-	public String copyFiles() {
+	public void copyFiles() {
+		copyFilesData.setLastError(null);
 		try {
 
 			if (!combined) {
@@ -157,15 +162,25 @@ public class CopyFilesBean implements Serializable {
 			
 			copy(from, to);
 
-			reset();
 		} catch (Exception e) {
-			log.error("Activation failed: " + e, e);
-			UI.error(e.getMessage());
-			return null;
+			log.error("CopyFiles failed: " + e, e);
+			copyFilesData.setLastError(e);
 		}
-		return UI.redirect();
+		copyFilesData.setCopyActive(false);
 	}
 
+	public void verify() {
+		copyFilesData.setLastError(null);
+		copyFilesData.setCurrentFromPath(null);
+		try {
+			verify(Paths.get(toPathName));
+		} catch (Exception e) {
+			log.error("Verification failed: " + e, e);
+			copyFilesData.setLastError(e);
+		}
+		copyFilesData.setCopyActive(false);
+	}
+	
 	private void copy(Path from, Path to) throws IOException {
 		to = Files.createDirectories(to);
 		try (DirectoryStream<Path> paths = Files.newDirectoryStream(from)) {
@@ -183,13 +198,36 @@ public class CopyFilesBean implements Serializable {
 							InputStream is = crypterProvider.getDecrypter(path)) {
 						IOUtils.copy(is, os);
 					}
-					log.info("copied from:"+path.toAbsolutePath()+" to:"+toFile.toAbsolutePath());
+					log.info("copied from: "+path.toAbsolutePath()+" to: "+toFile.toAbsolutePath());
 				}
 				if (Files.isDirectory(path)) {
 					Path subDir = to.resolve(path.getFileName());
 					subDir = Files.createDirectories(subDir);
-					log.info("created subDir:"+subDir.toAbsolutePath());
+					log.info("created subDir: "+subDir.toAbsolutePath());
 					copy(path, subDir);
+				}
+			}
+		}
+	}
+
+	private void verify(Path root) throws IOException {
+		try (DirectoryStream<Path> paths = Files.newDirectoryStream(root)) {
+			for (Path path : paths) {
+				if (!copyFilesData.isCopyActive()) {
+					log.info("copyFiles stopped...");
+					return;
+				}
+				if (Files.isRegularFile(path)) {
+					copyFilesData.setCurrentToPath(path.toAbsolutePath().toString());
+					updateCache();
+					try (OutputStream os = new NullOutputStream();
+							InputStream is = crypterProvider.getDecrypter(path, newSecret)) {
+						IOUtils.copy(is, os);
+					}
+					log.info("verified read: "+path.toAbsolutePath());
+				}
+				if (Files.isDirectory(path)) {
+					verify(path);
 				}
 			}
 		}

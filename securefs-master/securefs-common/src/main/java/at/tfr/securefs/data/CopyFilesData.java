@@ -1,6 +1,8 @@
 package at.tfr.securefs.data;
 
+import java.io.PrintWriter;
 import java.io.Serializable;
+import java.io.StringWriter;
 
 public class CopyFilesData implements Serializable {
 
@@ -8,6 +10,7 @@ public class CopyFilesData implements Serializable {
 	private ValidationData validationData = new ValidationData();
 	private String currentFromPath;
 	private String currentToPath;
+	private Exception lastError;
 
 	public boolean isCopyActive() {
 		return copyActive;
@@ -39,5 +42,22 @@ public class CopyFilesData implements Serializable {
 
 	public void setCurrentToPath(String currentToPath) {
 		this.currentToPath = currentToPath;
+	}
+	
+	public Exception getLastError() {
+		return lastError;
+	}
+	
+	public void setLastError(Exception lastError) {
+		this.lastError = lastError;
+	}
+	
+	public String getLastErrorStackTrace() {
+		if (lastError == null) {
+			return copyActive ? "Process active.." : "Process stopped.";
+		}
+		StringWriter sw = new StringWriter();
+		lastError.printStackTrace(new PrintWriter(sw));
+		return sw.toString();
 	}
 }
