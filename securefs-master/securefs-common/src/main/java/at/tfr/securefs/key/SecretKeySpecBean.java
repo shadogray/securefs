@@ -7,6 +7,7 @@
 package at.tfr.securefs.key;
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -14,6 +15,9 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.Arrays;
 
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
+import javax.annotation.security.RunAs;
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
@@ -21,13 +25,16 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
-import javax.faces.bean.ApplicationScoped;
+import javax.ejb.Singleton;
 import javax.inject.Inject;
 
 import at.tfr.securefs.Configuration;
+import at.tfr.securefs.Role;
 import at.tfr.securefs.SecretBean;
 
-@ApplicationScoped
+@Singleton
+@PermitAll
+@RunAs(Role.ADMIN)
 public class SecretKeySpecBean {
 
 	private int INIT_VECTOR_BYTE = 0xEF;
@@ -44,15 +51,49 @@ public class SecretKeySpecBean {
 		this.secretBean = secretBean;
 	}
 
+	/**
+	 * see {@link #getCipher(String, int, BigInteger)}
+	 * @param salt
+	 * @param mode
+	 * @return
+	 * @throws UnsupportedEncodingException
+	 * @throws NoSuchAlgorithmException
+	 * @throws InvalidKeySpecException
+	 * @throws NoSuchPaddingException
+	 * @throws InvalidKeyException
+	 * @throws InvalidAlgorithmParameterException
+	 */
 	public Cipher getCipher(String salt, int mode) throws UnsupportedEncodingException, NoSuchAlgorithmException,
+	InvalidKeySpecException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {
+		return getCipher(salt, mode, null);
+	}
+	
+	/**
+	 * Provide a Cipher for de/encryption, use the provided secret, if not null. 
+	 * If secret is null, the {@link SecretBean} will provide the secret.
+	 * @param salt the salt for the Cipher, see {@link PBEKeySpec}
+	 * @param mode en/decryption mode, see {@link Cipher#init(int, java.security.Key)}
+	 * @param secret the secret
+	 * @return
+	 * @throws UnsupportedEncodingException
+	 * @throws NoSuchAlgorithmException
+	 * @throws InvalidKeySpecException
+	 * @throws NoSuchPaddingException
+	 * @throws InvalidKeyException
+	 * @throws InvalidAlgorithmParameterException
+	 */
+	public Cipher getCipher(String salt, int mode, BigInteger secret) throws UnsupportedEncodingException, NoSuchAlgorithmException,
 			InvalidKeySpecException, NoSuchPaddingException, InvalidKeyException, InvalidAlgorithmParameterException {
 
+		if (secret == null) {
+			secret = secretBean.getSecret();
+		}
 		if (salt == null) {
 			salt = configuration.getSalt();
 		}
 
 		SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-		KeySpec spec = new PBEKeySpec(secretBean.getSecret().toString(16).toCharArray(), salt.getBytes("UTF8"),
+		KeySpec spec = new PBEKeySpec(secret.toString(16).toCharArray(), salt.getBytes("UTF8"),
 				configuration.getIterationCount(), configuration.getKeyStrength());
 
 		SecretKey secretKey = factory.generateSecret(spec);

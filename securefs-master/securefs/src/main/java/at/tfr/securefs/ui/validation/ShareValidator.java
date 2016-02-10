@@ -17,7 +17,7 @@ public class ShareValidator {
 	private RevokedKeysBean revokedKeysBean;
 	
 	public void validateShare(FacesContext context, UIComponent component, Object value) throws ValidatorException {
-		if (revokedKeysBean.getRevokedKeys().contains(value.toString())) {
+		if (value != null && revokedKeysBean.getRevokedKeys() != null && revokedKeysBean.getRevokedKeys().contains(value.toString())) {
 			throw new ValidatorException(new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid Use of RevokedKey: " + value, null));
 		}
 	}

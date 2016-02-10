@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:rich="http://richfaces.org/rich"
+	xmlns:a4j="http://richfaces.org/a4j" template="admin.xhtml">
+
+	<ui:define name="content">
+		<h2>Copy Files</h2>
+		<h:form id="regionCopyFiles">
+
+			<div class="container">
+				<h:messages id="messages" errorClass="bg-danger" warnClass="bg-warning" infoClass="bg-success" />
+			</div>
+
+			<h:panelGroup styleClass="col-md-6">
+				<h:panelGrid columns="2" styleClass="table-hover">
+					<h:outputLabel value="Modulus" />
+					<h:selectOneListbox value="#{copyFilesBean.copyFilesData.validationData.modulus}" size="1" required="true">
+						<f:selectItem noSelectionOption="true" />
+						<f:selectItems value="#{copyFilesBean.moduli}" var="m" itemLabel="#{m.key}" itemValue="#{m.value}" />
+						<f:ajax />
+					</h:selectOneListbox>
+					<h:outputLabel value="NrOfShares" />
+					<h:inputText styleClass="form-control" value="#{copyFilesBean.copyFilesData.validationData.nrOfShares}"
+						converter="javax.faces.Integer">
+						<f:ajax render="@form" />
+					</h:inputText>
+					<h:outputLabel value="Threshold" />
+					<h:inputText styleClass="form-control" value="#{copyFilesBean.copyFilesData.validationData.threshold}"
+						converter="javax.faces.Integer">
+						<f:ajax render="@form" />
+					</h:inputText>
+
+					<h:outputLabel value="Source Directory" />
+					<h:inputText styleClass="form-control" value="#{copyFilesBean.fromPathName}">
+						<f:ajax render="@form" />
+					</h:inputText>
+					<h:outputLabel value="Target Directory" />
+					<h:inputText styleClass="form-control" value="#{copyFilesBean.toPathName}">
+						<f:ajax render="@form" />
+					</h:inputText>
+
+					<h:outputLabel value="Status:" />
+					<h:outputText value="#{copyFilesBean.keyGenerated ? 'Key Generated' : 'No Key'}" />
+
+					<h:outputLabel value="1) Combine Shares:" />
+					<h:commandButton styleClass="form-control" action="#{copyFilesBean.combine()}" value="Combine">
+						<f:ajax render="@form" />
+					</h:commandButton>
+					<h:outputLabel value="2) Copy Files:" />
+					<h:commandButton styleClass="form-control" action="#{copyFilesBean.copyFiles()}"
+						value="#{copyFilesBean.combined ? 'CopyFiles' : 'disabled'}" disabled="#{!copyFilesBean.combined}"
+						onclick="return confirm('Do you want to copy files?')">
+						<f:ajax render="@form" />
+					</h:commandButton>
+					<h:outputLabel value="3) Reset:" />
+					<h:commandButton styleClass="form-control" action="#{copyFilesBean.reset()}" value="Reset">
+						<f:ajax render="@form" />
+					</h:commandButton>
+				</h:panelGrid>
+			</h:panelGroup>
+
+			<h:panelGroup styleClass="col-md-6">
+				<h:dataTable id="copyFilesSharesTable" styleClass="table-bordered table-hover" value="#{copyFilesBean.dataModel}"
+					var="s">
+					<h:column>
+						<f:facet name="header">Index</f:facet>
+						<h:inputText styleClass="form-control" value="#{s.index}" converter="javax.faces.Integer"
+							disabled="#{s.index != 0}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">Share</f:facet>
+						<h:inputText styleClass="form-control" value="#{s.share}" converter="javax.faces.BigInteger"
+							disabled="#{not empty s.share}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">Submit</f:facet>
+						<h:commandButton actionListener="#{copyFilesBean.updateShares()}" value="Update">
+							<f:ajax execute="@form" render="@form" />
+						</h:commandButton>
+					</h:column>
+				</h:dataTable>
+			</h:panelGroup>
+			<h:panelGroup id="copyFilesStatus">
+				<a4j:poll render="copyFilesStatus" interval="5000" enabled="#{copyFilesBean.copyFilesData.copyActive}" />
+				<h:panelGrid columns="2">
+					<h:outputLabel value="Current CopyFrom:" />
+					<h:outputText value="#{copyFilesBean.copyFilesData.currentFromPath}" />
+					<h:outputLabel value="Current CopyTo:" />
+					<h:outputText value="#{copyFilesBean.copyFilesData.currentToPath}" />
+				</h:panelGrid>
+			</h:panelGroup>
+		</h:form>
+	</ui:define>
+</ui:composition>

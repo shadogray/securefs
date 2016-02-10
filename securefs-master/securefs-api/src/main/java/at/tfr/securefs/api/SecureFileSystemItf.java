@@ -19,34 +19,34 @@ import java.util.Set;
  */
 public interface SecureFileSystemItf {
 
-    void setRootPath(String root) throws IOException;
+	void setRootPath(String root) throws IOException;
 
-    void close() throws IOException;
+	void close();
 
-    void createDirectory(String path, FileAttribute<?>... attrs) throws IOException;
+	void createDirectory(String path, FileAttribute<?>... attrs) throws IOException;
 
-    boolean deleteIfExists(String path) throws IOException;
+	boolean deleteIfExists(String path) throws IOException;
 
-    boolean isSameFile(String path, String path2) throws IOException;
+	boolean isSameFile(String path, String path2) throws IOException;
 
-    SecureRemoteFile newOutputStream(String path, OpenOption... options) throws IOException;
+	SecureRemoteFile newOutputStream(String path, OpenOption... options) throws IOException;
 
-    SecureRemoteFile newInputStream(String path, OpenOption... options) throws IOException;
+	SecureRemoteFile newInputStream(String path, OpenOption... options) throws IOException;
 
-    String getPath(String first, String... more);
+	String getPath(String first, String... more);
 
-    String getRootPath();
+	String getRootPath();
 
-    String getSeparator();
+	String getSeparator();
 
-    boolean isOpen();
+	boolean isOpen();
 
-    boolean isReadOnly();
+	boolean isReadOnly();
 
-    WatchService newWatchService() throws IOException;
+	WatchService newWatchService() throws IOException;
 
-    FileSystemProvider provider();
+	FileSystemProvider provider();
 
-    Set<String> supportedFileAttributeViews();
+	Set<String> supportedFileAttributeViews();
 
 }

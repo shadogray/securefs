@@ -14,6 +14,8 @@ import java.util.List;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Named;
 
+import org.jboss.logging.Logger;
+
 import com.tiemens.secretshare.engine.SecretShare;
 import com.tiemens.secretshare.engine.SecretShare.ShareInfo;
 import com.tiemens.secretshare.engine.SecretShare.SplitSecretOutput;
@@ -25,6 +27,8 @@ import at.tfr.securefs.ui.util.UI;
 @ApplicationScoped
 public class ShamirBean {
 
+	private Logger log = Logger.getLogger(getClass());
+	
 	private String key;
 	private Integer nrOfShares;
 	private Integer threshold;
@@ -34,26 +38,35 @@ public class ShamirBean {
 	private SecureRandom random;
 
 	public String reset() {
+		key = null;
 		secret = null;
 		modulus = null;
 		splitOutput = null;
+		nrOfShares = 0;
+		threshold = 0;
 		return UI.redirect();
 	}
 	
 	public String generate() {
 
-		random = new SecureRandom();
-
-        SecretShare.PublicInfo publicInfo =
-                new SecretShare.PublicInfo(nrOfShares, threshold, null, key);
-        SecretShare secretShare = new SecretShare(publicInfo);
-
-        secret = BigIntUtilities.Human.createBigInteger(key);
-        if (modulus == null) {
-        	modulus = SecretShare.createAppropriateModulusForSecret(secret);
-        }
-
-        splitOutput = secretShare.split(secret, random);
+		try {
+			random = new SecureRandom();
+	
+	        SecretShare.PublicInfo publicInfo =
+	                new SecretShare.PublicInfo(nrOfShares, threshold, null, key);
+	        SecretShare secretShare = new SecretShare(publicInfo);
+	
+	        secret = BigIntUtilities.Human.createBigInteger(key);
+	        if (modulus == null) {
+	        	modulus = SecretShare.createAppropriateModulusForSecret(secret);
+	        }
+	
+	        splitOutput = secretShare.split(secret, random);
+		} catch (Exception e) {
+			log.info("generate: "+e, e);
+			UI.error(e.getMessage());
+			return "";
+		}
 
 		return UI.redirect();
 	}

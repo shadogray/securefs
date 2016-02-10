@@ -19,12 +19,14 @@ import java.nio.file.spi.FileSystemProvider;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Remote;
 import javax.ejb.Remove;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateful;
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
 import org.jboss.annotation.ejb.cache.simple.CacheConfig;
@@ -32,6 +34,8 @@ import org.jboss.logging.Logger;
 
 import at.tfr.securefs.api.SecureFileSystemItf;
 import at.tfr.securefs.api.SecureRemoteFile;
+import at.tfr.securefs.event.SecureFs;
+import at.tfr.securefs.event.SecureFs.SecfsEventType;
 
 /**
  *
@@ -40,7 +44,7 @@ import at.tfr.securefs.api.SecureRemoteFile;
 @Stateful
 @Remote(SecureFileSystemItf.class)
 @CacheConfig(idleTimeoutSeconds = 950, removalTimeoutSeconds = 900, maxSize = 1000)
-@RolesAllowed("user")
+@RolesAllowed(Role.USER)
 public class SecureFileSystemBean implements SecureFileSystemItf, Serializable {
 
     private Logger log = Logger.getLogger(getClass());
@@ -52,14 +56,17 @@ public class SecureFileSystemBean implements SecureFileSystemItf, Serializable {
     private transient BeanProvider beanProvider;
     @Inject
     private transient CrypterProvider crypterProvider;
+    @Inject
+    private Event<SecureFs> secfsEvent;
     private String rootPathName;
     private transient Path rootPath;
 
     @PostConstruct
-    public void init() {
+    private void init() {
         rootPath = config.getBasePath();
         rootPathName = rootPath.toString();
         log.debug("init: " + rootPath);
+        secfsEvent.fire(new SecureFs(rootPathName, true, SecfsEventType.construct));
     }
 
     @Override
@@ -141,8 +148,10 @@ public class SecureFileSystemBean implements SecureFileSystemItf, Serializable {
 
     @Override
     @Remove
-    public void close() throws IOException {
+    @PreDestroy
+    public void close() {
         logInfo("Closing FileSystem: " + rootPath);
+        secfsEvent.fire(new SecureFs(rootPathName, true, SecfsEventType.destroy));
     }
 
     @Override

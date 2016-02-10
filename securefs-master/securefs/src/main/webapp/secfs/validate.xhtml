@@ -7,6 +7,11 @@
 <h:form id="validateForm">
 	<rich:focus preserve="true" />
 	<h:panelGrid columns="3" styleClass="table-hover">
+
+		<h:outputLabel value="0) Reset:" />
+		<h:commandButton id="reset" styleClass="form-control" action="#{validationBean.reset()}" value="Reset" immediate="true"/>
+		<h:message for="reset" />
+
 		<h:outputLabel value="Modulus" />
 		<h:selectOneListbox value="#{validationBean.modulus}" size="1" required="true">
 			<f:selectItem noSelectionOption="true" />
@@ -29,10 +34,6 @@
 		<h:outputLabel value="Status:" />
 		<h:outputText value="#{validationBean.activated ? 'Key Activated' : 'No Key'}" />
 		<h:outputText value="" />
-
-		<h:outputLabel value="0) Reset:" />
-		<h:commandButton id="reset" styleClass="form-control" action="#{validationBean.reset()}" value="Reset" />
-		<h:message for="reset" />
 
 		<h:outputLabel value="1) Combine Keys:" />
 		<h:commandButton id="combine" styleClass="form-control" action="#{validationBean.combine()}" value="Combine" />

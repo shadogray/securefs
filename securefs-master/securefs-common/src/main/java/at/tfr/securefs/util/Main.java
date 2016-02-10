@@ -42,7 +42,7 @@ public class Main {
 	protected BigInteger secret;
 	protected List<UiShare> shares;
 	protected Configuration configuration = new Configuration();
-	protected SecretBean secretBean = new SecretBean(configuration, null);
+	protected SecretBean secretBean = new SecretBean(configuration);
 	protected SecretKeySpecBean sksBean = new SecretKeySpecBean(configuration, secretBean);
 	protected Path basePath;
 

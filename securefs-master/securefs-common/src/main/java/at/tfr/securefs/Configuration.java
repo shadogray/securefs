@@ -44,7 +44,9 @@ public class Configuration {
 	private static final String CIPHER_ALGORITHM = "cipherAlgorithm";
 	private static final String KEY_ALGORITHM = "keyAlgorithm";
 	private static final String KEY_STRENGTH = "keyStrength";
+	private static final String SALT = "salt";
 	private static final String REVOKED_KEYS = "RevokedKeys";
+	private static final String CACHE_NAME = "CacheName";
     public static final String SECUREFS_SERVER_PROPERTIES = "securefs-server.properties";
     public static final String SECUREFS_SERVER_PFX = "securefs.server.";
     private Path basePath;
@@ -52,10 +54,11 @@ public class Configuration {
     private String keyAlgorithm = "AES";
     private String cipherAlgorithm = "AES/CBC/PKCS5Padding";
     private String paddingCipherAlgorithm = "AES/CBC/PKCS5Padding";
+    private String salt = "saltsaltsaltsalt";
     private int iterationCount = 128;
     private int keyStrength = 256;
+    private String cacheName = "SecureFS";
     private boolean test = true;
-    private String salt = "saltsaltsaltsalt";
 
     @PostConstruct
     private void init() {
@@ -100,8 +103,10 @@ public class Configuration {
         log.info("CipherAlgorithm = " + cipherAlgorithm);
         paddingCipherAlgorithm = secProps.getProperty(SECUREFS_SERVER_PFX + PADDING_CIPHER_ALGORITHM, paddingCipherAlgorithm);
         log.info("PaddingCipherAlgorithm = " + paddingCipherAlgorithm);
-        salt = secProps.getProperty(SECUREFS_SERVER_PFX + "salt", salt);
+        salt = secProps.getProperty(SECUREFS_SERVER_PFX + SALT, salt);
         log.info("Salt = " + salt);
+        cacheName = secProps.getProperty(SECUREFS_SERVER_PFX + CACHE_NAME, cacheName);
+        log.info("CacheName = " + cacheName);
         test = Boolean.parseBoolean(secProps.getProperty(SECUREFS_SERVER_PFX + TEST, "" + test));
         log.info("Test = " + test);
 
@@ -185,6 +190,10 @@ public class Configuration {
         }
         return path.getFileName().toString();
     }
+    
+    public String getCacheName() {
+		return cacheName;
+	}
 
     public boolean isTest() {
 		return test;

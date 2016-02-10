@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd" version="3.1">
+	<distributable/>
 	<context-param>
 		<param-name>javax.faces.PROJECT_STAGE</param-name>
 		<param-value>Development</param-value>
@@ -13,6 +14,14 @@
 	<welcome-file-list>
 		<welcome-file>/faces/secfs/operation.xhtml</welcome-file>
 	</welcome-file-list>
+	<error-page>
+		<error-code>500</error-code>
+		<location>/faces/index.xhtml</location>
+	</error-page>
+	<error-page>
+		<exception-type>java.lang.Throwable</exception-type>
+		<location>/faces/index.xhtml</location>
+	</error-page>
 
 	<security-role>
 		<description>Administrator</description>
@@ -31,6 +40,7 @@
 		<web-resource-collection>
 			<web-resource-name>admin</web-resource-name>
 			<url-pattern>/faces/admin/*</url-pattern>
+			<url-pattern>/admin/*</url-pattern>
 		</web-resource-collection>
 		<auth-constraint>
 			<role-name>admin</role-name>
@@ -40,6 +50,7 @@
 		<web-resource-collection>
 			<web-resource-name>secfs</web-resource-name>
 			<url-pattern>/faces/secfs/*</url-pattern>
+			<url-pattern>/secfs/*</url-pattern>
 		</web-resource-collection>
 		<auth-constraint>
 			<role-name>admin</role-name>
@@ -49,8 +60,8 @@
 	<login-config>
 		<auth-method>FORM</auth-method>
 		<form-login-config>
-			<form-login-page>/faces/login.xhtml</form-login-page>
-			<form-error-page>/faces/login.xhtml</form-error-page>
+			<form-login-page>/login.xhtml</form-login-page>
+			<form-error-page>/login.xhtml</form-error-page>
 		</form-login-config>
 	</login-config>
 

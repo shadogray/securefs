@@ -46,12 +46,15 @@
 		<div class="container">
 			<h1>SecureFS</h1>
 		</div>
-		<div class="col-md-4">
-			<h:button outcome="/secfs/operation" value="Operation" styleClass="form-control" />
+		<div class="container">
+			<div class="col-md-4">
+				<h:button outcome="/secfs/operation" value="Operation" styleClass="form-control" />
+			</div>
+			<div class="col-md-4">
+				<h:button outcome="/admin/admin" value="Administration" styleClass="form-control" />
+			</div>
 		</div>
-		<div class="col-md-4">
-			<h:button outcome="/admin/admin" value="Administration" styleClass="form-control" />
-		</div>
+		<ui:insert name="subheader"/>
 	</div>
 
 	<div class="container">

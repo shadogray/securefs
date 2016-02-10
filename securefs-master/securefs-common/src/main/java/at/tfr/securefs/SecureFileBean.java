@@ -23,7 +23,9 @@ import javax.ejb.Remote;
 import javax.ejb.Remove;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateful;
+import javax.enterprise.event.Event;
 import javax.imageio.IIOException;
+import javax.inject.Inject;
 import javax.persistence.PostLoad;
 
 import org.jboss.annotation.ejb.cache.simple.CacheConfig;
@@ -31,6 +33,8 @@ import org.jboss.logging.Logger;
 
 import at.tfr.securefs.api.Buffer;
 import at.tfr.securefs.api.SecureRemoteFile;
+import at.tfr.securefs.event.SecureFs;
+import at.tfr.securefs.event.SecureFs.SecfsEventType;
 
 /**
  *
@@ -40,20 +44,23 @@ import at.tfr.securefs.api.SecureRemoteFile;
 @LocalBean
 @Remote(SecureRemoteFile.class)
 @CacheConfig(idleTimeoutSeconds = 15, removalTimeoutSeconds = 5, maxSize = 10000)
-@RolesAllowed("user")
+@RolesAllowed(Role.USER)
 public class SecureFileBean implements SecureRemoteFile, Serializable {
 
     private Logger log = Logger.getLogger(getClass());
     @Resource
     private SessionContext ctx;
+    @Inject
+    private Event<SecureFs> secfsEvent;
     private transient InputStream in;
     private transient OutputStream out;
     private String pathName;
     private transient Path path;
 
     @PostConstruct
-    public void init() {
+    private void init() {
         log.debug("created ctx=" + ctx);
+        secfsEvent.fire(new SecureFs(pathName, false, SecfsEventType.construct));
     }
 
     @Override
@@ -140,6 +147,7 @@ public class SecureFileBean implements SecureRemoteFile, Serializable {
             }
         }
         log.debug("closed: " + path + " ctx=" + ctx);
+        secfsEvent.fire(new SecureFs(pathName, false, SecfsEventType.destroy));
     }
 
     public InputStream getIn() {
@@ -166,6 +174,7 @@ public class SecureFileBean implements SecureRemoteFile, Serializable {
         this.path = path;
         this.pathName = path.toString();
         log.debug("setPath: " + path + " ctx=" + ctx);
+        secfsEvent.fire(new SecureFs(pathName, false, SecfsEventType.init));
     }
 
     public SecureRemoteFile getRemote() {

@@ -1,52 +1,74 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core"
-	xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j">
-<h2>Activate New Key</h2>
-<h:form>
-	<rich:focus />
-	<h:messages errorClass="bg-danger" warnClass="bg-warning" infoClass="bg-success" />
-	<h:panelGrid columns="2" styleClass="table-hover">
-		<h:outputLabel value="Modulus" />
-		<h:selectOneListbox value="#{validationBean.modulus}" size="1" required="true">
-			<f:selectItem noSelectionOption="true" />
-			<f:selectItems value="#{validationBean.moduli}" var="m" itemLabel="#{m.key}" itemValue="#{m.value}" />
-		</h:selectOneListbox>
-		<h:outputLabel value="NrOfShares" />
-		<h:inputText styleClass="form-control" value="#{validationBean.nrOfShares}" converter="javax.faces.Integer" >
-			<f:ajax render="@form"/>
-		</h:inputText>
-		<h:outputLabel value="Threshold" />
-		<h:inputText styleClass="form-control" value="#{validationBean.threshold}" converter="javax.faces.Integer" >
-			<f:ajax render="@form"/>
-		</h:inputText>
-		
-		<h:outputLabel value="Status:" />
-		<h:outputText value="#{validationBean.activated ? 'Key Activated' : 'No Key'}" />
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core" xmlns:rich="http://richfaces.org/rich"
+	xmlns:a4j="http://richfaces.org/a4j" template="admin.xhtml">
 
-		<h:outputLabel value="0) Reset:" />
-		<h:commandButton styleClass="form-control" action="#{validationBean.reset()}" value="Reset" />
-		<h:outputLabel value="1) Combine Shares:" />
-		<h:commandButton styleClass="form-control" action="#{validationBean.combine()}" value="Combine" />
-		<h:outputLabel value="2) Activate New Secret:" />
-		<h:commandButton styleClass="form-control" action="#{validationBean.activateNewShare()}"
-			value="#{validationBean.combined ? 'ActivateNewSecret' : 'disabled'}" disabled="#{!validationBean.combined}"
-			onclick="return confirm('Do you want to activate a new Secret?')" />
-	</h:panelGrid>
-	<h:dataTable styleClass="table-bordered table-hover" value="#{validationBean.dataModel}" var="s">
-		<h:column>
-			<f:facet name="header">Index</f:facet>
-			<h:inputText styleClass="form-control" value="#{s.index}" converter="javax.faces.Integer" disabled="#{s.index != 0}" />
-		</h:column>
-		<h:column>
-			<f:facet name="header">Share</f:facet>
-			<h:inputText styleClass="form-control" value="#{s.share}" converter="javax.faces.BigInteger"
-				disabled="#{not empty s.share}" />
-		</h:column>
-		<h:column>
-			<f:facet name="header">Submit</f:facet>
-			<h:commandButton action="#{validationBean.updateShares()}" value="Update" />
-		</h:column>
-	</h:dataTable>
-</h:form>
-</html>
+	<ui:define name="content">
+		<h2>Activate New Key</h2>
+		<h:form id="formActivateNew">
+
+			<div class="container">
+				<h:messages id="messages" errorClass="bg-danger" warnClass="bg-warning" infoClass="bg-success" />
+			</div>
+
+			<h:panelGroup styleClass="col-md-6">
+				<h:panelGrid columns="2" styleClass="table-hover">
+					<h:outputLabel value="Modulus" />
+					<h:selectOneListbox value="#{validationBean.modulus}" size="1" required="true">
+						<f:selectItem noSelectionOption="true" />
+						<f:selectItems value="#{validationBean.moduli}" var="m" itemLabel="#{m.key}" itemValue="#{m.value}" />
+						<f:ajax render="@form" />
+					</h:selectOneListbox>
+					<h:outputLabel value="NrOfShares" />
+					<h:inputText styleClass="form-control" value="#{validationBean.nrOfShares}" converter="javax.faces.Integer">
+						<f:ajax render="@form" />
+					</h:inputText>
+					<h:outputLabel value="Threshold" />
+					<h:inputText styleClass="form-control" value="#{validationBean.threshold}" converter="javax.faces.Integer">
+						<f:ajax render="@form" />
+					</h:inputText>
+
+					<h:outputLabel value="Status:" />
+					<h:outputText value="#{validationBean.activated ? 'Key Activated' : 'No Key'}" />
+
+					<h:outputLabel value="1) Combine Shares:" />
+					<h:commandButton styleClass="form-control" action="#{validationBean.combine()}" value="Combine">
+						<f:ajax render="@form" />
+					</h:commandButton>
+					<h:outputLabel value="2) Activate New Secret:" />
+					<h:commandButton styleClass="form-control" action="#{validationBean.activateNewSecret()}"
+						value="#{validationBean.combined ? 'ActivateNewSecret' : 'disabled'}" disabled="#{!validationBean.combined}"
+						onclick="return confirm('Do you want to activate a new Secret?')">
+						<f:ajax render="@form" />
+					</h:commandButton>
+					<h:outputLabel value="3) Reset:" />
+					<h:commandButton styleClass="form-control" action="#{validationBean.reset()}" value="Reset">
+						<f:ajax render="@form" />
+					</h:commandButton>
+				</h:panelGrid>
+			</h:panelGroup>
+			<h:panelGroup styleClass="col-md-6">
+
+				<h:dataTable id="sharesTable" styleClass="table-bordered table-hover" value="#{validationBean.dataModel}"
+					var="s">
+					<h:column>
+						<f:facet name="header">Index</f:facet>
+						<h:inputText styleClass="form-control" value="#{s.index}" converter="javax.faces.Integer"
+							disabled="#{s.index != 0}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">Share</f:facet>
+						<h:inputText styleClass="form-control" value="#{s.share}" converter="javax.faces.BigInteger"
+							disabled="#{not empty s.share}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">Submit</f:facet>
+						<h:commandButton actionListener="#{validationBean.updateShares()}" value="Update">
+							<f:ajax execute="@form" render="@form" />
+						</h:commandButton>
+					</h:column>
+				</h:dataTable>
+			</h:panelGroup>
+		</h:form>
+	</ui:define>
+</ui:composition>

@@ -1,28 +1,25 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html>
 <ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:ui="http://java.sun.com/jsf/facelets" template="/resources/template.xhtml">
+	xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j"
+	template="/resources/template.xhtml">
 
-	<div class="container">
-		<h:messages errorClass="bg-danger" warnClass="bg-warning" infoClass="bg-success"/>
-	</div>
+	<ui:define name="subheader">
+		<div class="col-md-12">
+			<h:panelGrid columns="4" columnClasses="col-md-3,col-md-3,col-md-3,col-md-3">
+					<h:button outcome="revoke" styleClass="form-control" value="Revoke Share" />
+					<h:button outcome="generate" styleClass="form-control" value="Generate New Key" />
+					<h:button outcome="activateNew" styleClass="form-control" value="Activate New Key" />
+					<h:button outcome="copyFiles" styleClass="form-control" value="Copy Files" />
+			</h:panelGrid>
+		</div>
+	</ui:define>
 
 	<ui:define name="container1">
-		<h:panelGroup styleClass="col-md-4">
+		<h:panelGroup styleClass="col-md-12">
 			<p></p>
-			<ui:include src="generate.xhtml" />
+			<ui:insert name="content" />
 		</h:panelGroup>
 	</ui:define>
-	<ui:define name="container2">
-		<h:panelGroup styleClass="col-md-4">
-			<p></p>
-			<ui:include src="activateNew.xhtml" />
-		</h:panelGroup>
-	</ui:define>
-	<ui:define name="container3">
-		<h:panelGroup styleClass="col-md-4">
-			<p></p>
-			<ui:include src="revoke.xhtml" />
-		</h:panelGroup>
-	</ui:define>
+
 </ui:composition>

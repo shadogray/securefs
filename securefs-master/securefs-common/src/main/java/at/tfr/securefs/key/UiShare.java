@@ -59,12 +59,15 @@ public class UiShare implements Serializable {
 		return realShare;
 	}
 
-	private void setRealShare(String realShare) {
+	@SuppressWarnings("unused")
+	private final UiShare setRealShare(String realShare) {
 		this.realShare = realShare;
+		return this;
 	}
 	
-	public void toReal() {
+	public UiShare toReal() {
 		this.realShare = this.share;
+		return this;
 	}
 	
 	public boolean isValid() {
@@ -88,5 +91,10 @@ public class UiShare implements Serializable {
 		if (share != null) 
 			return index + share.hashCode();
 		return super.hashCode();
+	}
+	
+	@Override
+	public String toString() {
+		return "UiShare[index="+index+", share="+(share != null ? share.hashCode() : null)+", real="+(realShare != null ? realShare.hashCode() : null)+"]";
 	}
 }
