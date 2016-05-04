@@ -33,13 +33,14 @@ public class RevokedKeysBean {
 	private Logger log = Logger.getLogger(getClass());
 
 	private static final String REVOKED_KEYS = "RevokedKeys";
+    private Path revokedKeysPath;
 	private List<String> revokedKeys;
     private SecureFiles secureFiles;
     private Configuration configuration;
 
     public RevokedKeysBean() {
 	}
-
+    
     @Inject
     public RevokedKeysBean(SecureFiles secureFiles, Configuration configuration) {
 		this.secureFiles = secureFiles;
@@ -48,7 +49,7 @@ public class RevokedKeysBean {
 
 	@PostConstruct
     private void init() {
-        Path revokedKeysPath = configuration.getRevokedKeysPath();
+        revokedKeysPath = configuration.getRevokedKeysPath();
         try {
 			if (Files.exists(revokedKeysPath)) {
 	        	revokedKeys = readAndValidate(revokedKeysPath, null);
@@ -80,7 +81,6 @@ public class RevokedKeysBean {
 	}
 
     public void keyChanged(@Observes KeyChanged event) throws IOException {
-        Path revokedKeysPath = configuration.getRevokedKeysPath();
         try {
         	writeAndValidate(revokedKeysPath, true);
         } catch (IOException e) {
@@ -106,7 +106,6 @@ public class RevokedKeysBean {
      * @throws IOException
      */
     public List<String> readAndValidate(BigInteger secret) throws IOException {
-        Path revokedKeysPath = configuration.getRevokedKeysPath();
         return readAndValidate(revokedKeysPath, secret);
     }
     
@@ -140,7 +139,6 @@ public class RevokedKeysBean {
 
     public void persist(boolean initialize) {
     	try {
-            Path revokedKeysPath = configuration.getRevokedKeysPath();
 	    	writeAndValidate(revokedKeysPath, initialize);
     	} catch (Exception e) {
         	log.error("Cannot persist " + REVOKED_KEYS + " : " + e, e);

@@ -26,6 +26,8 @@ import javax.ejb.Remote;
 import javax.ejb.Remove;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateful;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
@@ -45,6 +47,7 @@ import at.tfr.securefs.event.SecureFs.SecfsEventType;
 @Remote(SecureFileSystemItf.class)
 @CacheConfig(idleTimeoutSeconds = 950, removalTimeoutSeconds = 900, maxSize = 1000)
 @RolesAllowed(Role.USER)
+@TransactionManagement(TransactionManagementType.BEAN)
 public class SecureFileSystemBean implements SecureFileSystemItf, Serializable {
 
     private Logger log = Logger.getLogger(getClass());

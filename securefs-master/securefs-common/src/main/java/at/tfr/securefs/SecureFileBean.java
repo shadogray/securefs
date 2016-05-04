@@ -23,6 +23,8 @@ import javax.ejb.Remote;
 import javax.ejb.Remove;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateful;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import javax.enterprise.event.Event;
 import javax.imageio.IIOException;
 import javax.inject.Inject;
@@ -45,6 +47,7 @@ import at.tfr.securefs.event.SecureFs.SecfsEventType;
 @Remote(SecureRemoteFile.class)
 @CacheConfig(idleTimeoutSeconds = 15, removalTimeoutSeconds = 5, maxSize = 10000)
 @RolesAllowed(Role.USER)
+@TransactionManagement(TransactionManagementType.BEAN)
 public class SecureFileBean implements SecureRemoteFile, Serializable {
 
     private Logger log = Logger.getLogger(getClass());
