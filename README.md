@@ -49,10 +49,10 @@ First w/o activated tests, since some tests rely on deployed and running server
     mvn clean install -DskipTests
     cp cp securefs/target/securefs.war /work/java/wildfly-9.0.2.Final/standalone/deployments/
 
-###3. Start Widlfly
+###3. Start Widlfly Cluster Node (HA)
 
     cd /work/java/wildfly-9.0.2.Final/
-    bin/standalone.sh -c standalone.xml
+    bin/standalone.sh -c standalone-ha.xml
 
 ####3.1. Check startup of Securefs webapp
 
