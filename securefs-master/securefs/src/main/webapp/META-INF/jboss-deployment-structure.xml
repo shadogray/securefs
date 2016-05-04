@@ -3,6 +3,7 @@
 		<dependencies>
 			<module name="org.infinispan"/>
 			<module name="org.infinispan.commons"/>
+			<module name="org.infinispan.client.hotrod"/>
 			<module name="at.tfr.securefs.configuration" optional="true" />
 			<!-- <module name="org.jboss.resteasy.resteasy-jackson2-provider"/> -->
 		</dependencies>
