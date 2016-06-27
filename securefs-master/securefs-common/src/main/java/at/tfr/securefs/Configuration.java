@@ -36,9 +36,13 @@ import at.tfr.securefs.key.UiShare;
 @Singleton
 public class Configuration {
 
+	public static final String SECUREFS = "securefs";
+	public static final String SCHEMA_PATH = "/"+SECUREFS+"Schema";
+
 	private Logger log = Logger.getLogger(getClass());
 
 	private static final String BASE_PATH = "basePath";
+	private static final String TMP_PATH = "tmpPath";
 	private static final String TEST = "test";
 	private static final String PADDING_CIPHER_ALGORITHM = "paddingCipherAlgorithm";
 	private static final String CIPHER_ALGORITHM = "cipherAlgorithm";
@@ -50,6 +54,8 @@ public class Configuration {
     public static final String SECUREFS_SERVER_PROPERTIES = "securefs-server.properties";
     public static final String SECUREFS_SERVER_PFX = "securefs.server.";
     private Path basePath;
+    private Path tmpPath;
+    private Path schemaPath;
     private Path revokedKeysPath;
     private String keyAlgorithm = "AES";
     private String cipherAlgorithm = "AES/CBC/PKCS5Padding";
@@ -111,17 +117,48 @@ public class Configuration {
         log.info("Test = " + test);
 
         try {
-            if (StringUtils.isNotBlank(secProps.getProperty(SECUREFS_SERVER_PFX + BASE_PATH))) {
-                basePath = Paths.get(secProps.getProperty(SECUREFS_SERVER_PFX + BASE_PATH));
+            String basePathProp = secProps.getProperty(SECUREFS_SERVER_PFX + BASE_PATH);
+			if (StringUtils.isNotBlank(basePathProp)) {
+                basePath = Paths.get(basePathProp);
             } else {
-                basePath = Files.createTempDirectory("securefs");
+                basePath = Files.createTempDirectory(SECUREFS);
             }
             log.info("BasePath = " + basePath);
             revokedKeysPath = basePath.resolve(REVOKED_KEYS);
        
         } catch (Exception e) {
-            log.warn("cannot open basePath", e);
+            log.warn("cannot open BasePath", e);
         }
+
+        try {
+            String tmpPathProp = secProps.getProperty(SECUREFS_SERVER_PFX + TMP_PATH);
+            String jbossTmpPathProp = System.getProperty("jboss.server.temp.dir");
+			if (StringUtils.isNotBlank(tmpPathProp)) {
+                tmpPath = Paths.get(tmpPathProp);
+			} else if (StringUtils.isNotBlank(jbossTmpPathProp)) {
+				tmpPath = Files.createDirectory(Paths.get(jbossTmpPathProp, SECUREFS));
+            } else {
+                tmpPath = Files.createTempDirectory(SECUREFS);
+            }
+            log.info("TmpPath = " + tmpPath);
+       
+        } catch (Exception e) {
+            log.warn("cannot open TmpPath", e);
+        }
+
+        try {
+            URL schemaUrl = Thread.currentThread().getContextClassLoader().getResource(SCHEMA_PATH);
+			if (null != schemaUrl) {
+                schemaPath = Paths.get(schemaUrl.toURI());
+            } else {
+            	log.debug("no resource found for name: " + SCHEMA_PATH);
+                schemaPath = Paths.get("./");
+            }
+            log.info("SchemaPath = " + schemaPath);
+        } catch (Exception e) {
+            log.warn("cannot open SchemaPath", e);
+        }
+
     }
 
     public Path getBasePath() {
@@ -134,6 +171,14 @@ public class Configuration {
 
     public Path getRevokedKeysPath() {
 		return revokedKeysPath;
+	}
+    
+    public Path getTmpPath() {
+		return tmpPath;
+	}
+    
+    public Path getSchemaPath() {
+		return schemaPath;
 	}
     
     public int getIterationCount() {
