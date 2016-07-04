@@ -28,10 +28,21 @@ public class KeyConstants {
 	}
 
 	// for TEST
-
+	/**
+	 * Test: Modulus used in (integration)test setups
+	 */
 	public static final BigInteger modulusForTest = SecretShare.getPrimeUsedFor192bitSecretPayload();
+	/**
+	 * Test: Shares used in (integration) test setups: "63116732139562502", "120513004896685933", "202981094231335342"
+	 */
 	public static final List<UiShare> sharesForTest = new ArrayList<>();
+	/**
+	 * Test: Threshold used in (integration) test setups
+	 */
 	public static int thresholdForTest = 3;
+	/**
+	 * Test: Number of shares used in (integration) test setups
+	 */
 	public static int nrOfSharesForTest = 10;
 
 	static {

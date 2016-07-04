@@ -13,6 +13,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.security.RolesAllowed;
 import javax.annotation.security.RunAs;
+import javax.ejb.DependsOn;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.enterprise.event.Observes;
@@ -28,6 +29,7 @@ import at.tfr.securefs.event.KeyChanged;
 @Singleton
 @RolesAllowed({Role.OPERATOR, Role.ADMIN})
 @RunAs(Role.ADMIN)
+@DependsOn({"Configuration", "CrypterProvider"})
 public class RevokedKeysBean {
 
 	private Logger log = Logger.getLogger(getClass());

@@ -8,17 +8,13 @@ package at.tfr.securefs.event;
 
 public class SecureFs {
 
-	public enum SecfsEventType {
-		construct, init, destroy
-	};
-
 	private String path;
 	private boolean fileSystem;
 	private SecfsEventType type;
 
-	public SecureFs(String path, boolean file, SecfsEventType type) {
+	public SecureFs(String path, boolean fileSystem, SecfsEventType type) {
 		this.path = path;
-		this.fileSystem = file;
+		this.fileSystem = fileSystem;
 		this.type = type;
 	}
 

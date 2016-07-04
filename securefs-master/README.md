@@ -8,6 +8,7 @@ This module provides the server side implementation of the SecureFileSystem (see
 
 ### Configuration 
 The service is configured by the securefs-server.properties file. A default file is located in the module itself. 
+Detailed documentation of configuration see JavaDoc: at.tfr.securefs.Configuration.
 
 ### Wildfly module at.tfr.securefs.configuration
 To provide runtime configuration, a sample module is provided in the directory ./wildfly/.

@@ -7,9 +7,10 @@
 package at.tfr.securefs;
 
 public enum Role {
-	user, operator, admin;
+	user, operator, admin, $local;
 	
 	public static final String USER = "user";
 	public static final String OPERATOR = "operator";
 	public static final String ADMIN = "admin";
+	public static final String LOCAL = "$local";
 }

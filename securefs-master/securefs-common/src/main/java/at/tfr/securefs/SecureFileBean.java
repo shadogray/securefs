@@ -17,7 +17,8 @@ import java.util.Arrays;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
-import javax.annotation.security.RolesAllowed;
+import javax.annotation.security.PermitAll;
+import javax.ejb.DependsOn;
 import javax.ejb.LocalBean;
 import javax.ejb.Remote;
 import javax.ejb.Remove;
@@ -25,7 +26,6 @@ import javax.ejb.SessionContext;
 import javax.ejb.Stateful;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
-import javax.enterprise.event.Event;
 import javax.imageio.IIOException;
 import javax.inject.Inject;
 import javax.persistence.PostLoad;
@@ -35,18 +35,20 @@ import org.jboss.logging.Logger;
 
 import at.tfr.securefs.api.Buffer;
 import at.tfr.securefs.api.SecureRemoteFile;
+import at.tfr.securefs.event.SecfsEventType;
 import at.tfr.securefs.event.SecureFs;
-import at.tfr.securefs.event.SecureFs.SecfsEventType;
 
 /**
  *
  * @author Thomas Frühbeck
  */
-@Stateful
+@Stateful(passivationCapable=false)
 @LocalBean
 @Remote(SecureRemoteFile.class)
 @CacheConfig(idleTimeoutSeconds = 15, removalTimeoutSeconds = 5, maxSize = 10000)
-@RolesAllowed(Role.USER)
+//@RolesAllowed({Role.USER, Role.LOCAL})
+@PermitAll
+@DependsOn({"CrypterProvider", "SecureFSEventBean"})
 @TransactionManagement(TransactionManagementType.BEAN)
 public class SecureFileBean implements SecureRemoteFile, Serializable {
 
@@ -54,7 +56,7 @@ public class SecureFileBean implements SecureRemoteFile, Serializable {
     @Resource
     private SessionContext ctx;
     @Inject
-    private Event<SecureFs> secfsEvent;
+    private SecureFSEvent secfsEvent;
     private transient InputStream in;
     private transient OutputStream out;
     private String pathName;
@@ -63,7 +65,7 @@ public class SecureFileBean implements SecureRemoteFile, Serializable {
     @PostConstruct
     private void init() {
         log.debug("created ctx=" + ctx);
-        secfsEvent.fire(new SecureFs(pathName, false, SecfsEventType.construct));
+        secfsEvent.sendEvent(new SecureFs(pathName, false, SecfsEventType.construct));
     }
 
     @Override
@@ -130,7 +132,7 @@ public class SecureFileBean implements SecureRemoteFile, Serializable {
     @PreDestroy
     public void close() {
         if (isOpen()) {
-            logInfo("close: " + path + " ctx=" + ctx, null);
+            logInfo("close: " + path, null);
         }
         if (in != null) {
             try {
@@ -149,8 +151,8 @@ public class SecureFileBean implements SecureRemoteFile, Serializable {
                 in = null;
             }
         }
-        log.debug("closed: " + path + " ctx=" + ctx);
-        secfsEvent.fire(new SecureFs(pathName, false, SecfsEventType.destroy));
+        log.debug("closed: " + path);
+        secfsEvent.sendEvent(new SecureFs(pathName, false, SecfsEventType.destroy));
     }
 
     public InputStream getIn() {
@@ -177,7 +179,7 @@ public class SecureFileBean implements SecureRemoteFile, Serializable {
         this.path = path;
         this.pathName = path.toString();
         log.debug("setPath: " + path + " ctx=" + ctx);
-        secfsEvent.fire(new SecureFs(pathName, false, SecfsEventType.init));
+        secfsEvent.sendEvent(new SecureFs(pathName, false, SecfsEventType.init));
     }
 
     public SecureRemoteFile getRemote() {

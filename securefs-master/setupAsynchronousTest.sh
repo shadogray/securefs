@@ -1,7 +1,7 @@
 
 DIR=securefs-client-test/target/classes/dir1/dir2/
 
-mvn -pl securefs-client-test clean package -DskipTests
+mvn clean install -DskipTests
 mkdir -p $DIR
 cp ~/media/iso/openSUSE-Leap-42.1-NET-x86_64.iso ${DIR}/bigfile.iso
 echo hallo >> ${DIR}/small.txt

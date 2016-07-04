@@ -7,6 +7,7 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
+import javax.ejb.DependsOn;
 import javax.ejb.Singleton;
 import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
@@ -24,6 +25,7 @@ import at.tfr.securefs.key.UiShare;
 
 @Singleton
 @RolesAllowed(Role.ADMIN)
+@DependsOn({"Configuration"})
 public class SecretBean implements Serializable {
 
 	private Logger log = Logger.getLogger(getClass());

@@ -1,73 +1,85 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
- * Copyright 2015 Thomas Frühbeck, fruehbeck(at)aon(dot)at.
- *
- * Licensed under the Eclipse Public License version 1.0, available at
- * http://www.eclipse.org/legal/epl-v10.html
--->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-   <modelVersion>4.0.0</modelVersion>
-   <parent>
-      <groupId>at.tfr.securefs</groupId>
-      <artifactId>securefs-master</artifactId>
-      <version>1.3.0-SNAPSHOT</version>
-   </parent>
-   <artifactId>securefs-client</artifactId>
-   <packaging>jar</packaging>
+<!-- * Copyright 2015 Thomas Frühbeck, fruehbeck(at)aon(dot)at. -->
+<!-- * -->
+<!-- * Licensed under the Eclipse Public License version 1.0, available at -->
+<!-- * http://www.eclipse.org/legal/epl-v10.html -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>at.tfr.securefs</groupId>
+		<artifactId>securefs-master</artifactId>
+		<version>1.3.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>securefs-client</artifactId>
+	<packaging>jar</packaging>
 
-   <dependencies>
-      <dependency>
-         <groupId>at.tfr.securefs</groupId>
-         <artifactId>securefs-api</artifactId>
-         <version>1.3.0-SNAPSHOT</version>
-      </dependency>
+	<dependencies>
+		<dependency>
+			<groupId>at.tfr.securefs</groupId>
+			<artifactId>securefs-api</artifactId>
+		</dependency>
 
-      <dependency>
-         <groupId>org.jboss.logging</groupId>
-         <artifactId>jboss-logging</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>commons-io</groupId>
-         <artifactId>commons-io</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>commons-lang</groupId>
-         <artifactId>commons-lang</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>jboss</groupId>
-         <artifactId>jboss-client</artifactId>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss</groupId>
-         <artifactId>jboss-remote-naming</artifactId>
-         <scope>test</scope>
-      </dependency>
+		<dependency>
+			<groupId>javax</groupId>
+			<artifactId>javaee-api</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.logging</groupId>
+			<artifactId>jboss-logging</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>jboss</groupId>
+			<artifactId>jboss-client</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss</groupId>
+			<artifactId>jboss-remote-naming</artifactId>
+			<scope>test</scope>
+		</dependency>
 
-      <dependency>
-         <groupId>junit</groupId>
-         <artifactId>junit</artifactId>
-      </dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+		</dependency>
 
-   </dependencies>
+	</dependencies>
 
-   <profiles>
-      <profile>
-         <id>Client</id>
-         <build>
-         <plugins>
-            <plugin>
-               <groupId>org.codehaus.mojo</groupId>
-               <artifactId>exec-maven-plugin</artifactId>
-               <configuration>
-                  <mainClass>at.tfr.securefs.client.SecurefsClient</mainClass>
-               </configuration>
-            </plugin>
-         </plugins>
-         </build>
-      </profile>
-   </profiles>
-   <build>
-   </build>
+	<profiles>
+		<profile>
+			<id>Client</id>
+			<build>
+				<finalName>securefs-client</finalName>
+				<plugins>
+					<plugin>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<configuration>
+							<debug>true</debug>
+						</configuration>
+					</plugin>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>exec-maven-plugin</artifactId>
+						<configuration>
+							<mainClass>at.tfr.securefs.client.SecurefsClient</mainClass>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+	<build>
+		<finalName>securefs-client</finalName>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<debug>true</debug>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>

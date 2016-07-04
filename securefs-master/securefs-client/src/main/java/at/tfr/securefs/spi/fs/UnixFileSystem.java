@@ -40,7 +40,7 @@ abstract class UnixFileSystem extends FileSystem {
 
     private final FileSystemProvider provider;
     private final byte[] defaultDirectory;
-    private final UnixPath rootDirectory;
+    protected final UnixPath rootDirectory;
 
     // package-private
     UnixFileSystem(FileSystemProvider provider, String dir) {

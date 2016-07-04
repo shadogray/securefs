@@ -1,0 +1,1197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="ELGA_Stylesheet_v1.0.xsl"?>
+
+<!--
+	===============================================================================
+	ELGA Beispieldokument für MolekularerErregernachweis
+	Dies ist ein Beispielbefund. Bei den Inhalten handelt es sich um synthetische Mustertexte und keinesfalls um personenbezogene Echtdaten oder realistische Befunde.
+	Das Beispiel veranschaulicht die technischen Möglichkeiten unter Verwendung eines Maximums der erlaubten Optionen.
+	
+	Erstellt von: Redaktionsteam ELGA CDA Labor
+	Version: 2.05
+	===============================================================================
+-->
+
+<ClinicalDocument xmlns="urn:hl7-org:v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:lab="urn:oid:1.3.6.1.4.1.19376.1.3.2" xsi:schemaLocation="urn:hl7-org:v3  CDA.xsd">
+	<!--=======================================================================
+		ELGA CDA Implementierungsleitfäden
+
+		Allgemeiner Leitfaden: CDA Dokumente im österreichischen Gesundheitswesen
+		Demo-Dokument
+
+		Autor:
+			Alexander Mense, Matthias Frohner
+			Fachhochschule Technikum Wien
+			alexander.mense@technikum-wien.at, matthias.frohner@technikum-wien.at
+
+		Die Kommentare in diesem CDA Dokument dienen lediglich der Orientierungshilfe und sind nicht 
+		Bestandteil einer konkreten Implementierung!
+		=======================================================================
+		
+		Revision und Adaptierungen gemäß Geschäftsregeln und Constraints der Leitfaden Version 2.02
+		durch ELGA GmbH (Oliver Kuttin, Stefan Sabutsch, Carina Seerainer)
+		
+		Dokumentrevision:	2.06.0
+		Datum: 				09.11.2015
+	
+		=======================================================================
+	-->
+	<!--
+			************************************************************************************************************************************************
+			************************************************************************************************************************************************
+			************************************************************************************************************************************************
+			************************************************************************************************************************************************
+
+			Administrative Daten "CDA Header"
+
+			siehe Allgemeiner Leitfaden, Kapitel 6
+
+			************************************************************************************************************************************************
+			************************************************************************************************************************************************
+			************************************************************************************************************************************************
+			************************************************************************************************************************************************
+	-->
+	<!--
+			========================================================================
+			========================================================================
+			Dokumentenstruktur
+			siehe Allgemeiner Leitfaden, Kapitel 6.2
+			========================================================================
+			========================================================================
+	-->
+	<!--
+		Hoheitsbereich des Dokuments (siehe Allgemeiner Leitfaden, Kapitel 6.2.3)
+	-->
+	<realmCode code="AT"/>
+	
+	<!--
+		Dokumentformat (siehe Allgemeiner Leitfaden, Kapitel 6.2.4)
+	-->
+	<typeId root="2.16.840.1.113883.1.3" extension="POCD_HD000040"/>
+	
+	<!--
+		ELGA Implementierungsleitfaden-Kennzeichnung (siehe Allgemeiner Leitfaden, Kapitel 6.2.5)
+	-->
+	
+	<!-- Folgt dem Template des Allgemeinen Implementierungsleitfadens "CDA Dokumente im österreichischen Gesundheitswesen" -->
+	<templateId root="1.2.40.0.34.11.1" assigningAuthorityName="ELGA"/>
+	
+	<!-- Folgt dem speziellen Implementierungsleitfaden Laborbefund -->
+	<templateId root="1.2.40.0.34.11.4"/>
+	
+	<!-- Folgt dem Template des Speziellen Implementierungsleitfadens "Labor", ELGA Interoperabilitätsstufe (EIS) "full support" -->
+	<templateId root="1.2.40.0.34.11.4.0.3" assigningAuthorityName="ELGA"/>
+	
+	<!--
+		Dokumenten-Id (siehe Allgemeiner Leitfaden, Kapitel 6.2.6)
+	-->
+	<id root="1.2.40.0.34.99.111.1" extension="3659" assigningAuthorityName="AAAKrankenanstalt Eisenstadt"/>
+	
+	<!--
+		Dokumentenklasse (siehe Allgemeiner Leitfaden, Kapitel 6.2.7)
+	-->
+	<code code="11502-2" displayName="Laboratory report" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+	
+	<!--
+		Titel des Dokuments (siehe Allgemeiner Leitfaden, Kapitel 6.2.8)
+	-->
+	<title>Virologischer Befund</title>
+	
+	<!--
+		Erstellungsdatum des Dokuments (siehe Allgemeiner Leitfaden, Kapitel 6.2.9)
+	-->
+	<effectiveTime value="20160315130000+0100"/>
+	
+	<!--
+		Vertraulichkeitscode (siehe Allgemeiner Leitfaden, Kapitel 6.2.10)
+	-->
+	<confidentialityCode code="N" displayName="normal" codeSystem="2.16.840.1.113883.5.25" codeSystemName="HL7:Confidentiality"/>
+	
+	<!--
+		Sprachcode des Dokuments (siehe Allgemeiner Leitfaden, Kapitel 6.2.11)
+	-->
+	<languageCode code="de-AT"/>
+	
+	<!--
+		Versionierung des Dokuments (siehe Allgemeiner Leitfaden, Kapitel 6.2.12)
+	-->
+	<setId root="1.2.40.0.34.99.111.1.1" extension="134F002" assigningAuthorityName="AAAKrankenanstalt Eisenstadt"/>
+	
+	<versionNumber value="1"/>
+
+	<!--
+		========================================================================
+		Patient (siehe Allgemeiner Leitfaden, Kapitel 6.3.1)
+		========================================================================
+	-->
+	<recordTarget>
+		<patientRole>
+		
+			<!-- 
+				IDs des Patienten (siehe Allgemeiner Leitfaden, Kapitel 6.3.1.2.2)
+			-->
+			<!-- Identifikation des Patienten im lokalen System -->
+			<id root="1.2.40.0.34.99.111.1.2" extension="65001" assigningAuthorityName="AAAKrankenanstalt Eisenstadt"/>
+			
+			<!-- Sozialversicherungsnummer des Patienten	-->
+			<id root="1.2.40.0.10.1.4.3.1" extension="1119011502" assigningAuthorityName="Österreichische Sozialversicherung"/>
+			
+			<!--
+				Adresse des Patienten (siehe Allgemeiner Leitfaden, Kapitel 6.3.1.2.3)
+			-->
+			<addr use="HP">
+				<streetAddressLine>Brestelgasse 113</streetAddressLine>
+				<postalCode>9562</postalCode>
+				<city>Edelsreith</city>
+				<state>Wien</state>
+				<country>AT</country>
+			</addr>
+			
+			<!--
+				Kontaktdaten des Patienten (siehe Allgemeiner Leitfaden, Kapitel 6.3.1.2.4)
+			-->
+			<telecom use="H" value="tel:+43.2682.40400"/>
+			<telecom use="MC" value="tel:+43.664.1234567"/>
+			<telecom value="mailto:musterfrau@provider.at"/>
+			
+			<patient>
+			
+				<!-- 
+					Name des Patienten (siehe Allgemeiner Leitfaden, Kapitel 6.3.1.2.5)
+				-->
+				<name>
+					<prefix qualifier="AC">Dr.med.vet.</prefix>
+					<given>Josepha</given>
+					<given>Diethardt</given>
+					<family>AAAMBolz ELGATest</family>
+				</name>
+				
+				<!--
+					Geschlecht des Patienten (siehe Allgemeiner Leitfaden, Kapitel 6.3.1.2.6)
+				-->
+				<administrativeGenderCode code="M" displayName="M" codeSystem="2.16.840.1.113883.5.1" codeSystemName="HL7:AdministrativeGender"/>
+				
+				<!--
+					Geburtsdatum des Patienten (siehe Allgemeiner Leitfaden, Kapitel 6.3.1.2.7)
+				-->
+				<birthTime value="19020101"/>
+				
+				<!--
+					Familienstand des Patienten  (siehe Allgemeiner Leitfaden, Kapitel 6.3.1.2.8)
+				-->
+				<maritalStatusCode code="M" displayName="Married" codeSystem="2.16.840.1.113883.5.2" codeSystemName="HL7:MaritalStatus"/>
+				
+				<!--
+					Religionszugehörigkeit des Patienten (siehe Allgemeiner Leitfaden, Kapitel 6.3.1.2.9)
+		
+				 -->
+				<religiousAffiliationCode code="101" codeSystem="2.16.840.1.113883.2.16.1.4.1" codeSystemName="HL7.AT:ReligionAustria" displayName="Römisch-Katholisch"/>
+				
+				<!-- 
+					Geburtsort des Patienten (siehe Allgemeiner Leitfaden, Kapitel 6.3.1.2.13)
+				-->
+				<birthplace>
+					<place>
+						<addr>
+							<streetAddressLine>Musterstraße 23b</streetAddressLine>
+							<postalCode>8011</postalCode>
+							<city>Graz</city>
+							<state>Steiermark</state>
+							<country>AUT</country>
+						</addr>
+					</place>
+				</birthplace>
+			</patient>
+		</patientRole>
+	</recordTarget>
+
+	<!--
+		========================================================================
+		Verfasser des Dokuments (siehe Allgemeiner Leitfaden, Kapitel 6.3.2)
+		========================================================================
+	-->
+	<author>
+
+		<!--
+			Funktionscode (siehe Allgemeiner Leitfaden, Kapitel 6.3.2.3.1.1)
+		-->
+		<functionCode code="OA" codeSystem="1.2.40.0.34.99.111.1.1" codeSystemName="AAAKrankenanstalt Eisenstadt - Funktionscodes" displayName="Diensthabender Oberarzt"/>
+		
+		<!--
+			Zeitpunkt der Erstellung (z.B. des Diktats) (siehe Allgemeiner Leitfaden, Kapitel 6.3.2.3.1.2)
+		-->
+		<time value="20160315130000+0100"/>
+		
+		<assignedAuthor>
+		
+			<!--  
+				Identifikation des Verfassers des Dokuments (siehe Allgemeiner Leitfaden, Kapitel 6.3.2.3.1.3)
+			-->
+			<id root="1.2.40.0.34.99.111.1.3" extension="3659.3" assigningAuthorityName="AAAKrankenanstalt Eisenstadt"/>
+			
+			<!--
+				Fachrichtung des Verfassers des Dokuments (siehe Allgemeiner Leitfaden, Kapitel 6.3.2.3.1.4)
+			-->
+			<code code="107" codeSystem="1.2.40.0.34.5.160" codeSystemName="ELGA_Fachärzte" displayName="Fachärztin/Facharzt für Mikrobiologisch-Serologische Labordiagnostik"/>
+			
+			<!--
+				Kontaktdaten des Verfassers des Dokuments (siehe Allgemeiner Leitfaden, Kapitel 6.3.2.3.1.5)
+			-->
+			<telecom use="WP" value="tel:+43.1.3453446.1111"/>
+			
+			<!--
+				Personendaten des Verfassers des Dokuments (siehe Allgemeiner Leitfaden, Kapitel 6.3.2.3.1.6)
+			-->
+			<assignedPerson>
+			
+				<!-- Name des Verfassers des Dokuments -->
+				<name>
+					<prefix>SkogD</prefix>
+					<family>Maxl</family>
+					<given>Jèhlè</given>
+				</name>
+				
+			</assignedPerson>
+			
+
+			<!--
+				Organisation, in deren Auftrag der Verfasser des Dokuments die Dokumentation verfasst hat (siehe Allgemeiner Leitfaden, Kapitel 6.3.2.3.1.7)
+			-->
+			<representedOrganization>
+			
+				<!--
+					ID der Organisation aus dem GDA Index
+				-->
+				<id root="1.2.40.0.34.99.10.2.1.1.10005" assigningAuthorityName="GDA Index"/>
+
+				<!--
+					Name der Organisation
+				-->
+				<name>AAAKrankenanstalt Eisenstadt - Labor</name>
+				
+				<!-- 
+					Kontaktdaten der Organisation
+				-->
+				<telecom value="tel:+43.1.3453446.0"/>
+				<telecom value="fax:+43.1.3453446.4674"/>
+				<telecom value="mailto:info@amadeusspital.at"/>
+				<telecom value="http://www.amadeusspital.at"/>
+				
+				<!--
+					Adresse der Organisation
+				-->
+				<addr>
+					<streetName>Johann-Strauß-Gasse</streetName>
+					<houseNumber>0</houseNumber>
+					<postalCode>3654</postalCode>
+					<city>Gaisruckdorf</city>
+					<state>Burgenland</state>
+					<country>AT</country>
+				</addr>
+				
+			</representedOrganization>
+			
+		</assignedAuthor>
+	</author>
+	
+
+	<!--
+		========================================================================
+		Personen der Dateneingabe (siehe Allgemeiner Leitfaden, Kapitel 6.3.3)
+		========================================================================
+	-->
+	<dataEnterer>
+		<!--
+			Zeitpunkt des Schreibens (siehe Allgemeiner Leitfaden, Kapitel 6.3.3.2.2)
+		-->
+		<time value="20160315130000+0100"/>
+		
+		<!--
+			Personendaten der schreibenden Person
+		-->
+		<assignedEntity>
+			<!--
+				ID der schreibenden Person
+			-->
+			<id nullFlavor="UNK"/>
+			<addr>
+				<streetAddressLine>Taborstrasse 16</streetAddressLine>
+				<city>Wien</city>
+				<postalCode>1020</postalCode>
+				<country>AUT</country>
+			</addr>
+			<telecom use="WP" value="tel:01.47110815.123"/>
+			<assignedPerson>
+				<!--
+					Name der schreibenden Person
+				-->
+				<name>
+					<family>Bauer</family>
+					<given>Maria</given>
+				</name>
+			</assignedPerson>
+		</assignedEntity>
+	</dataEnterer>
+
+	<!--
+		========================================================================
+		Verwahrer des Dokuments (siehe Allgemeiner Leitfaden, Kapitel 6.3.4)
+		========================================================================
+	-->
+	<custodian>
+		<assignedCustodian>
+			<representedCustodianOrganization>
+			
+				<!--
+					ID der Organisation aus dem GDA Index
+				-->
+				<id root="1.2.40.0.34.99.10.2.1.1.10005" assigningAuthorityName="GDA Index"/>
+
+				<!--
+					Name der Organisation
+				-->
+				<name>AAAKrankenanstalt Eisenstadt - Labor</name>
+				
+				<!-- 
+					Kontaktdaten der Organisation
+				-->
+				<telecom value="tel:+43.1.3453446.0"/>
+					
+				<!--
+					Adresse der Organisation
+				-->
+				<addr>
+					<streetName>Johann-Strauß-Gasse</streetName>
+					<houseNumber>0</houseNumber>
+					<postalCode>3654</postalCode>
+					<city>Gaisruckdorf</city>
+					<state>Burgenland</state>
+					<country>AT</country>
+				</addr>
+
+			</representedCustodianOrganization>
+		</assignedCustodian>
+	</custodian>
+
+	<!--
+		+++++++++++++++++
+		PRIMÄRER Empfänger
+		+++++++++++++++++
+	-->
+	<informationRecipient typeCode="PRCP">
+
+		<intendedRecipient>
+		
+			<!--
+				Identifikation des beabsichtigten Empfängers aus dem GDA-Index (siehe Allgemeiner Leitfaden, Kapitel 6.3.5.2.2)
+			-->
+			<id nullFlavor="UNK"/>
+			
+			<!--
+				Personendaten des beabsichtigten Empfängers (siehe Allgemeiner Leitfaden, Kapitel 6.3.5.2.3)
+			-->
+			<informationRecipient>
+				<name>
+					<prefix qualifier="AC">Univ.-Prof. Dr.</prefix>
+					<given>Herbert</given>
+					<family>Empfänger</family>
+				</name>
+			</informationRecipient>
+			
+			<!--
+				Organisation, der der beabsichtigte Empfänger angehört (siehe Allgemeiner Leitfaden, Kapitel 6.3.5.2.4)
+			-->
+			<receivedOrganization>
+				<!--
+					Identifikation der Organisation des beabsichtigten Empfängers aus dem GDA-Index
+				-->
+				<id nullFlavor="UNK"/>
+				
+				<!--
+					Name der Organisation des beabsichtigten Empfängers
+				-->
+				<name>Ordination Dr. Empfänger</name>
+				
+				<!--
+					Kontaktdaten der Organisation des beabsichtigten Empfängers
+				-->
+				<telecom value="tel:0512.1234567"/>
+				<telecom value="fax:0512.1234567.11"/>
+				<telecom value="mailto:office@ordination-empfaenger.at"/>
+				<telecom value="http://www.ordination-empfaenger.at"/>
+				<telecom value="me:2345678791"/>
+				
+				<!--
+					Adresse der Organisation des beabsichtigten Empfängers
+				-->
+				<addr>
+					<streetName>Musterstraße</streetName>
+					<houseNumber>27/1/13</houseNumber>
+					<postalCode>6020</postalCode>
+					<city>Innsbruck</city>
+					<country>AUT</country>
+				</addr>
+			</receivedOrganization>
+			
+		</intendedRecipient>
+	</informationRecipient>
+
+	<!--
+		+++++++++++++++++
+		SEKUNDÄRER Empfänger
+		+++++++++++++++++
+	 -->
+	<informationRecipient typeCode="TRC">
+				
+		<intendedRecipient>
+		
+			<!--
+				Identifikation des beabsichtigten Empfängers aus dem GDA-Index (siehe Allgemeiner Leitfaden, Kapitel 6.3.5.2.2)
+			-->
+			<id nullFlavor="UNK"/>
+			
+			<!--
+				Personendaten des beabsichtigten Empfängers (siehe Allgemeiner Leitfaden, Kapitel 6.3.5.2.3)
+			-->
+			<informationRecipient>
+				<name>
+					<prefix qualifier="AC">Dr.</prefix>
+					<given>Walter</given>
+					<family>Empfänger Sekundär</family>
+				</name>
+			</informationRecipient>
+			
+			<!--
+				Organisation, der der beabsichtigte Empfänger angehört (siehe Allgemeiner Leitfaden, Kapitel 6.3.5.2.4)
+			-->
+			<receivedOrganization>
+				<!--
+					Identifikation der Organisation des beabsichtigten Empfängers aus dem GDA-Index
+				-->
+				<id nullFlavor="UNK"/>
+				
+				<!--
+					Name der Organisation des beabsichtigten Empfängers
+				-->
+				<name>Ordination Dr. Sekundär</name>
+				
+				<!--
+					Kontaktdaten der Organisation des beabsichtigten Empfängers
+				-->
+				<telecom value="tel:0512.1234567"/>
+				<telecom value="fax:0512.1234567.11"/>
+				<telecom value="mailto:office@ordination-sekundaer.at"/>
+				<telecom value="http://www.ordination-sekundaer.at"/>
+				<telecom value="me:2345678792"/>
+				
+				<!--
+					Adresse der Organisation des beabsichtigten Empfängers
+				-->
+				<addr>
+					<streetName>Sekundärstraße</streetName>
+					<houseNumber>22</houseNumber>
+					<postalCode>6020</postalCode>
+					<city>Innsbruck</city>
+					<country>AUT</country>
+				</addr>
+			</receivedOrganization>
+			
+		</intendedRecipient>
+	</informationRecipient>
+
+	<!--
+		========================================================================
+		Rechtlicher Unterzeichner (siehe Allgemeiner Leitfaden, Kapitel 6.3.6)
+		========================================================================
+	-->
+	<legalAuthenticator>
+		<!-- 
+			Zeitpunkt der Unterzeichnung (siehe Allgemeiner Leitfaden, Kapitel 6.3.6.2.2)
+		-->
+		<time value="20160310080000+0100"/>
+		
+		<!-- 
+			Signaturcode (siehe Allgemeiner Leitfaden, Kapitel 6.3.6.2.3)
+		-->
+		<signatureCode code="S"/>
+		<!--
+			Personen- und Organisationsdaten des Rechtlichen Unterzeichners des Dokuments (siehe Allgemeiner Leitfaden, Kapitel 6.3.6.2.4)
+		-->
+		<assignedEntity>
+		
+			<!--  
+				Identifikation des Rechtlichen Unterzeichners des Dokuments
+			-->
+			<id root="1.2.40.0.34.99.111.1.3" extension="3659.3" assigningAuthorityName="AAAKrankenanstalt Eisenstadt"/>
+			
+			<!--
+				Adresse des Unterzeichners
+			-->
+			<addr>
+				<streetName>Johann-Strauß-Gasse</streetName>
+				<houseNumber>0</houseNumber>
+				<postalCode>3654</postalCode>
+				<city>Gaisruckdorf</city>
+				<state>Burgenland</state>
+				<country>AT</country>
+			</addr>
+			
+			<!--
+				Kontaktdaten des Rechtlichen Unterzeichners des Dokuments 
+			-->
+			<telecom use="WP" value="tel:+43.1.3453446.2222"/>
+			
+			<!--
+				Personendaten des Rechtlichen Unterzeichners des Dokuments 
+			-->
+			<assignedPerson>
+			
+				<!-- Name des Rechtlichen Unterzeichners des Dokuments -->
+				<name>
+					<prefix>SkogD</prefix>
+					<family>Jèhlè</family>
+					<given>Maxl</given>
+				</name>
+				
+			</assignedPerson>
+			
+
+			<!--
+				Organisation, in deren Auftrag der Rechtlichen Unterzeichners des Dokuments die Dokumentation unterzeichnet hat
+			-->
+			<representedOrganization>
+			
+				<!--
+					ID der Organisation aus dem GDA Index
+				-->
+				<id root="1.2.40.0.34.99.10.2.1.1.10005" assigningAuthorityName="GDA Index"/>
+
+				<!--
+					Name der Organisation
+				-->
+				<name>AAAKrankenanstalt Eisenstadt - Labor</name>
+				
+				<!-- 
+					Kontaktdaten der Organisation
+				-->
+				<telecom value="tel:+43.1.3453446.0"/>
+				<telecom value="fax:+43.1.3453446.4674"/>
+				<telecom value="mailto:info@amadeusspital.at"/>
+				<telecom value="http://www.amadeusspital.at"/>
+				
+				<!--
+					Adresse der Organisation
+				-->
+				<addr>
+					<streetName>Johann-Strauß-Gasse</streetName>
+					<houseNumber>0</houseNumber>
+					<postalCode>3654</postalCode>
+					<city>Gaisruckdorf</city>
+					<state>Burgenland</state>
+					<country>AT</country>
+				</addr>
+				
+			</representedOrganization>
+			
+		</assignedEntity>
+	</legalAuthenticator>
+
+	<!--
+		========================================================================
+		Weitere Unterzeichner (siehe Allgemeiner Leitfaden, Kapitel 6.3.7)
+		========================================================================
+	-->
+	<authenticator>
+		<!-- IHE TemplateId für laboratory-result-verifier -->
+		<templateId root="1.3.6.1.4.1.19376.1.3.3.1.5"/>
+		<!-- 
+			Zeitpunkt der Unterzeichnung (siehe Allgemeiner Leitfaden, Kapitel 6.3.7.2.2)
+		-->
+		<time value="20160315130000+0100"/>
+		
+		<!-- 
+			Signaturcode (siehe Allgemeiner Leitfaden, Kapitel 6.3.7.2.3)
+		-->
+		<signatureCode code="S"/>
+		
+		<!--
+			Personen- und Organisationsdaten des Weiteren Unterzeichners des Dokuments (siehe Allgemeiner Leitfaden, Kapitel 6.3.7.2.4)
+		-->
+		<assignedEntity>
+		
+			<!--  
+				Identifikation des Weiteren Unterzeichners des Dokuments
+			-->
+			<id root="1.2.40.0.34.99.111.1.3" extension="3659.3" assigningAuthorityName="AAAKrankenanstalt Eisenstadt"/>
+			
+			<!--
+				Adresse des Unterzeichners - laut IHE Lab TF Vol3 verpflichtend
+			-->
+			<addr>
+				<streetName>Johann-Strauß-Gasse</streetName>
+				<houseNumber>0</houseNumber>
+				<postalCode>3654</postalCode>
+				<city>Gaisruckdorf</city>
+				<state>Burgenland</state>
+				<country>AT</country>
+			</addr>
+			
+			<!--
+				Kontaktdaten des Weiteren Unterzeichners des Dokuments - laut IHE Lab TF Vol3 verpflichtend
+			-->
+			<telecom use="WP" value="tel:+43.1.3453446.3333"/>
+			
+			<!--
+				Personendaten des Weiteren Unterzeichners des Dokuments 
+			-->
+			<assignedPerson>
+			
+				<!-- Name des Weiteren Unterzeichners des Dokuments -->
+				<name>
+					<prefix>SkogD</prefix>
+					<family>Jèhlè</family>
+					<given>Maxl</given>
+				</name>		
+			</assignedPerson>
+			
+
+			<!--
+				Organisation, in deren Auftrag der Weiteren Unterzeichner des Dokuments die Dokumentationunterzeichnet hat 
+			-->
+			<representedOrganization>
+			
+				<!--
+					ID der Organisation aus dem GDA Index
+				-->
+				<id root="1.2.40.0.34.99.10.2.1.1.10005" assigningAuthorityName="GDA Index"/>
+
+				<!--
+					Name der Organisation
+				-->
+				<name>AAAKrankenanstalt Eisenstadt - Labor</name>
+				
+				<!-- 
+					Kontaktdaten der Organisation
+				-->
+				<telecom value="tel:+43.1.3453446.0"/>
+				<telecom value="fax:+43.1.3453446.4674"/>
+				<telecom value="mailto:info@amadeusspital.at"/>
+				<telecom value="http://www.amadeusspital.at"/>
+				
+				<!--
+					Adresse der Organisation
+				-->
+				<addr>
+					<streetName>Johann-Strauß-Gasse</streetName>
+					<houseNumber>0</houseNumber>
+					<postalCode>3654</postalCode>
+					<city>Gaisruckdorf</city>
+					<state>Burgenland</state>
+					<country>AT</country>
+				</addr>
+				
+			</representedOrganization>
+		</assignedEntity>
+	</authenticator>
+
+	<!-- 
+		Medizinischer Ansprechpartner (siehe Allgemeiner Leitfaden, Kapitel 6.3.8.2.2)
+	-->
+	<participant typeCode="CALLBCK">
+		<templateId root="1.2.40.0.34.11.1.1.1"/>		
+		<associatedEntity classCode="PROV">		
+			<!--
+				Verpflichtende Telefonnummer des fachlichen Ansprechpartners
+			-->
+			<telecom use="WP" value="tel:+43.1.3453446.1"/>			
+			<associatedPerson>
+				<!--
+					Name des Fachlichen Ansprechpartners
+				-->
+				<name>Sekretariat Labor</name>
+			</associatedPerson>			
+			<!--
+				Organisation des Fachlichen Ansprechpartners
+			-->
+			<scopingOrganization>
+			
+				<!--
+					ID der Organisation aus dem GDA Index
+				-->
+				<id root="1.2.40.0.34.99.10.2.1.1.10005" assigningAuthorityName="GDA Index"/>
+
+				<!--
+					Name der Organisation
+				-->
+				<name>AAAKrankenanstalt Eisenstadt - Labor</name>
+				
+				<!-- 
+					Kontaktdaten der Organisation
+				-->
+				<telecom value="tel:+43.1.3453446.0"/>
+				<telecom value="fax:+43.1.3453446.4674"/>
+				<telecom value="mailto:info@amadeusspital.at"/>
+				<telecom value="http://www.amadeusspital.at"/>
+				<!--
+					Adresse der Organisation
+				-->
+				<addr>
+					<streetName>Johann-Strauß-Gasse</streetName>
+					<houseNumber>0</houseNumber>
+					<postalCode>3654</postalCode>
+					<city>Gaisruckdorf</city>
+					<state>Burgenland</state>
+					<country>AT</country>
+				</addr>			
+			</scopingOrganization>			
+		</associatedEntity>
+	</participant>
+
+	<!-- 
+		Hausarzt (siehe Allgemeiner Leitfaden, Kapitel 6.3.8.4.2)
+	-->
+	<participant typeCode="IND">
+		<templateId root="1.2.40.0.34.11.1.1.3"/>
+		<functionCode code="PCP" displayName="primary care physician" codeSystem="2.16.840.1.113883.5.88" codeSystemName="HL7:ParticipationFunction"/>
+		<associatedEntity classCode="PROV">
+
+			<!--
+				Identifikation des Hausarztes (Person) aus dem GDA-Index
+			-->
+			<id root="1.2.40.0.34.99.2" assigningAuthorityName="GDA Index"/>
+			
+			<!--
+				Personendaten des Hausarztes
+			-->
+			<associatedPerson>
+				<name>
+					<prefix qualifier="AC">Dr.</prefix>
+					<given>Herbert</given>
+					<family>Mustermann</family>
+				</name>
+			</associatedPerson>
+			
+			<!--
+				Organisation, der der Hausarzt angehört
+			-->
+			<scopingOrganization>
+				<!--
+					Identifikation der Organisation des Hausarztes
+				-->
+				<id nullFlavor="UNK"/>
+				
+				<!--
+					Name der Organisation des Hausarztes
+				-->
+				<name>Allgemeinmedizinische Praxis Dr. Mustermann</name>
+				
+				<!--
+					Kontaktdaten der Organisation Hausarztes
+				-->
+				<telecom value="tel:0512.1234567"/>
+				<telecom value="fax:0512.1234567.11"/>
+				<telecom value="http://www.praxis-mustermann.at"/>
+				<telecom value="me:1234567899"/>
+				
+				<!--
+					Adresse der Organisation des Hausarztes
+				-->
+				<addr>
+					<streetName>Sekundärstraße</streetName>
+					<houseNumber>22</houseNumber>
+					<postalCode>6020</postalCode>
+					<city>Innsbruck</city>
+					<country>AUT</country>
+				</addr>
+			</scopingOrganization>
+			
+		</associatedEntity>
+	</participant>
+
+	<!-- 
+		Versicherter/Versicherung (siehe Allgemeiner Leitfaden, Kapitel 6.3.8.7.3)
+	-->
+	<participant typeCode="HLD">
+		<templateId root="1.2.40.0.34.11.1.1.6"/>
+		<associatedEntity classCode="POLHOLD">
+		
+			<!-- Sozialversicherungsnummer des Patienten	-->
+			<id root="1.2.40.0.10.1.4.3.1" extension="1119011502" assigningAuthorityName="Österreichische Sozialversicherung"/>
+
+			<!-- Code SELF (Patient ist selbst der Versicherungsnehmer) -->
+			<code code="SELF" codeSystem="2.16.840.1.113883.5.111" codeSystemName="HL7:RoleCode" displayName="self"/>
+			
+			<!-- Versicherungsgesellschaft -->
+			<scopingOrganization>
+				<name>Sozialversicherung der gew. Wirtschaft</name>
+				<telecom value="tel:01.54654.0"/>
+				<telecom value="fax:01.54654.385"/>
+				<telecom value="http://esv-sva.sozvers.at"/>
+				<addr>
+					<streetName>Wiedner Hauptstraße</streetName>
+					<houseNumber>84-86</houseNumber>
+					<postalCode>1051</postalCode>
+					<city>Wien</city>
+					<state>Wien</state>
+					<country>AUT</country>
+				</addr>
+			</scopingOrganization>
+
+		</associatedEntity>
+	</participant>
+
+	<!-- 
+		Auftraggeber bzw. Ordering Provider laut IHE
+	-->
+	<participant typeCode="REF">
+	
+		<!-- IHE template für Ordering Provider -->
+		<templateId root="1.3.6.1.4.1.19376.1.3.3.1.6"/>
+		
+		<time value="20160315130000+0100"/>
+		<associatedEntity classCode="PROV">
+			<id root="1.2.40.0.34.99.1" assigningAuthorityName="GDA Index"/>
+			<addr>
+				<streetAddressLine>Taborstraße 16</streetAddressLine>
+				<city>Wien</city>
+				<postalCode>1020</postalCode>
+				<country>AUT</country>
+			</addr>
+			<telecom use="WP" value="tel:01.47110815.123"/>
+			<associatedPerson>
+				<name>
+					<prefix qualifier="AC">Dr.</prefix>
+					<family>Frank</family>
+					<given>Dieter</given>
+				</name>
+			</associatedPerson>
+			<scopingOrganization>
+				<id root="1.2.40.0.34.99.1" assigningAuthorityName="GDA Index"/>
+				<name>Musterklinikum Unterstadt</name>
+				<telecom use="WP" value="tel:01.47110815"/>
+			</scopingOrganization>
+		</associatedEntity>
+	</participant>
+
+	<!-- Order / Zuweisung und Auftragsmanagement -->
+	<inFulfillmentOf typeCode="FLFS">
+		<order classCode="ACT" moodCode="RQO">
+			<id extension="121201-023" root="2.16.840.1.113883.2.16.1.99.3.1"
+				assigningAuthorityName="Musterklinikum Unterstadt"/>
+		</order>
+	</inFulfillmentOf>
+
+	<!--
+			========================================================================
+			========================================================================
+			Dokumentation der Gesundheitsdienstleistung
+			siehe Allgemeiner Leitfaden, Kapitel 6.5
+			========================================================================
+			========================================================================
+	-->
+	<documentationOf>
+		<serviceEvent>
+			
+
+			<!--
+				Code der Gesundheitsdienstleistung (siehe Allgemeiner Leitfaden, Kapitel 6.5.1.2.2)
+			-->
+			<code code="1100" displayName="Infektionsdiagnostik" codeSystem="1.2.40.0.34.5.11" codeSystemName="ELGA_LaborparameterErgaenzung"/>
+			
+
+			<!--
+				Zeitraum der Gesundheitsdienstleistung (siehe Allgemeiner Leitfaden, Kapitel 6.5.1.2.3)
+			-->
+			<effectiveTime>
+				<!-- Zeitpunkt der Erfassung des Auftrags in Labor EDV -->
+				<low value="20160310080000+0100"/>
+				<!-- Abschlusszeit des Auftrags, welche in der Regel mit der medizinischen Freigabe des Auftrags ident ist -->
+				<high value="20160315130000+0100"/>
+			</effectiveTime>
+		</serviceEvent>
+	</documentationOf>
+	
+	<documentationOf>
+		<serviceEvent>
+
+			<!--
+				Code für Mikrobiologische Ergebnisse
+			-->
+			<code code="18725-2" displayName="Microbiology studies (set)" codeSystem="2.16.840.1.113883.6.1" codeSystemName="LOINC"/>
+
+			<!--
+				Zeitraum der Gesundheitsdienstleistung (siehe Allgemeiner Leitfaden, Kapitel 6.5.1.2.3)
+			-->
+			<effectiveTime>
+				<!-- Zeitpunkt der Erfassung des Auftrags in Labor EDV -->
+				<low value="20160310080000+0100"/>
+				<!-- Abschlusszeit des Auftrags, welche in der Regel mit der medizinischen Freigabe des Auftrags ident ist -->
+				<high value="20160315130000+0100"/>
+			</effectiveTime>
+		</serviceEvent>
+	</documentationOf>
+	
+	<!--
+			************************************************************************************************************************************************
+			************************************************************************************************************************************************
+			************************************************************************************************************************************************
+			************************************************************************************************************************************************
+			
+			Medizinische Inhalte "CDA Body"
+			
+			siehe Allgemeiner Leitfaden, Kapitel 7
+			
+			************************************************************************************************************************************************
+			************************************************************************************************************************************************
+			************************************************************************************************************************************************
+			************************************************************************************************************************************************
+
+	-->
+
+	<component typeCode="COMP">
+		<structuredBody>
+
+			<!--
+				Probeninformation (Spezifikation Level 3) siehe spezieller Leitfaden "Laborbefund", Kapitel 4.4.5.2.2
+
+			-->
+			<component typeCode="COMP">
+				<section classCode="DOCSECT">
+					<templateId root="1.2.40.0.34.11.4.2.1"/>
+					<id extension="P-body" root="2.16.840.1.113883.3.933.1.1"/>
+					<code code="10" codeSystem="1.2.40.0.34.5.11" codeSystemName="ELGA_LaborparameterErgaenzung"
+						displayName="Probeninformation"/>
+					<title>Probeninformation</title>
+					<!-- Start Level 2 -->
+
+					<text>
+						<content styleCode="Italics">
+							Dies ist ein Beispielbefund. Bei den Inhalten handelt es sich um synthetische Mustertexte und keinesfalls um personenbezogene Echtdaten oder realistische Befunde.
+							Das Beispiel veranschaulicht die technischen Möglichkeiten unter Verwendung eines Maximums der erlaubten Optionen.
+						</content>
+						<br/><br/>
+						<table>
+							<thead>
+								<tr>
+									<th styleCode="xELGA_colw:15">Material-ID</th>
+									<th styleCode="xELGA_colw:17">Probenentnahme</th>
+									<th styleCode="xELGA_colw:13">Untersuchtes Material</th>
+									<th styleCode="xELGA_colw:16">Probenentnahme durch</th>
+									<th styleCode="xELGA_colw:17">Probeneingang</th>
+									<th styleCode="xELGA_colw:17">Bemerkung Labor</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr ID="Spec-1-1">
+									<td>as-12-b</td>
+									<td>01.12.2012 07:34</td>
+
+									<td>Vollblut</td>
+									<td>Ritter A</td>
+									<td>01.12.2012 08:14</td>
+									<td></td>
+								</tr>
+							</tbody>
+						</table>
+					</text>
+
+					<!-- Level 3 Codierung der Probe -->
+					<entry typeCode="DRIV">
+						<act classCode="ACT" moodCode="EVN">
+							<templateId root="1.2.40.0.34.11.4.3.1"/>
+							<code code="10" codeSystem="1.2.40.0.34.5.11" codeSystemName="ELGA_LaborparameterErgaenzung" displayName="Probeninformation"/>
+							<statusCode code="completed"/>
+							
+
+							<!-- Specimen Collection -->
+							<entryRelationship typeCode="COMP">
+								<procedure classCode="PROC" moodCode="EVN">
+									<templateId root="1.3.6.1.4.1.19376.1.3.1.2"/>
+									<code code="33882-2" codeSystem="2.16.840.1.113883.6.1"
+										codeSystemName="LOINC" displayName="Specimen Collection"/>
+									
+									<effectiveTime value="20160310080000+0100"/>
+									
+									<!-- Specimen Collection Organization -->
+									<performer typeCode="PRF">
+										<assignedEntity>
+											<id nullFlavor="NA"/>
+											<addr>
+												<streetAddressLine>Laborplatz 1</streetAddressLine>
+												<city>Wien</city>
+												<postalCode>1210</postalCode>
+                                                <country>AUT</country>
+											</addr>
+											<telecom use="WP" value="tel:+43.1.12345.636"/>
+											<assignedPerson>
+												<name>
+													<family>Ritter</family>
+													<given>Andrea</given>
+													<prefix qualifier="AC">Dr.</prefix>
+												</name>
+											</assignedPerson>
+											<representedOrganization>
+												<name>AAAKrankenanstalt Eisenstadt</name>
+											</representedOrganization>
+										</assignedEntity>
+									</performer>
+
+
+									<!-- Specimen als Participant -->
+									<participant typeCode="PRD">
+										<participantRole classCode="SPEC">
+											<id extension="as-12-b" root="2.16.840.1.113883.3.933.1.1"/>
+											<playingEntity>
+												<code code="BLD" codeSystem="2.16.840.1.113883.5.129"
+													codeSystemName="HL7.SpecimenType" displayName="Whole blood"/>
+											</playingEntity>
+										</participantRole>
+									</participant>
+
+									<!-- Specimen Received -->
+									<entryRelationship typeCode="COMP">
+										<act classCode="ACT" moodCode="EVN">
+											<templateId root="1.3.6.1.4.1.19376.1.3.1.3"/>
+											<code code="SPRECEIVE" codeSystem="1.3.5.1.4.1.19376.1.5.3.2"
+												codeSystemName="IHEActCode" displayName="Receive Time"/>
+											<effectiveTime value="20160315130000+0100"/>
+										</act>
+									</entryRelationship>
+								</procedure>
+							</entryRelationship>
+						</act>
+					</entry>
+				</section>
+			</component>			
+			<!--
+				Virologischer Befund
+			-->
+
+			<component>
+				<section classCode="DOCSECT">
+					<templateId root="1.3.6.1.4.1.19376.1.3.3.2.1"/>
+					<id extension="LabReport0001" root="2.16.840.1.113883.3.933.1.1"/>
+					<code code="1100" codeSystem="1.2.40.0.34.5.11" 
+						codeSystemName="ELGA_LaborparameterErgaenzung" displayName="Virologie"/>
+					<title>Virologie</title>
+					<!--
+						HIV - Testergebnisse / Molekularer Erregernachweis
+					-->
+					<text>
+						<paragraph styleCode="xELGA_h3">
+							<caption>HIV - Testergebnisse / Molekularer Erregernachweis</caption>
+						</paragraph>					
+						<table>
+							<thead>
+								<tr>
+
+									<th>Analyse /<br/>Erreger /<br/>Methode</th>
+									<th>Ergebnis</th>
+									<th>Einheit</th>
+									<th>Referenzbereiche /<br/>Nachweisgrenze /<br/>Linearitätsbereich</th>
+									<th>Interpretation</th>
+								</tr>
+							</thead>
+							<tfoot>
+								<tr>
+									<td>
+										<footnote ID="fn1">
+											<sup> 1)</sup> Probe für diese Bestimmung 1:10 verdünnt, da zu wenig Probenmaterial eingelangt. Das Detektionslimit erhöht sich dadurch auf 200 copies/ml!</footnote>
+									</td>
+								</tr>
+							</tfoot>
+							<tbody>
+								<tr ID="ERR-1-1">
+									<td>HIV1-RNA PCR</td>
+									<td>nicht nachweisbar<sup> 1)</sup></td>
+									<td>{cop}/mL</td>
+									<td ID="ERR-1-1-Lin">Linearitätsbereich:<br/>2.0E+01 - 1.0E+07</td>
+									<td></td>
+								</tr>
+							</tbody>
+						</table>
+					</text>
+
+					<!-- Start Level 3 
+
+
+						 Anmerkung: Der Beispielbefund ist auszugsweise Level 3 codiert 
+
+					-->		
+					<entry typeCode="DRIV">
+						<templateId root="1.3.6.1.4.1.19376.1.3.1"/>
+						<act classCode="ACT" moodCode="EVN">
+							<code code="1100" codeSystem="1.2.40.0.34.5.11"
+								codeSystemName="ELGA_LaborparameterErgaenzung" displayName="Infektionsdiagnostik"/> 
+							<statusCode code="completed"/>
+							<entryRelationship typeCode="COMP">
+								<organizer classCode="BATTERY" moodCode="EVN">
+									<templateId root="1.3.6.1.4.1.19376.1.3.1.4"/>
+									<code code="10780" codeSystem="1.2.40.0.34.5.11" codeSystemName="ELGA_LaborparameterErgaenzung" displayName="Virologie"/>
+									<statusCode code="completed"/>
+									<component typeCode="COMP">
+										<observation classCode="OBS" moodCode="EVN">
+											<templateId root="1.3.6.1.4.1.19376.1.3.1.6"/>
+											<id extension="ERR-1-1"
+												root="2.16.840.1.113883.2.16.1.99.3.1"/>
+											<code code="25835-0" codeSystem="2.16.840.1.113883.6.1"
+												codeSystemName="LOINC" displayName="HIV1-RNA PCR"/>
+
+											<text>
+												<reference value="#ERR-1-1"/>
+											</text>
+											<statusCode code="completed"/>
+											<!-- Physiologische Zeit der Analyse -->
+											<effectiveTime value="20121201075606+0100"/>
+											<value xsi:type="ST">nicht nachweisbar</value>
+				
+											<!-- Kommentar zu Ergebnis -->
+											<entryRelationship typeCode="COMP">
+												<act classCode="ACT" moodCode="EVN">
+													<templateId root="1.2.40.0.34.11.4.3.2"/>
+													<templateId root="2.16.840.1.113883.10.20.1.40"/>
+													<templateId root="1.3.6.1.4.1.19376.1.5.3.1.4.2"/>
+													<code code="48767-8" codeSystem="2.16.840.1.113883.6.1"
+														codeSystemName="LOINC"
+														displayName="Annotation Comment"/>
+													<text>
+														<reference value="#fn1"/>
+													</text>
+													<statusCode code="completed"/>
+												</act>
+											</entryRelationship>
+											
+											<!-- Linearitätsbereich / Nachweisgrenze -->
+											<referenceRange typeCode="REFV">
+												<observationRange classCode="OBS" moodCode="EVN.CRT">
+													<!-- text: Referenzbereich unter Vorbedingungen -->
+													<text>
+														<reference value="#ERR-1-1-Lin"/>
+													</text>
+													
+													<value xsi:type="IVL_PQ">
+														<low value="20" unit="{cop}/mL"/>
+														<high value="10000000" unit="{cop}/mL"/>
+													</value>
+														<interpretationCode code="N"
+														codeSystemName="HL7:ObservationInterpretation"
+														codeSystem="2.16.840.1.113883.5.83"
+														displayName="normal"/>									
+												</observationRange>
+											</referenceRange>
+										</observation>
+									</component>
+								</organizer>
+							</entryRelationship>	
+						</act>
+					</entry>
+	
+				</section>
+			</component>
+			<!-- Ende Speciality -->
+
+		</structuredBody>
+	</component>
+
+</ClinicalDocument>

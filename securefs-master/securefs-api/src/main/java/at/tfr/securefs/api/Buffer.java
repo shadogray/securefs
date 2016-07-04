@@ -20,6 +20,11 @@ public class Buffer implements Serializable {
     public Buffer() {
     }
 
+    public Buffer(byte[] data) {
+        this.data = data;
+        this.length = data.length;
+    }
+
     public Buffer(byte[] data, int length) {
         this.data = data;
         this.length = length;

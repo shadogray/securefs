@@ -1,3 +1,4 @@
+mvn clean install -DskipTest
 mkdir -p /tmp/test
 mkdir -p /tmp/source
 cp ~/media/iso/openSUSE-Leap-42.1-NET-x86_64.iso /tmp/source/bigfile.iso

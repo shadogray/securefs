@@ -6,8 +6,6 @@
  */
 package at.tfr.securefs.client;
 
-import at.tfr.securefs.api.SecureFileSystemItf;
-import at.tfr.securefs.spi.fs.SecureProxyProvider;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
@@ -19,12 +17,19 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.spi.FileSystemProvider;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+
+import javax.naming.Context;
+
 import org.junit.Assert;
 import org.junit.Test;
+
+import at.tfr.securefs.api.SecureFileSystemItf;
+import at.tfr.securefs.spi.fs.SecureProxyProvider;
 
 /**
  *
@@ -104,8 +109,20 @@ public class TestFileSystem {
     @Test
     public void testProxyProvider() throws Exception {
         Properties props = new Properties();
-        SecureFileSystemItf proxy = new SecureProxyProvider().getProxy(props);
-        String path = proxy.getRootPath();
+        props.load(getClass().getResourceAsStream("/securefs.properties"));
+		props.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
+        SecureFileSystemItf proxy = new SecureProxyProvider(props).getProxy("./");
+        String rootPath = proxy.getRootPath();
+        Collection<String> list = proxy.list("./");
+        Assert.assertNotNull(list);
+        Assert.assertTrue(list.size() > 0);
+        proxy.setRootPath("/");
+        Collection<String> list2 = proxy.list(rootPath);
+        Assert.assertNotNull(list2);
+        Assert.assertTrue(list2.size() > 0);
+        Assert.assertEquals(list, list2);
+        
+        
     }
 
 }

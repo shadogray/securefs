@@ -11,15 +11,22 @@ import java.nio.file.StandardOpenOption;
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
-import javax.ejb.Stateless;
-import javax.enterprise.context.ApplicationScoped;
+import javax.ejb.ConcurrencyManagement;
+import javax.ejb.ConcurrencyManagementType;
+import javax.ejb.DependsOn;
+import javax.ejb.Singleton;
+import javax.ejb.TransactionManagement;
+import javax.ejb.TransactionManagementType;
 import javax.inject.Inject;
 
 import org.jboss.logging.Logger;
 
 import at.tfr.securefs.key.SecretKeySpecBean;
 
-@ApplicationScoped
+@Singleton
+@DependsOn({"SecretKeySpecBean"})
+@TransactionManagement(TransactionManagementType.BEAN)
+@ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 public class CrypterProvider {
 
 	private Logger log = Logger.getLogger(getClass());

@@ -25,6 +25,7 @@ import org.apache.commons.io.IOUtils;
 import org.jboss.logging.Logger;
 
 import at.tfr.securefs.api.FileService;
+import at.tfr.securefs.api.module.ModuleException;
 
 @MTOM(enabled = true)
 @WebService(serviceName = "FileService", portName = "FileServicePort")
@@ -37,11 +38,25 @@ public class FileServiceBean implements FileService {
     private CrypterProvider crypterProvider;
     @Inject
     private HttpServletRequest request;
+    @Inject
+    private PreprocessorBean preProcessor;
 
 	@MTOM(enabled = true, threshold = 10240)
     @WebMethod
     @Override
     public void write(@WebParam(name = "relativePath") String relPath, @WebParam(name = "bytes") byte[] b) throws IOException {
+		
+		try {
+			preProcessor.preProcess(new ByteArrayInputStream(b));
+		} catch (ModuleException me) {
+			String message = "preProcessing of relPath failed: "+me.getMessage();
+			if (log.isDebugEnabled()) {
+				log.debug(message, me);
+			}
+			log.info(message);
+			throw new IOException(message);
+		}
+		
         Path path = SecureFileSystemBean.resolvePath(configuration.getBasePath(), relPath);
         log.debug("write File: " + relPath + " to " + path);
         Path parent = path.getParent();

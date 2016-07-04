@@ -24,6 +24,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.ConcurrencyManagement;
 import javax.ejb.ConcurrencyManagementType;
+import javax.ejb.DependsOn;
 import javax.ejb.Singleton;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
@@ -55,6 +56,7 @@ import at.tfr.securefs.ui.util.UI;
 @Named
 @Singleton
 @RolesAllowed(Role.ADMIN)
+@DependsOn({"SecretKeySpecBean"})
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 @TransactionManagement(TransactionManagementType.BEAN)
 public class CopyFilesBean implements Serializable {

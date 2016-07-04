@@ -25,6 +25,7 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
+import javax.ejb.DependsOn;
 import javax.ejb.Singleton;
 import javax.inject.Inject;
 
@@ -35,6 +36,7 @@ import at.tfr.securefs.SecretBean;
 @Singleton
 @PermitAll
 @RunAs(Role.ADMIN)
+@DependsOn({"Configuration"})
 public class SecretKeySpecBean {
 
 	private int INIT_VECTOR_BYTE = 0xEF;

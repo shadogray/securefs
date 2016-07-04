@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.security.RolesAllowed;
+import javax.ejb.DependsOn;
 import javax.ejb.Singleton;
 import javax.enterprise.event.Observes;
 import javax.faces.application.FacesMessage;
@@ -49,6 +50,7 @@ import at.tfr.securefs.ui.util.UI;
 @Named
 @Singleton
 @RolesAllowed({Role.OPERATOR, Role.ADMIN})
+@DependsOn({"Configuration", "RevokedKeysBean"})
 public class ValidationBean implements Serializable {
 
 	private static final String XXXXXXXXXXX = "xxxxxxxxxxx";

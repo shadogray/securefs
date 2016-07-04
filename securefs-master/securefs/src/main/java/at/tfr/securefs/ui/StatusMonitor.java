@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.security.PermitAll;
-import javax.annotation.security.RolesAllowed;
 import javax.annotation.security.RunAs;
+import javax.ejb.DependsOn;
 import javax.ejb.Schedule;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
@@ -45,6 +45,7 @@ import at.tfr.securefs.event.SecureFsMonitor;
 @Startup
 @Singleton
 @PermitAll
+@DependsOn({"SecretBean", "RevokedKeysBean"})
 @RunAs(Role.OPERATOR)
 public class StatusMonitor {
 

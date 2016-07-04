@@ -8,53 +8,140 @@ package at.tfr.securefs.spi.fs;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.ByteChannel;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
+import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
+import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
+
+import at.tfr.securefs.api.Buffer;
+import at.tfr.securefs.api.SecureRemoteFile;
 
 
 /**
  *
  * @author Thomas Frühbeck
  */
-public class SecureFileChannel implements ByteChannel {
+public class SecureFileChannel extends FileChannel {
 
-    private ByteChannel remote;
-    private SecurePath path;
+    private SecureRemoteFile os;
+    private SecureRemoteFile is;
+    private Path path;
+    private long position;
 
-    public SecureFileChannel(SecurePath path, ByteChannel remote) {
-        this.path = path;
-        this.remote = remote;
+    public SecureFileChannel(Path path, SecureRemoteFile is, SecureRemoteFile os) {
+    	this.path = path;
+    	this.is = is;
+    	this.os = os;
     }
 
     @Override
     public int read(ByteBuffer dst) throws IOException {
-        return remote.read(dst);
-    }
-
-    @Override
-    public boolean isOpen() {
-        return remote.isOpen();
-    }
-
-    @Override
-    public void close() throws IOException {
-        remote.close();
+    	Buffer buf = is.read(dst.capacity());
+    	if (buf.getLength() < 0) {
+    		return buf.getLength();
+    	}
+        dst.put(buf.getData(), 0, buf.getLength());
+        position+=buf.getLength();
+        return buf.getLength();
     }
 
     @Override
     public int write(ByteBuffer src) throws IOException {
-        return remote.write(src);
+        Buffer buf = new Buffer(new byte[src.remaining()], src.remaining());
+        src.get(buf.getData(), 0, src.remaining());
+		os.write(buf);
+        position+=buf.getLength();
+        return buf.getLength();
     }
 
-    public SecurePath getPath() {
+    public Path getPath() {
         return path;
-    }
-
-    public ByteChannel getRemote() {
-        return remote;
     }
 
     BasicFileAttributes getAttributes() throws IOException {
         return path.getFileSystem().provider().readAttributes(path, BasicFileAttributes.class, null);
     }
+
+	@Override
+	public long position() throws IOException {
+		return position;
+	}
+
+	@Override
+	public FileChannel position(long newPosition) throws IOException {
+		throw new IOException("position not supported");
+	}
+
+	@Override
+	public long size() throws IOException {
+		throw new IOException("size not supported");
+	}
+
+	@Override
+	public FileChannel truncate(long size) throws IOException {
+		throw new IOException("truncate not supported");
+	}
+
+	@Override
+	public void force(boolean metaData) throws IOException {
+		throw new IOException("force not supported");
+	}
+
+	@Override
+	public long transferTo(long position, long count, WritableByteChannel target) throws IOException {
+		throw new IOException("transferTo not supported");
+	}
+
+	@Override
+	public long transferFrom(ReadableByteChannel src, long position, long count) throws IOException {
+		throw new IOException("transferFrom not supported");
+	}
+
+	@Override
+	public int read(ByteBuffer dst, long position) throws IOException {
+		throw new IOException("position not supported");
+	}
+
+	@Override
+	public int write(ByteBuffer src, long position) throws IOException {
+		throw new IOException("position not supported");
+	}
+
+	@Override
+	public MappedByteBuffer map(MapMode mode, long position, long size) throws IOException {
+		throw new IOException("position not supported");
+	}
+
+	@Override
+	public FileLock lock(long position, long size, boolean shared) throws IOException {
+		throw new IOException("position not supported");
+	}
+
+	@Override
+	public FileLock tryLock(long position, long size, boolean shared) throws IOException {
+		throw new IOException("position not supported");
+	}
+
+	@Override
+	protected void implCloseChannel() throws IOException {
+		if (is != null) {
+			is.close();
+		}
+		if (os != null) {
+			os.close();
+		}
+	}
+
+	@Override
+	public long read(ByteBuffer[] dsts, int offset, int length) throws IOException {
+		throw new IOException("position not supported");
+	}
+
+	@Override
+	public long write(ByteBuffer[] srcs, int offset, int length) throws IOException {
+		throw new IOException("position not supported");
+	}
 }

@@ -86,7 +86,7 @@ public class SecurefsClient implements Runnable {
                 }
 
                 if (path.getParent() != null) {
-                    fs.provider().createDirectory(path.getParent());
+                    fs.provider().createDirectory(fs.getPath(path.getParent().toString()));
                 }
                 Path sec = fs.getPath(path.toString()
                         + (asyncTest ? "." + Thread.currentThread().getId() : ""));

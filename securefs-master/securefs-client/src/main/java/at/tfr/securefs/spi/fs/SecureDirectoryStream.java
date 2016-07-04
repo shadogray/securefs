@@ -25,91 +25,105 @@
 
 package at.tfr.securefs.spi.fs;
 
-import java.nio.file.*;
-import java.util.Iterator;
-import java.util.concurrent.locks.*;
 import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Path;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Consumer;
 
 /**
  * Unix implementation of java.nio.file.DirectoryStream
  */
 
-abstract class SecureDirectoryStream
-    implements DirectoryStream<Path>
-{
-    // path to directory when originally opened
-    private final UnixPath dir;
+class SecureDirectoryStream implements DirectoryStream<Path> {
+	// path to directory when originally opened
+	private final SecurePath dir;
 
-    // directory pointer (returned by opendir)
-    private final UnixFileKey dp;
+	// filter (may be null)
+	private final DirectoryStream.Filter<? super Path> filter;
 
-    // filter (may be null)
-    private final DirectoryStream.Filter<? super Path> filter;
+	// used to coorindate closing of directory stream
+	private final ReentrantReadWriteLock streamLock = new ReentrantReadWriteLock(true);
 
-    // used to coorindate closing of directory stream
-    private final ReentrantReadWriteLock streamLock =
-        new ReentrantReadWriteLock(true);
+	// indicates if directory stream is open (synchronize on closeLock)
+	private volatile boolean isClosed;
 
-    // indicates if directory stream is open (synchronize on closeLock)
-    private volatile boolean isClosed;
+	// directory iterator
+	private Iterator<Path> iterator;
 
-    // directory iterator
-    private Iterator<Path> iterator;
+	/**
+	 * Initializes a new instance
+	 */
+	SecureDirectoryStream(SecurePath dir, DirectoryStream.Filter<? super Path> filter) {
+		this.dir = dir;
+		this.filter = filter;
+	}
 
-    /**
-     * Initializes a new instance
-     */
-    SecureDirectoryStream(UnixPath dir, UnixFileKey dp, DirectoryStream.Filter<? super Path> filter) {
-        this.dir = dir;
-        this.dp = dp;
-        this.filter = filter;
-    }
+	protected final UnixPath directory() {
+		return dir;
+	}
 
-    protected final UnixPath directory() {
-        return dir;
-    }
+	protected final Lock readLock() {
+		return streamLock.readLock();
+	}
 
-    protected final Lock readLock() {
-        return streamLock.readLock();
-    }
+	protected final Lock writeLock() {
+		return streamLock.writeLock();
+	}
 
-    protected final Lock writeLock() {
-        return streamLock.writeLock();
-    }
+	protected final boolean isOpen() {
+		return !isClosed;
+	}
 
-    protected final boolean isOpen() {
-        return !isClosed;
-    }
+	@Override
+	public void close() throws IOException {
+		isClosed = true;
+	}
 
-    abstract protected boolean closeImpl() throws IOException;
+	@Override
+	public Iterator<Path> iterator() {
+		if (isClosed) {
+			throw new IllegalStateException("Directory stream is closed");
+		}
+		synchronized (this) {
+			if (iterator != null)
+				throw new IllegalStateException("Iterator already obtained");
+			try {
+				iterator = new SecurePathIterator(dir.getFileSystem().list(dir));
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+			return iterator;
+		}
+	}
+	
+	class SecurePathIterator implements Iterator<Path> {
+		
+		Collection<SecurePath> paths;
+		Iterator<SecurePath> iter;
+		
+		SecurePathIterator(Collection<SecurePath> paths) {
+			this.paths = paths;
+			this.iter = paths.iterator();
+		}
 
-    @Override
-    public void close()
-        throws IOException
-    {
-        writeLock().lock();
-        try {
-            closeImpl();
-        } finally {
-            writeLock().unlock();
-        }
-    }
+		@Override
+		public boolean hasNext() {
+			return iter.hasNext();
+		}
 
-    protected final Iterator<Path> iterator(DirectoryStream<Path> ds) {
-        if (isClosed) {
-            throw new IllegalStateException("Directory stream is closed");
-        }
-        synchronized (this) {
-            if (iterator != null)
-                throw new IllegalStateException("Iterator already obtained");
-            iterator = ds.iterator();
-            return iterator;
-        }
-    }
+		@Override
+		public Path next() {
+			return iter.next();
+		}
 
-    @Override
-    public Iterator<Path> iterator() {
-        return iterator(this);
-    }
+		@Override
+		public void forEachRemaining(Consumer<? super Path> action) {
+			iter.forEachRemaining(action);
+		}
+	}
 
 }
