@@ -84,7 +84,7 @@ public class PreprocessorBean {
 				continue;
 			}
 			
-			ModuleResult result = module.apply(path, config);
+			ModuleResult result = module.apply(path.toString(), config);
 			if (config.isMandatory() && !result.isValid()) {
 				throw new ModuleException("mandatory module failed", result.getException());
 			}

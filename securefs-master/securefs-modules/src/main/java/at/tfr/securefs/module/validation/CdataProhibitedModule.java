@@ -6,8 +6,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Scanner;
 
+import javax.ejb.Local;
+import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
@@ -24,12 +27,12 @@ public class CdataProhibitedModule extends ModuleBase implements ServiceModule {
 	private final String CDATA = "<!\\[CDATA\\[";
 
 	@Override
-	public ModuleResult apply(Path xmlFile, ModuleConfiguration moduleConfiguration) throws IOException, ModuleException {
+	public ModuleResult apply(String xmlFilePath, ModuleConfiguration moduleConfiguration) throws IOException, ModuleException {
 
-		try (InputStream is = new BufferedInputStream(Files.newInputStream(xmlFile))) {
+		try (InputStream is = new BufferedInputStream(Files.newInputStream(Paths.get(xmlFilePath)))) {
 			return apply(is, moduleConfiguration);
 		} catch (Exception e) {
-			throw new ModuleException("invalid CDATA section in: " + xmlFile, e);
+			throw new ModuleException("invalid CDATA section in: " + xmlFilePath, e);
 		}
 	}
 

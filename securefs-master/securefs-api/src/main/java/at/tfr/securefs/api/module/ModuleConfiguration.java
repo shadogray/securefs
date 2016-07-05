@@ -1,8 +1,9 @@
 package at.tfr.securefs.api.module;
 
+import java.io.Serializable;
 import java.util.Properties;
 
-public class ModuleConfiguration {
+public class ModuleConfiguration implements Serializable {
 
 	private String name;
 	private String jndiName;

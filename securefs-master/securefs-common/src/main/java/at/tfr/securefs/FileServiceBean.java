@@ -7,11 +7,13 @@
 package at.tfr.securefs;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.inject.Inject;
 import javax.jws.WebMethod;
@@ -47,7 +49,16 @@ public class FileServiceBean implements FileService {
     public void write(@WebParam(name = "relativePath") String relPath, @WebParam(name = "bytes") byte[] b) throws IOException {
 		
 		try {
-			preProcessor.preProcess(new ByteArrayInputStream(b));
+			String tmpFileName = Paths.get(relPath).getFileName().toString()+System.currentTimeMillis();
+			Path tmpPath = Files.createFile(configuration.getTmpPath().resolve(tmpFileName));
+			try {
+				try (OutputStream os = Files.newOutputStream(tmpPath)) {
+					IOUtils.write(b, os);
+				}
+				preProcessor.preProcess(tmpPath);
+			} finally {
+				Files.deleteIfExists(tmpPath);
+			}
 		} catch (ModuleException me) {
 			String message = "preProcessing of relPath failed: "+me.getMessage();
 			if (log.isDebugEnabled()) {
@@ -63,7 +74,7 @@ public class FileServiceBean implements FileService {
         Files.createDirectories(parent); // create parent directories unconditionally
         OutputStream encrypter = crypterProvider.getEncrypter(path);
         try {
-            IOUtils.copy(new ByteArrayInputStream(b), encrypter);
+            IOUtils.copyLarge(new ByteArrayInputStream(b), encrypter);
         } finally {
             encrypter.close();
         }
@@ -76,15 +87,24 @@ public class FileServiceBean implements FileService {
     @Override
     public byte[] read(@WebParam(name = "relativePath") String relPath) throws IOException {
 
-        Path path = configuration.getBasePath().resolve(relPath);
-        log.debug("read File: " + relPath + " from " + path);
-        InputStream decrypter = crypterProvider.getDecrypter(path);
-        try {
-            return IOUtils.toByteArray(decrypter);
-        } finally {
-            decrypter.close();
-            logInfo("read File: " + path, null);
-        }
+    	try {
+            Path path = SecureFileSystemBean.resolvePath(configuration.getBasePath(), relPath);
+	        if (!Files.isRegularFile(path) || !Files.isReadable(path)) {
+	        	throw new IOException("invalid path: "+relPath);
+	        }
+	        log.debug("read File: " + relPath + " from " + path);
+	        InputStream decrypter = crypterProvider.getDecrypter(path);
+	        try {
+	            return IOUtils.toByteArray(decrypter);
+	        } finally {
+	            decrypter.close();
+	            logInfo("read File: " + path, null);
+	        }
+    	} catch (Exception e) {
+            logInfo("read File failed: " + relPath, e);
+            log.warn("read File failed: " + relPath + e);
+            throw e;
+    	}
     }
 
     /**
@@ -97,11 +117,20 @@ public class FileServiceBean implements FileService {
     @WebMethod
     @Override
     public boolean delete(String relPath) throws IOException {
-        Path path = configuration.getBasePath().resolve(relPath);
-        log.debug("delete File: " + relPath + " as " + path);
-        boolean deleted = Files.deleteIfExists(path);
-        logInfo("deleted File: " + path + " : " + deleted, null);
-		return deleted;
+    	try {
+            Path path = SecureFileSystemBean.resolvePath(configuration.getBasePath(), relPath);
+	        if (!Files.isRegularFile(path) || !Files.isReadable(path)) {
+	        	throw new IOException("invalid path: "+relPath);
+	        }
+	        log.debug("delete File: " + relPath + " as " + path);
+	        boolean deleted = Files.deleteIfExists(path);
+	        logInfo("deleted File: " + path + " : " + deleted, null);
+			return deleted;
+    	} catch (Exception e) {
+            logInfo("read File failed: " + relPath, e);
+            log.warn("read File failed: " + relPath + e);
+            throw e;
+    	}
     }
 
     private void logInfo(String info, Throwable t) {

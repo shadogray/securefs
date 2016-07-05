@@ -22,7 +22,7 @@ public class ValidationTest {
 
 		Path withCdata = Paths.get(getClass().getClassLoader().getResource("WithCdata.xml").toURI());
 		CdataProhibitedModule cpm = new CdataProhibitedModule();
-		cpm.apply(withCdata, new ModuleConfiguration());
+		cpm.apply(withCdata.toString(), new ModuleConfiguration());
 
 	}
 
@@ -31,7 +31,7 @@ public class ValidationTest {
 
 		Path withoutCdata = Paths.get(getClass().getClassLoader().getResource("WithoutCdata.xml").toURI());
 		CdataProhibitedModule cpm = new CdataProhibitedModule();
-		cpm.apply(withoutCdata, new ModuleConfiguration());
+		cpm.apply(withoutCdata.toString(), new ModuleConfiguration());
 
 	}
 
@@ -47,7 +47,7 @@ public class ValidationTest {
 		Path fileToValidate = basePath.resolve(file);
 
 		SchemaValidationModule module = new SchemaValidationModule(config);
-		module.apply(fileToValidate, new ModuleConfiguration());
+		module.apply(fileToValidate.toString(), new ModuleConfiguration());
 	}
 
 	@Test
@@ -70,7 +70,7 @@ public class ValidationTest {
 			try {
 				
 				Path fileToValidate = basePath.resolve("samples/" + file);
-				module.apply(fileToValidate, new ModuleConfiguration());
+				module.apply(fileToValidate.toString(), new ModuleConfiguration());
 				
 			} catch (ModuleException me) {
 				log.info(me.toString());
@@ -90,7 +90,7 @@ public class ValidationTest {
 		Path fileToValidate = basePath.resolve(file);
 
 		SchemaValidationModule module = new SchemaValidationModule(config);
-		module.apply(fileToValidate, new ModuleConfiguration());
+		module.apply(fileToValidate.toString(), new ModuleConfiguration());
 	}
 
 	@Test(expected=IOException.class)
@@ -107,6 +107,6 @@ public class ValidationTest {
 		SchemaValidationModule module = new SchemaValidationModule(config);
 		ModuleConfiguration moduleConfiguration = new ModuleConfiguration();
 		moduleConfiguration.getProperties().put("schemaName", "ELGA-NoSchema-Corrupted.xml");
-		module.apply(fileToValidate, moduleConfiguration);
+		module.apply(fileToValidate.toString(), moduleConfiguration);
 	}
 }

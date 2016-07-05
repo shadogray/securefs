@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.Stateless;
@@ -64,10 +65,10 @@ public class SchemaValidationModule extends ModuleBase implements ServiceModule 
 	}
 
 	@Override
-	public ModuleResult apply(Path xmlFilePath, ModuleConfiguration moduleConfiguration) throws IOException, ModuleException {
+	public ModuleResult apply(String xmlFilePath, ModuleConfiguration moduleConfiguration) throws IOException, ModuleException {
 
-		currentPath = xmlFilePath;
-		try (InputStream input = Files.newInputStream(xmlFilePath)) {
+		currentPath = Paths.get(xmlFilePath);
+		try (InputStream input = Files.newInputStream(currentPath)) {
 			return apply(input, moduleConfiguration);
 		}
 	}
@@ -88,8 +89,7 @@ public class SchemaValidationModule extends ModuleBase implements ServiceModule 
 				loadSchema(moduleConfiguration);
 			}
 
-			DOMImplementationLS domImpl = (DOMImplementationLS) DOMImplementationRegistry.newInstance()
-					.getDOMImplementation("LS");
+			DOMImplementationLS domImpl = (DOMImplementationLS) dbf.newDocumentBuilder().getDOMImplementation();
 			errorHandler = new SchemaResolver(configuration.getSchemaPath(), domImpl);
 
 			Validator validator = schema.newValidator();
@@ -99,9 +99,23 @@ public class SchemaValidationModule extends ModuleBase implements ServiceModule 
 			validator.validate(new StreamSource(input));
 
 		} catch (SAXParseException e) {
-			throw new ModuleException("error validating: " + getCurrent(), e);
+			String message = "error validating: " + getCurrent() + " err: " + e;
+			log.debug(message, e);
+			log.info(message);
+			if (moduleConfiguration.isMandatory()) {
+				throw new ModuleException(message, e);
+			} else {
+				return new ModuleResult(false, e);
+			}
 		} catch (Exception e) {
-			throw new IOException("error validating: " + getCurrent(), e);
+			String message = "error validating: " + getCurrent() + " err: " + e;
+			log.info(message, e);
+			log.warn(message);
+			if (moduleConfiguration.isMandatory()) {
+				throw new IOException(message, e);
+			} else {
+				return new ModuleResult(false, e);
+			}
 		}
 
 		if (errorHandler != null && errorHandler.getErrors().size() > 0) {
@@ -114,7 +128,12 @@ public class SchemaValidationModule extends ModuleBase implements ServiceModule 
 							+ errorHandler.getWarnings());
 				}
 			}
-			throw new ModuleException(message);
+			if (moduleConfiguration.isMandatory()) {
+				throw new ModuleException(message);
+			} else {
+				log.info("accepted errors - " + message);
+			}
+			return new ModuleResult(false, errorHandler.getErrors().get(0));
 		}
 
 		return new ModuleResult(true);

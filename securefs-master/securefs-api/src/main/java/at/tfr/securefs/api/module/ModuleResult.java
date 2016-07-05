@@ -1,6 +1,8 @@
 package at.tfr.securefs.api.module;
 
-public class ModuleResult {
+import java.io.Serializable;
+
+public class ModuleResult implements Serializable {
 
 	boolean valid;
 	private Exception exception;
