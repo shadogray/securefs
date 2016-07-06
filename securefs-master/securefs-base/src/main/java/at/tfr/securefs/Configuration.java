@@ -394,6 +394,10 @@ public class Configuration {
     	return restrictedToBasePath;
     }
     
+    public void setRestrictedToBasePath(boolean restrictedToBasePath) {
+		this.restrictedToBasePath = restrictedToBasePath;
+	}
+    
     public boolean isTest() {
 		return test;
 	}

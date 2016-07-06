@@ -68,7 +68,7 @@ public class FileServiceBean implements FileService {
 			throw new IOException(message);
 		}
 		
-        Path path = SecureFileSystemBean.resolvePath(configuration.getBasePath(), relPath);
+        Path path = SecureFileSystemBean.resolvePath(relPath, configuration.getBasePath(), configuration.isRestrictedToBasePath());
         log.debug("write File: " + relPath + " to " + path);
         Path parent = path.getParent();
         Files.createDirectories(parent); // create parent directories unconditionally
@@ -88,7 +88,7 @@ public class FileServiceBean implements FileService {
     public byte[] read(@WebParam(name = "relativePath") String relPath) throws IOException {
 
     	try {
-            Path path = SecureFileSystemBean.resolvePath(configuration.getBasePath(), relPath);
+            Path path = SecureFileSystemBean.resolvePath(relPath, configuration.getBasePath(), configuration.isRestrictedToBasePath());
 	        if (!Files.isRegularFile(path) || !Files.isReadable(path)) {
 	        	throw new IOException("invalid path: "+relPath);
 	        }
@@ -118,7 +118,7 @@ public class FileServiceBean implements FileService {
     @Override
     public boolean delete(String relPath) throws IOException {
     	try {
-            Path path = SecureFileSystemBean.resolvePath(configuration.getBasePath(), relPath);
+            Path path = SecureFileSystemBean.resolvePath(relPath, configuration.getBasePath(), configuration.isRestrictedToBasePath());
 	        if (!Files.isRegularFile(path) || !Files.isReadable(path)) {
 	        	throw new IOException("invalid path: "+relPath);
 	        }

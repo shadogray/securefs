@@ -115,16 +115,6 @@ public class SecureFileSystemBean implements SecureFileSystemItf, Serializable {
     	}
     }
 
-    protected Path resolvePath(String path) {
-    	if (path.startsWith("/")) {
-    		if (config.isRestrictedToBasePath()) {
-    			return resolvePath(rootPath, path.substring(rootPath.toString().length()));
-    		}
-    		return resolvePath(Paths.get("/"), path);
-    	}
-        return resolvePath(rootPath, path);
-    }
-
     @Override
     public SecureRemoteFile newOutputStream(String path, OpenOption... options) throws IOException {
     	try {
@@ -277,7 +267,36 @@ public class SecureFileSystemBean implements SecureFileSystemItf, Serializable {
 		return Files.list(resolvePath(path)).map(p->p.toString()).collect(Collectors.toList());
 	}
 
-	public static Path resolvePath(final Path rootPath, String path) {
+    protected Path resolvePath(String path) {
+    	return resolvePath(path, rootPath, config.isRestrictedToBasePath());
+    }
+
+	/**
+	 * resolve a path, if path is an absolute path (starting with '/'). If restrictedToBasePath 
+	 * the leading basePath will be removed, if existing. The remaining path will be forcibly 
+	 * appended to basePath.
+	 * @param path
+	 * @param restrictedToBasePath
+	 * @param basePath
+	 * @return
+	 */
+    public static Path resolvePath(String path, Path basePath, boolean restrictedToBasePath) {
+    	if (path.startsWith("/")) {
+    		if (restrictedToBasePath) {
+    			return resolvePath(basePath, path.substring(basePath.toString().length()));
+    		}
+    		return resolvePath(Paths.get("/"), path);
+    	}
+        return resolvePath(basePath, path);
+    }
+
+    /**
+     * forcibly resolve a path against the rootPath, filtering upward references e.g.: '../../'  
+     * @param rootPath
+     * @param path leading dots and '/' will be removed
+     * @return
+     */
+    public static Path resolvePath(final Path rootPath, String path) {
         path = path.replaceAll("^(\\.+/|/)*", "");
         final Path p = rootPath.resolve(path);
         return p;

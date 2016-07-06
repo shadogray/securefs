@@ -22,7 +22,7 @@ public class ValidationTest {
 
 		Path withCdata = Paths.get(getClass().getClassLoader().getResource("WithCdata.xml").toURI());
 		CdataProhibitedModule cpm = new CdataProhibitedModule();
-		cpm.apply(withCdata.toString(), new ModuleConfiguration());
+		cpm.apply(withCdata.toString(), new ModuleConfiguration().setMandatory(true));
 
 	}
 
@@ -31,7 +31,7 @@ public class ValidationTest {
 
 		Path withoutCdata = Paths.get(getClass().getClassLoader().getResource("WithoutCdata.xml").toURI());
 		CdataProhibitedModule cpm = new CdataProhibitedModule();
-		cpm.apply(withoutCdata.toString(), new ModuleConfiguration());
+		cpm.apply(withoutCdata.toString(), new ModuleConfiguration().setMandatory(true));
 
 	}
 
@@ -47,7 +47,7 @@ public class ValidationTest {
 		Path fileToValidate = basePath.resolve(file);
 
 		SchemaValidationModule module = new SchemaValidationModule(config);
-		module.apply(fileToValidate.toString(), new ModuleConfiguration());
+		module.apply(fileToValidate.toString(), new ModuleConfiguration().setMandatory(true));
 	}
 
 	@Test
@@ -90,7 +90,7 @@ public class ValidationTest {
 		Path fileToValidate = basePath.resolve(file);
 
 		SchemaValidationModule module = new SchemaValidationModule(config);
-		module.apply(fileToValidate.toString(), new ModuleConfiguration());
+		module.apply(fileToValidate.toString(), new ModuleConfiguration().setMandatory(true));
 	}
 
 	@Test(expected=IOException.class)
@@ -105,7 +105,7 @@ public class ValidationTest {
 		Path fileToValidate = basePath.resolve(file);
 
 		SchemaValidationModule module = new SchemaValidationModule(config);
-		ModuleConfiguration moduleConfiguration = new ModuleConfiguration();
+		ModuleConfiguration moduleConfiguration = new ModuleConfiguration().setMandatory(true);
 		moduleConfiguration.getProperties().put("schemaName", "ELGA-NoSchema-Corrupted.xml");
 		module.apply(fileToValidate.toString(), moduleConfiguration);
 	}
