@@ -10,13 +10,14 @@ import javax.enterprise.inject.Model;
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
-import javax.faces.validator.Validator;
 import javax.faces.validator.ValidatorException;
 import javax.inject.Inject;
 
-import at.tfr.securefs.RevokedKeysBean;
+import at.tfr.securefs.beans.Logging;
+import at.tfr.securefs.service.RevokedKeysBean;
 
 @Model
+@Logging
 public class ShareValidator {
 
 	@Inject

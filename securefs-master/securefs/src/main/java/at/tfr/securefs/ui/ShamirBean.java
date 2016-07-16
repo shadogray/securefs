@@ -21,10 +21,14 @@ import com.tiemens.secretshare.engine.SecretShare.ShareInfo;
 import com.tiemens.secretshare.engine.SecretShare.SplitSecretOutput;
 import com.tiemens.secretshare.math.BigIntUtilities;
 
+import at.tfr.securefs.beans.Audit;
+import at.tfr.securefs.beans.Logging;
 import at.tfr.securefs.ui.util.UI;
 
 @Named
 @ApplicationScoped
+@Audit
+@Logging
 public class ShamirBean {
 
 	private Logger log = Logger.getLogger(getClass());

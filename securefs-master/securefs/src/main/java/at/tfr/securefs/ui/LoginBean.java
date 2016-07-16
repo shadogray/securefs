@@ -4,7 +4,7 @@
  * Licensed under the Eclipse Public License version 1.0, available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package at.tfr.securefs;
+package at.tfr.securefs.ui;
 
 import javax.enterprise.context.RequestScoped;
 import javax.faces.application.FacesMessage;
@@ -15,8 +15,13 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.jboss.logging.Logger;
 
+import at.tfr.securefs.beans.Audit;
+import at.tfr.securefs.beans.Logging;
+
 @Named
 @RequestScoped
+@Audit
+@Logging
 public class LoginBean {
 	private Logger log = Logger.getLogger(getClass());
 	

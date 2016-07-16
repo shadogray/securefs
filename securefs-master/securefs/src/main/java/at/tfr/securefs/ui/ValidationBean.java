@@ -9,19 +9,15 @@ package at.tfr.securefs.ui;
 import java.io.IOException;
 import java.io.Serializable;
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.DependsOn;
 import javax.ejb.Singleton;
 import javax.enterprise.event.Observes;
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
 import javax.faces.model.DataModel;
 import javax.faces.model.ListDataModel;
 import javax.inject.Inject;
@@ -32,25 +28,26 @@ import org.infinispan.Cache;
 import org.jboss.logging.Logger;
 
 import at.tfr.securefs.Configuration;
-import at.tfr.securefs.CrypterProvider;
-import at.tfr.securefs.RevokedKeysBean;
 import at.tfr.securefs.Role;
-import at.tfr.securefs.SecretBean;
-import at.tfr.securefs.SecureFiles;
+import at.tfr.securefs.beans.Audit;
+import at.tfr.securefs.beans.Logging;
 import at.tfr.securefs.cache.SecureFsCache;
 import at.tfr.securefs.cache.SecureFsCacheListener;
 import at.tfr.securefs.data.ValidationData;
 import at.tfr.securefs.event.UiUpdate;
 import at.tfr.securefs.key.KeyConstants;
-import at.tfr.securefs.key.SecretKeySpecBean;
 import at.tfr.securefs.key.Shamir;
 import at.tfr.securefs.key.UiShare;
+import at.tfr.securefs.service.RevokedKeysBean;
+import at.tfr.securefs.service.SecretBean;
 import at.tfr.securefs.ui.util.UI;
 
 @Named
 @Singleton
 @RolesAllowed({Role.OPERATOR, Role.ADMIN})
 @DependsOn({"Configuration", "RevokedKeysBean"})
+@Audit
+@Logging
 public class ValidationBean implements Serializable {
 
 	private static final String XXXXXXXXXXX = "xxxxxxxxxxx";

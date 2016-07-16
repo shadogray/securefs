@@ -6,11 +6,9 @@
  */
 package at.tfr.securefs.event;
 
-import java.io.Serializable;
-
 import at.tfr.securefs.data.CopyFilesData;
 
-public class CopyFiles implements Serializable {
+public class CopyFiles extends SecureFsEvent {
 
 	private CopyFilesData copyFilesData;
 
@@ -25,7 +23,8 @@ public class CopyFiles implements Serializable {
 		return copyFilesData;
 	}
 
-	public void setCopyFilesData(CopyFilesData copyFilesData) {
+	public CopyFiles setCopyFilesData(CopyFilesData copyFilesData) {
 		this.copyFilesData = copyFilesData;
+		return this;
 	}
 }

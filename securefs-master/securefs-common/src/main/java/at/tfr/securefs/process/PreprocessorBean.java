@@ -4,7 +4,7 @@
  * Licensed under the Eclipse Public License version 1.0, available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package at.tfr.securefs;
+package at.tfr.securefs.process;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,6 +23,7 @@ import javax.naming.NamingException;
 
 import org.jboss.logging.Logger;
 
+import at.tfr.securefs.Configuration;
 import at.tfr.securefs.api.module.ModuleConfiguration;
 import at.tfr.securefs.api.module.ModuleException;
 import at.tfr.securefs.api.module.ModuleResult;

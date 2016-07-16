@@ -6,11 +6,10 @@
  */
 package at.tfr.securefs.event;
 
-public class SecureFs {
+public class SecureFs extends SecureFsEvent {
 
 	private String path;
 	private boolean fileSystem;
-	private SecfsEventType type;
 
 	public SecureFs(String path, boolean fileSystem, SecfsEventType type) {
 		this.path = path;
@@ -22,24 +21,23 @@ public class SecureFs {
 		return path;
 	}
 
-	public void setPath(String path) {
+	public SecureFs setPath(String path) {
 		this.path = path;
+		return this;
 	}
 
 	public boolean isFileSystem() {
 		return fileSystem;
 	}
 
-	public void setFileSystem(boolean file) {
+	public SecureFs setFileSystem(boolean file) {
 		this.fileSystem = file;
+		return this;
 	}
 
-	public SecfsEventType getType() {
-		return type;
-	}
-
-	public void setType(SecfsEventType type) {
-		this.type = type;
+	@Override
+	public String toString() {
+		return getClass().getSimpleName() + "[" + type + ", fs=" + fileSystem + ", path=" + path + "]";
 	}
 
 }

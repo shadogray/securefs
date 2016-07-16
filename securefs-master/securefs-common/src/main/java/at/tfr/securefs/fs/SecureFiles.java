@@ -4,7 +4,7 @@
  * Licensed under the Eclipse Public License version 1.0, available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package at.tfr.securefs;
+package at.tfr.securefs.fs;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -21,6 +21,11 @@ import javax.inject.Inject;
 
 import org.apache.commons.lang.StringUtils;
 
+import at.tfr.securefs.beans.Logging;
+import at.tfr.securefs.service.CrypterProvider;
+import at.tfr.securefs.service.SecretBean;
+
+@Logging
 public class SecureFiles {
 
 	private static final Charset UTF8 = Charset.forName("UTF-8");
@@ -35,7 +40,11 @@ public class SecureFiles {
 		this.crypterProvider = crypterProvider;
 	}
 
-	/**
+    public boolean hasKey() {
+    	return crypterProvider.hasKey();
+    }
+
+    /**
 	 * see {@link #readLines(Path, BigInteger)}
 	 * @param path
 	 * @return

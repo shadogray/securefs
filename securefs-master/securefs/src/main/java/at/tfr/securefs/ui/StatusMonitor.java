@@ -32,14 +32,16 @@ import org.apache.commons.collections.keyvalue.DefaultKeyValue;
 import org.infinispan.Cache;
 import org.jboss.logging.Logger;
 
-import at.tfr.securefs.RevokedKeysBean;
 import at.tfr.securefs.Role;
-import at.tfr.securefs.SecretBean;
+import at.tfr.securefs.beans.Audit;
+import at.tfr.securefs.beans.Logging;
 import at.tfr.securefs.cache.ClusterState;
 import at.tfr.securefs.cache.SecureFsCache;
 import at.tfr.securefs.cache.SecureFsCacheListener;
 import at.tfr.securefs.event.SecureFs;
 import at.tfr.securefs.event.SecureFsMonitor;
+import at.tfr.securefs.service.RevokedKeysBean;
+import at.tfr.securefs.service.SecretBean;
 
 @Named
 @Startup
@@ -47,6 +49,8 @@ import at.tfr.securefs.event.SecureFsMonitor;
 @PermitAll
 @DependsOn({"SecretBean", "RevokedKeysBean"})
 @RunAs(Role.OPERATOR)
+@Audit
+@Logging
 public class StatusMonitor {
 
 	private Logger log = Logger.getLogger(getClass());

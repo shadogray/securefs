@@ -4,15 +4,15 @@
  * Licensed under the Eclipse Public License version 1.0, available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package at.tfr.securefs;
+package at.tfr.securefs.fs;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Serializable;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -29,12 +29,15 @@ import javax.ejb.TransactionManagementType;
 import javax.imageio.IIOException;
 import javax.inject.Inject;
 import javax.persistence.PostLoad;
+import javax.xml.rpc.holders.LongWrapperHolder;
 
 import org.jboss.annotation.ejb.cache.simple.CacheConfig;
 import org.jboss.logging.Logger;
 
 import at.tfr.securefs.api.Buffer;
 import at.tfr.securefs.api.SecureRemoteFile;
+import at.tfr.securefs.beans.Logging;
+import at.tfr.securefs.event.Events;
 import at.tfr.securefs.event.SecfsEventType;
 import at.tfr.securefs.event.SecureFs;
 
@@ -48,24 +51,33 @@ import at.tfr.securefs.event.SecureFs;
 @CacheConfig(idleTimeoutSeconds = 15, removalTimeoutSeconds = 5, maxSize = 10000)
 //@RolesAllowed({Role.USER, Role.LOCAL})
 @PermitAll
-@DependsOn({"CrypterProvider", "SecureFSEventBean"})
+@DependsOn({"CrypterProvider", "EventsBean"})
+@Logging
 @TransactionManagement(TransactionManagementType.BEAN)
-public class SecureFileBean implements SecureRemoteFile, Serializable {
+public class SecureFileBean implements SecureRemoteFile {
 
     private Logger log = Logger.getLogger(getClass());
     @Resource
     private SessionContext ctx;
-    @Inject
-    private SecureFSEvent secfsEvent;
+    private Events events;
     private transient InputStream in;
     private transient OutputStream out;
     private String pathName;
+    private AtomicBoolean closed = new AtomicBoolean();
     private transient Path path;
+    
+    public SecureFileBean() {
+	}
+    
+    @Inject
+    public SecureFileBean(Events events) {
+    	this.events = events;
+	}
 
     @PostConstruct
     private void init() {
         log.debug("created ctx=" + ctx);
-        secfsEvent.sendEvent(new SecureFs(pathName, false, SecfsEventType.construct));
+        events.sendEvent(new SecureFs(pathName, false, SecfsEventType.construct));
     }
 
     @Override
@@ -133,26 +145,34 @@ public class SecureFileBean implements SecureRemoteFile, Serializable {
     public void close() {
         if (isOpen()) {
             logInfo("close: " + path, null);
+            if (closed.get()) {
+                log.warn("closing after close: "+(in != null ? "IN" : out != null ? "OUT" : "UNDEF")+" still open : " + path);
+            }
         }
         if (in != null) {
             try {
                 in.close();
+                log.debug("closed IN: " + path);
             } catch (Throwable t) {
                 logInfo("cannot close IN correctly: " + path + " : " + t, t);
+            } finally {
                 in = null;
             }
         }
         if (out != null) {
             try {
                 out.close();
-                out = null;
+                log.debug("closed OUT: " + path);
             } catch (Throwable t) {
                 logInfo("cannot close OUT correctly: " + path + " : " + t, t);
-                in = null;
+            } finally {
+                out = null;
             }
         }
-        log.debug("closed: " + path);
-        secfsEvent.sendEvent(new SecureFs(pathName, false, SecfsEventType.destroy));
+    	boolean isclosed = closed.getAndSet(true);
+    	if (!isclosed) {
+    		events.sendEvent(new SecureFs(pathName, false, SecfsEventType.destroy));
+    	}
     }
 
     public InputStream getIn() {
@@ -179,7 +199,7 @@ public class SecureFileBean implements SecureRemoteFile, Serializable {
         this.path = path;
         this.pathName = path.toString();
         log.debug("setPath: " + path + " ctx=" + ctx);
-        secfsEvent.sendEvent(new SecureFs(pathName, false, SecfsEventType.init));
+        events.sendEvent(new SecureFs(pathName, false, SecfsEventType.init));
     }
 
     public SecureRemoteFile getRemote() {

@@ -18,10 +18,14 @@ import javax.inject.Named;
 
 import org.jboss.logging.Logger;
 
-import at.tfr.securefs.RevokedKeysBean;
+import at.tfr.securefs.beans.Audit;
+import at.tfr.securefs.beans.Logging;
+import at.tfr.securefs.service.RevokedKeysBean;
 
 @Named
 @ViewScoped
+@Audit
+@Logging
 public class RevokeBean implements Serializable {
 
 	private Logger log = Logger.getLogger(getClass());

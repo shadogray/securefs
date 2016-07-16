@@ -7,10 +7,7 @@
 package at.tfr.securefs;
 
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.junit.Test;
 

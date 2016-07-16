@@ -4,7 +4,7 @@
  * Licensed under the Eclipse Public License version 1.0, available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package at.tfr.securefs;
+package at.tfr.securefs.service;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,10 +27,12 @@ import javax.inject.Inject;
 
 import org.jboss.logging.Logger;
 
+import at.tfr.securefs.beans.Logging;
 import at.tfr.securefs.key.SecretKeySpecBean;
 
 @Singleton
 @DependsOn({"SecretKeySpecBean"})
+@Logging
 @TransactionManagement(TransactionManagementType.BEAN)
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 public class CrypterProvider {
@@ -47,6 +49,10 @@ public class CrypterProvider {
 		this.sskBean = sskBean;
 	}
 
+    public boolean hasKey() {
+    	return sskBean.hasKey();
+    }
+    
     /**
      * see {@link #getEncrypter(Path, BigInteger)}
      * @param path

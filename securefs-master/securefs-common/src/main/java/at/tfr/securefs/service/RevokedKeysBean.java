@@ -4,7 +4,7 @@
  * Licensed under the Eclipse Public License version 1.0, available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package at.tfr.securefs;
+package at.tfr.securefs.service;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -28,7 +28,12 @@ import javax.inject.Named;
 
 import org.jboss.logging.Logger;
 
-import at.tfr.securefs.event.KeyChanged;
+import at.tfr.securefs.Configuration;
+import at.tfr.securefs.Role;
+import at.tfr.securefs.beans.Logging;
+import at.tfr.securefs.event.KeyEvent;
+import at.tfr.securefs.event.SecfsEventType;
+import at.tfr.securefs.fs.SecureFiles;
 
 @Named
 @Startup
@@ -36,12 +41,12 @@ import at.tfr.securefs.event.KeyChanged;
 @RolesAllowed({Role.OPERATOR, Role.ADMIN})
 @RunAs(Role.ADMIN)
 @DependsOn({"Configuration", "CrypterProvider"})
+@Logging
 public class RevokedKeysBean {
 
 	private Logger log = Logger.getLogger(getClass());
 
 	private static final String REVOKED_KEYS = "RevokedKeys";
-    private Path revokedKeysPath;
 	private List<String> revokedKeys;
     private SecureFiles secureFiles;
     private Configuration configuration;
@@ -57,16 +62,20 @@ public class RevokedKeysBean {
 
 	@PostConstruct
     private void init() {
-        revokedKeysPath = configuration.getRevokedKeysPath();
-        try {
-			if (Files.exists(revokedKeysPath)) {
-	        	revokedKeys = readAndValidate(revokedKeysPath, null);
-	        } else {
-	        	writeAndValidate(revokedKeysPath, false);
+        Path revokedKeysPath = configuration.getRevokedKeysPath();
+		if (secureFiles.hasKey()) {
+	        try {
+				if (Files.exists(revokedKeysPath)) {
+		        	revokedKeys = readAndValidate(revokedKeysPath, null);
+		        } else {
+		        	writeAndValidate(revokedKeysPath, false);
+		        }
+	        } catch (Exception e) {
+	        	log.error("Cannot read " + REVOKED_KEYS + " : " + e, e);
 	        }
-        } catch (Exception e) {
-        	log.error("Cannot read " + REVOKED_KEYS + " : " + e, e);
-        }
+		} else {
+			log.warn("Cannot initialize RevokedKeys, no Key");
+		}
     }
 
 	@RolesAllowed(Role.ADMIN)
@@ -88,9 +97,11 @@ public class RevokedKeysBean {
 		return Collections.unmodifiableList(revokedKeys);
 	}
 
-    public void keyChanged(@Observes KeyChanged event) throws IOException {
+    public void keyChanged(@Observes KeyEvent event) throws IOException {
         try {
-        	writeAndValidate(revokedKeysPath, true);
+        	if (SecfsEventType.newKey.equals(event.getType())) {
+        		writeAndValidate(configuration.getRevokedKeysPath(), true);
+        	}
         } catch (IOException e) {
         	log.error("Cannot read " + REVOKED_KEYS + " : " + e, e);
         	throw e;
@@ -114,7 +125,7 @@ public class RevokedKeysBean {
      * @throws IOException
      */
     public List<String> readAndValidate(BigInteger secret) throws IOException {
-        return readAndValidate(revokedKeysPath, secret);
+        return readAndValidate(configuration.getRevokedKeysPath(), secret);
     }
     
     /**
@@ -147,7 +158,7 @@ public class RevokedKeysBean {
 
     public void persist(boolean initialize) {
     	try {
-	    	writeAndValidate(revokedKeysPath, initialize);
+	    	writeAndValidate(configuration.getRevokedKeysPath(), initialize);
     	} catch (Exception e) {
         	log.error("Cannot persist " + REVOKED_KEYS + " : " + e, e);
     	}

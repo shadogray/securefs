@@ -41,8 +41,9 @@ import org.apache.commons.lang.StringUtils;
 import org.infinispan.Cache;
 import org.jboss.logging.Logger;
 
-import at.tfr.securefs.CrypterProvider;
 import at.tfr.securefs.Role;
+import at.tfr.securefs.beans.Audit;
+import at.tfr.securefs.beans.Logging;
 import at.tfr.securefs.cache.SecureFsCache;
 import at.tfr.securefs.cache.SecureFsCacheListener;
 import at.tfr.securefs.data.CopyFilesData;
@@ -51,12 +52,15 @@ import at.tfr.securefs.event.CopyFiles;
 import at.tfr.securefs.key.KeyConstants;
 import at.tfr.securefs.key.Shamir;
 import at.tfr.securefs.key.UiShare;
+import at.tfr.securefs.service.CrypterProvider;
 import at.tfr.securefs.ui.util.UI;
 
 @Named
 @Singleton
 @RolesAllowed(Role.ADMIN)
 @DependsOn({"SecretKeySpecBean"})
+@Audit
+@Logging
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 @TransactionManagement(TransactionManagementType.BEAN)
 public class CopyFilesBean implements Serializable {

@@ -7,5 +7,5 @@
 package at.tfr.securefs.event;
 
 public enum SecfsEventType {
-	construct, init, destroy
+	none, construct, init, destroy, newKey, updateKey, noKey, monitor
 }

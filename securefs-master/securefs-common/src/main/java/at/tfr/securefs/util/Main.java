@@ -25,11 +25,11 @@ import javax.crypto.CipherOutputStream;
 import org.apache.commons.io.IOUtils;
 
 import at.tfr.securefs.Configuration;
-import at.tfr.securefs.SecretBean;
 import at.tfr.securefs.key.KeyConstants;
 import at.tfr.securefs.key.SecretKeySpecBean;
 import at.tfr.securefs.key.Shamir;
 import at.tfr.securefs.key.UiShare;
+import at.tfr.securefs.service.SecretBean;
 
 public class Main {
 

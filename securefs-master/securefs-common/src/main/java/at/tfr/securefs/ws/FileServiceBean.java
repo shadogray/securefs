@@ -4,10 +4,9 @@
  * Licensed under the Eclipse Public License version 1.0, available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package at.tfr.securefs;
+package at.tfr.securefs.ws;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -26,8 +25,12 @@ import javax.xml.ws.soap.MTOM;
 import org.apache.commons.io.IOUtils;
 import org.jboss.logging.Logger;
 
+import at.tfr.securefs.Configuration;
 import at.tfr.securefs.api.FileService;
 import at.tfr.securefs.api.module.ModuleException;
+import at.tfr.securefs.fs.SecureFileSystemBean;
+import at.tfr.securefs.process.PreprocessorBean;
+import at.tfr.securefs.service.CrypterProvider;
 
 @MTOM(enabled = true)
 @WebService(serviceName = "FileService", portName = "FileServicePort")

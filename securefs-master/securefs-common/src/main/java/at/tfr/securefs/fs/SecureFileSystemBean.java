@@ -4,10 +4,9 @@
  * Licensed under the Eclipse Public License version 1.0, available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package at.tfr.securefs;
+package at.tfr.securefs.fs;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.nio.file.AccessMode;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -22,6 +21,7 @@ import java.nio.file.attribute.FileAttributeView;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -40,12 +40,18 @@ import javax.inject.Inject;
 import org.jboss.annotation.ejb.cache.simple.CacheConfig;
 import org.jboss.logging.Logger;
 
+import at.tfr.securefs.Configuration;
+import at.tfr.securefs.Role;
 import at.tfr.securefs.api.SecureFSIOException;
 import at.tfr.securefs.api.SecureFileAttributes;
 import at.tfr.securefs.api.SecureFileSystemItf;
 import at.tfr.securefs.api.SecureRemoteFile;
+import at.tfr.securefs.beans.BeanProvider;
+import at.tfr.securefs.beans.Logging;
+import at.tfr.securefs.event.Events;
 import at.tfr.securefs.event.SecfsEventType;
 import at.tfr.securefs.event.SecureFs;
+import at.tfr.securefs.service.CrypterProvider;
 
 /**
  *
@@ -55,34 +61,45 @@ import at.tfr.securefs.event.SecureFs;
 @Remote(SecureFileSystemItf.class)
 @CacheConfig(idleTimeoutSeconds = 950, removalTimeoutSeconds = 900, maxSize = 1000)
 @RolesAllowed({Role.USER, Role.LOCAL})
-@DependsOn({"Configuration", "CrypterProvider", "SecureFSEventBean"})
+@DependsOn({"Configuration", "CrypterProvider", "EventsBean"})
+@Logging
 @TransactionManagement(TransactionManagementType.BEAN)
-public class SecureFileSystemBean implements SecureFileSystemItf, Serializable {
+public class SecureFileSystemBean implements SecureFileSystemItf {
 
     private Logger log = Logger.getLogger(getClass());
     @Resource
     private SessionContext ctx;
-    @Inject
-    private transient Configuration config;
-    @Inject
-    private transient BeanProvider beanProvider;
-    @Inject
-    private transient CrypterProvider crypterProvider;
-    @Inject
-    private SecureFSEvent secfsEventBean;
+    private Configuration config;
+    private BeanProvider beanProvider;
+    private CrypterProvider crypterProvider;
+    private Events events;
     private String rootPathName;
+    private AtomicBoolean closed = new AtomicBoolean();
     private transient Path rootPath;
 
+    public SecureFileSystemBean() {
+	}
+    
+    @Inject
+    public SecureFileSystemBean(Configuration configuration, BeanProvider beanProvider, 
+    		CrypterProvider crypterProvider, Events events) {
+    	this.config = configuration;
+    	this.beanProvider = beanProvider;
+    	this.crypterProvider = crypterProvider;
+    	this.events = events;
+    }
+    
     @PostConstruct
     private void init() {
         rootPath = config.getBasePath();
         rootPathName = rootPath.toString();
         log.debug("init: " + rootPath);
-        secfsEventBean.sendEvent(new SecureFs(rootPathName, true, SecfsEventType.construct));
+        events.sendEvent(new SecureFs(rootPathName, true, SecfsEventType.construct));
     }
 
     @Override
     public void createDirectory(String path, FileAttribute... attrs) throws IOException {
+    	if (closed.get()) throw new IOException("closed.");
     	try {
 	        Path p = resolvePath(path);
 	        Files.createDirectories(p, attrs);
@@ -94,6 +111,7 @@ public class SecureFileSystemBean implements SecureFileSystemItf, Serializable {
 
     @Override
     public boolean deleteIfExists(final String path) throws IOException {
+    	if (closed.get()) throw new IOException("closed.");
     	try {
 	        Path p = resolvePath(path);
 	        if (p == null) {
@@ -108,6 +126,7 @@ public class SecureFileSystemBean implements SecureFileSystemItf, Serializable {
 
     @Override
     public boolean isSameFile(String path, String path2) throws IOException {
+    	if (closed.get()) throw new IOException("closed.");
     	try {
     		return rootPath.getFileSystem().provider().isSameFile(resolvePath(path), resolvePath(path2));
     	} catch (IOException ioe) {
@@ -117,6 +136,7 @@ public class SecureFileSystemBean implements SecureFileSystemItf, Serializable {
 
     @Override
     public SecureRemoteFile newOutputStream(String path, OpenOption... options) throws IOException {
+    	if (closed.get()) throw new IOException("closed.");
     	try {
 	        logInfo("newOutputStream: " + path);
 	        Path p = resolvePath(path);
@@ -135,6 +155,7 @@ public class SecureFileSystemBean implements SecureFileSystemItf, Serializable {
 
     @Override
     public SecureRemoteFile newInputStream(String path, OpenOption... options) throws IOException {
+    	if (closed.get()) throw new IOException("closed.");
     	try {
 	        logInfo("newInputStream: " + path);
 	        Path p = resolvePath(path);
@@ -165,6 +186,7 @@ public class SecureFileSystemBean implements SecureFileSystemItf, Serializable {
 
     @Override
     public void setRootPath(String root) throws IOException {
+    	if (closed.get()) throw new IOException("closed.");
     	try {
 	    	if (root.matches("^/\\w:/.*$")) { // for Windows
 	    		root = root.replaceFirst("/", "");
@@ -190,13 +212,16 @@ public class SecureFileSystemBean implements SecureFileSystemItf, Serializable {
     @Remove
     @PreDestroy
     public void close() {
-        logInfo("Closing FileSystem: " + rootPath);
-        secfsEventBean.sendEvent(new SecureFs(rootPathName, true, SecfsEventType.destroy));
+    	boolean isclosed = closed.getAndSet(true);
+    	if (!isclosed) {
+	        logInfo("Closing FileSystem: " + rootPath);
+	        events.sendEvent(new SecureFs(rootPathName, true, SecfsEventType.destroy));
+    	}
     }
 
     @Override
     public boolean isOpen() {
-        return true;
+        return !closed.get();
     }
 
     @Override
@@ -221,6 +246,7 @@ public class SecureFileSystemBean implements SecureFileSystemItf, Serializable {
 
     @Override
 	public void checkAccess(String path, AccessMode... modes) throws IOException {
+    	if (closed.get()) throw new IOException("closed.");
     	try {
     		rootPath.getFileSystem().provider().checkAccess(resolvePath(path), modes);
     	} catch (IOException ioe) {
@@ -236,6 +262,7 @@ public class SecureFileSystemBean implements SecureFileSystemItf, Serializable {
 	@Override
 	@SuppressWarnings("unchecked")
 	public <A extends BasicFileAttributes> A readAttributes(String path, Class<A> type, LinkOption... options) throws IOException {
+    	if (closed.get()) throw new IOException("closed.");
 		try {
 			BasicFileAttributes attrs = rootPath.getFileSystem().provider().readAttributes(resolvePath(path), type, options);
 			return (A)SecureFileAttributes.from(attrs);
@@ -246,6 +273,7 @@ public class SecureFileSystemBean implements SecureFileSystemItf, Serializable {
 
 	@Override
 	public Map<String, Object> readAttributes(String path, String attributes, LinkOption... options) throws IOException {
+    	if (closed.get()) throw new IOException("closed.");
 		try {
 			return rootPath.getFileSystem().provider().readAttributes(resolvePath(path), attributes, options);
     	} catch (IOException ioe) {
@@ -255,6 +283,7 @@ public class SecureFileSystemBean implements SecureFileSystemItf, Serializable {
 
 	@Override
 	public String readSymbolicLink(String link) throws IOException {
+    	if (closed.get()) throw new IOException("closed.");
 		try {
 			return rootPath.getFileSystem().provider().readSymbolicLink(resolvePath(link)).toString();
     	} catch (IOException ioe) {
@@ -264,6 +293,7 @@ public class SecureFileSystemBean implements SecureFileSystemItf, Serializable {
 	
 	@Override
 	public Collection<String> list(String path) throws IOException {
+    	if (closed.get()) throw new IOException("closed.");
 		return Files.list(resolvePath(path)).map(p->p.toString()).collect(Collectors.toList());
 	}
 

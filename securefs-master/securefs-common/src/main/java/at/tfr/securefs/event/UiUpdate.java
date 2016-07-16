@@ -8,7 +8,7 @@ package at.tfr.securefs.event;
 
 import at.tfr.securefs.data.ValidationData;
 
-public class UiUpdate {
+public class UiUpdate extends SecureFsEvent {
 	
 	private ValidationData validationData;
 

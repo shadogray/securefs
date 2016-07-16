@@ -11,16 +11,17 @@ import java.util.TreeMap;
 
 import at.tfr.securefs.cache.ClusterState;
 
-public class SecureFsMonitor {
+public class SecureFsMonitor extends SecureFsEvent {
 	
 	private Map<String, ClusterState> states = new TreeMap<>();
 
 	public SecureFsMonitor(Map<String, ClusterState> states) {
-		super();
+		this();
 		this.states = states;
 	}
 	
 	public SecureFsMonitor() {
+		type = SecfsEventType.monitor;
 	}
 	
 	public Map<String, ClusterState> getStates() {

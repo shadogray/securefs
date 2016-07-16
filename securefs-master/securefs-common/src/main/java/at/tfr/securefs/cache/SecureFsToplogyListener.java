@@ -10,7 +10,6 @@ import javax.annotation.security.PermitAll;
 import javax.annotation.security.RunAs;
 import javax.ejb.Asynchronous;
 import javax.ejb.Stateless;
-import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
 import org.infinispan.notifications.Listener;
@@ -20,6 +19,8 @@ import org.infinispan.remoting.transport.Address;
 import org.jboss.logging.Logger;
 
 import at.tfr.securefs.Role;
+import at.tfr.securefs.beans.Logging;
+import at.tfr.securefs.event.Events;
 import at.tfr.securefs.event.SecureFsMonitor;
 
 @Listener(clustered=true)
@@ -27,12 +28,20 @@ import at.tfr.securefs.event.SecureFsMonitor;
 @Stateless
 @PermitAll
 @RunAs(Role.ADMIN)
+@Logging
 public class SecureFsToplogyListener {
 
 	private Logger log = Logger.getLogger(getClass());
 
+	private Events events;
+	
+	public SecureFsToplogyListener() {
+	}
+	
 	@Inject
-	private Event<SecureFsMonitor> monitorEvent;
+	public SecureFsToplogyListener(Events events) {
+		this.events = events;
+	}
 
 	@ViewChanged
 	public void viewChanged(ViewChangedEvent viewChangedEvent) {
@@ -41,6 +50,6 @@ public class SecureFsToplogyListener {
 		for (Address address : viewChangedEvent.getNewMembers()) {
 			mevt.add(address.toString(), address.getClass().getSimpleName(), address.toString());
 		}
-		monitorEvent.fire(mevt);
+		events.sendEvent(mevt);
 	}
 }

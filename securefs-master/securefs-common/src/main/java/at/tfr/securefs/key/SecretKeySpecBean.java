@@ -16,7 +16,6 @@ import java.security.spec.KeySpec;
 import java.util.Arrays;
 
 import javax.annotation.security.PermitAll;
-import javax.annotation.security.RolesAllowed;
 import javax.annotation.security.RunAs;
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
@@ -31,7 +30,8 @@ import javax.inject.Inject;
 
 import at.tfr.securefs.Configuration;
 import at.tfr.securefs.Role;
-import at.tfr.securefs.SecretBean;
+import at.tfr.securefs.api.SecureFSError;
+import at.tfr.securefs.service.SecretBean;
 
 @Singleton
 @PermitAll
@@ -51,6 +51,10 @@ public class SecretKeySpecBean {
 	public SecretKeySpecBean(Configuration configuration, SecretBean secretBean) {
 		this.configuration = configuration;
 		this.secretBean = secretBean;
+	}
+	
+	public boolean hasKey() {
+		return secretBean.hasSecret();
 	}
 
 	/**
@@ -90,8 +94,13 @@ public class SecretKeySpecBean {
 		if (secret == null) {
 			secret = secretBean.getSecret();
 		}
+			
 		if (salt == null) {
 			salt = configuration.getSalt();
+		}
+		
+		if (salt == null) {
+			throw new SecureFSError("Configuration error: Salt undefined");
 		}
 
 		SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");

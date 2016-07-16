@@ -18,6 +18,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
+		<additionalparam>-Xdoclint:none</additionalparam>
 	</properties>
 
 	<dependencyManagement>
@@ -182,6 +183,20 @@
 		<module>securefs-client-test</module>
 		<!--<module>securefs-json-client</module> -->
 	</modules>
+
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>2.10.4</version>
+				<configuration>
+					<aggregate>true</aggregate>
+					<additionalparam>-Xdoclint:none</additionalparam>
+				</configuration>
+			</plugin>
+		</plugins>
+	</reporting>
 
 	<repositories>
 		<repository>

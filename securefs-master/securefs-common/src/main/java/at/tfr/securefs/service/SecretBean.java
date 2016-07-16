@@ -4,7 +4,7 @@
  * Licensed under the Eclipse Public License version 1.0, available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package at.tfr.securefs;
+package at.tfr.securefs.service;
 
 import java.io.Serializable;
 import java.math.BigInteger;
@@ -14,17 +14,22 @@ import javax.annotation.PostConstruct;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.DependsOn;
+import javax.ejb.Schedule;
 import javax.ejb.Singleton;
-import javax.enterprise.event.Event;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
 import org.infinispan.Cache;
 import org.jboss.logging.Logger;
 
+import at.tfr.securefs.Configuration;
+import at.tfr.securefs.Role;
+import at.tfr.securefs.api.SecureFSKeyNotInitializedError;
+import at.tfr.securefs.beans.Logging;
 import at.tfr.securefs.cache.SecureFsCache;
-import at.tfr.securefs.event.KeyChanged;
-import at.tfr.securefs.event.NewKey;
+import at.tfr.securefs.event.Events;
+import at.tfr.securefs.event.KeyEvent;
+import at.tfr.securefs.event.SecfsEventType;
 import at.tfr.securefs.key.KeyConstants;
 import at.tfr.securefs.key.Shamir;
 import at.tfr.securefs.key.UiShare;
@@ -39,7 +44,7 @@ public class SecretBean implements Serializable {
 	public static final String SECRET_CACHE_KEY = "securefs.secret.cacheKey";
 	private transient BigInteger secret;
 	private Configuration configuration;
-	private Event<KeyChanged> event;
+	private Events events;
 	private Cache<String, Object> cache;
 
 	public SecretBean() {
@@ -50,21 +55,15 @@ public class SecretBean implements Serializable {
 	}
 
 	@Inject
-    public SecretBean(Configuration configuration, Event<KeyChanged> event, @SecureFsCache Cache<String, Object> cache) {
+    public SecretBean(Configuration configuration, Events events, @SecureFsCache Cache<String, Object> cache) {
 		this.configuration = configuration;
-		this.event = event;
+		this.events = events;
 		this.cache = cache;
 	}
 
 	@PostConstruct
-	private void init() {
-		if (cache != null) {
-			Object cached = cache.get(SECRET_CACHE_KEY);
-			if (cached instanceof BigInteger) {
-				secret = (BigInteger)cached;
-				log.info("retrieved secret from cache.");
-			}
-		}
+	void init() {
+		retrieveSecret();
         if (secret == null && configuration.isTest()) {
             int nrOfShares = KeyConstants.nrOfSharesForTest;
             int threshold = KeyConstants.thresholdForTest;
@@ -78,8 +77,32 @@ public class SecretBean implements Serializable {
         }
 	}
 
+	@Schedule(persistent=false, second="0/5") 
+	void schedule() {
+		retrieveSecret();
+	}
+	
+	private void retrieveSecret() {
+		if (cache != null) {
+			if (secret == null) {
+				Object cached = cache.get(SECRET_CACHE_KEY);
+				if (cached instanceof BigInteger && !BigInteger.ZERO.equals(cached)) {
+					secret = (BigInteger)cached;
+					log.info("retrieved secret from cache.");
+				} 
+			}
+			if (secret == null) {
+				cache.put(SECRET_CACHE_KEY, BigInteger.ZERO);
+				log.info("sent NoSecret to cache.");
+			}
+		}
+	}
+
 	@RolesAllowed(Role.ADMIN)
 	public BigInteger getSecret() {
+		if (secret == null) {
+			throw new SecureFSKeyNotInitializedError("SecretKey not available.");
+		}					
         return secret;
     }
 
@@ -89,22 +112,27 @@ public class SecretBean implements Serializable {
         if (cache != null) {
         	cache.put(SECRET_CACHE_KEY, secret);
         }
-        if (event != null) {
-        	event.fire(new KeyChanged());
+        if (events != null) {
+        	events.sendEvent(new KeyEvent(SecfsEventType.newKey));
         }
     }
 
     @PermitAll
+    @Logging
     public boolean hasSecret() {
     	return secret != null;
     }
     
     @RolesAllowed(Role.ADMIN)
-    public void handleEvent(@Observes NewKey event) {
+    public void handleEvent(@Observes KeyEvent event) {
     	log.debug("handleEvent: "+event.getClass().getSimpleName());
-    	if (event.getNewKey() != null && secret != null && !secret.equals(event.getNewKey())) {
-    		secret = event.getNewKey();
+    	if (SecfsEventType.updateKey.equals(event.getType()) && event.getKey() != null 
+    			&& !BigInteger.ZERO.equals(event.getKey()) && !event.getKey().equals(secret)) {
+    		secret = event.getKey();
         	log.info("handleEvent: updated secret.");
+            if (events != null) {
+            	events.sendEvent(new KeyEvent(SecfsEventType.newKey));
+            }
     	}
     }
 }
