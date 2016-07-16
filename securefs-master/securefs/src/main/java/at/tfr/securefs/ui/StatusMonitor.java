@@ -6,6 +6,8 @@
  */
 package at.tfr.securefs.ui;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +28,7 @@ import javax.enterprise.event.Observes;
 import javax.faces.model.CollectionDataModel;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.mail.internet.InternetAddress;
 
 import org.apache.commons.collections.KeyValue;
 import org.apache.commons.collections.keyvalue.DefaultKeyValue;
@@ -47,7 +50,7 @@ import at.tfr.securefs.service.SecretBean;
 @Startup
 @Singleton
 @PermitAll
-@DependsOn({"SecretBean", "RevokedKeysBean"})
+@DependsOn({ "SecretBean", "RevokedKeysBean" })
 @RunAs(Role.OPERATOR)
 @Audit
 @Logging
@@ -227,14 +230,23 @@ public class StatusMonitor {
 		}
 	}
 
+	private String getNodeName() {
+		try {
+			return System.getProperty("jboss.node.name", InetAddress.getLocalHost().getHostName());
+		} catch (UnknownHostException e) {
+			log.info("cannot get hostname: " + e, e);
+			return "" + this.hashCode();
+		}
+	}
+
 	private void updateCache(ClusterState state) {
-		cache.put(SecureFsCacheListener.STATUS_MONITOR_CACHE_KEY + "_" + this.hashCode(), state);
+		cache.put(SecureFsCacheListener.STATUS_MONITOR_CACHE_KEY + "_" + getNodeName(), state);
 	}
 
 	@PreDestroy
 	private void destroy() {
 		if (cache != null) {
-			cache.remove(SecureFsCacheListener.STATUS_MONITOR_CACHE_KEY + "_" + this.hashCode());
+			cache.remove(SecureFsCacheListener.STATUS_MONITOR_CACHE_KEY + "_" + getNodeName());
 		}
 	}
 }
