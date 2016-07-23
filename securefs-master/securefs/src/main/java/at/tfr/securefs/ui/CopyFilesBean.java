@@ -11,7 +11,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.math.BigInteger;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
@@ -20,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.activity.InvalidActivityException;
 import javax.annotation.PostConstruct;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.ConcurrencyManagement;
@@ -42,6 +42,7 @@ import org.infinispan.Cache;
 import org.jboss.logging.Logger;
 
 import at.tfr.securefs.Role;
+import at.tfr.securefs.api.SecureFSError;
 import at.tfr.securefs.beans.Audit;
 import at.tfr.securefs.beans.Logging;
 import at.tfr.securefs.cache.SecureFsCache;
@@ -58,7 +59,7 @@ import at.tfr.securefs.ui.util.UI;
 @Named
 @Singleton
 @RolesAllowed(Role.ADMIN)
-@DependsOn({"SecretKeySpecBean"})
+@DependsOn({ "SecretKeySpecBean" })
 @Audit
 @Logging
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
@@ -77,6 +78,7 @@ public class CopyFilesBean implements Serializable {
 	private UiShare editedShare;
 	private int editedShareIndex;
 	private String fromPathName, toPathName;
+	private boolean update, allowOverwriteExisting;
 	private CrypterProvider crypterProvider;
 	private Cache<String, Object> cache;
 	@Inject
@@ -103,9 +105,12 @@ public class CopyFilesBean implements Serializable {
 	}
 
 	public void reset() {
-		copyFilesData.setCopyActive(false);
-		copyFilesData.setLastError(null);
-		copyFilesData.getValidationData().clear();
+		if (copyFilesData.isCopyActive()) {
+			UI.error("Copy already active: from=" + copyFilesData.getFromRootPath() + " to="
+					+ copyFilesData.getToRootPath());
+			return;
+		}
+		copyFilesData.reset();
 		newSecret = null;
 		combined = false;
 		updateCache();
@@ -135,8 +140,7 @@ public class CopyFilesBean implements Serializable {
 				return null;
 			}
 			List<UiShare> shares = validationData.getUiShares().stream()
-					.map(s -> new UiShare(s.getIndex(), s.getRealShare()))
-					.collect(Collectors.toList());
+					.map(s -> new UiShare(s.getIndex(), s.getRealShare())).collect(Collectors.toList());
 			newSecret = new Shamir().combine(validationData.getNrOfShares(), validationData.getThreshold(),
 					validationData.getModulus(), shares);
 			combined = true;
@@ -153,26 +157,33 @@ public class CopyFilesBean implements Serializable {
 	 */
 	@RolesAllowed(Role.ADMIN)
 	public void copyFiles() {
-		copyFilesData.setLastError(null);
+		if (copyFilesData.isCopyActive()) {
+			UI.error("Copy already active: from=" + copyFilesData.getFromRootPath() + " to="
+					+ copyFilesData.getToRootPath());
+			return;
+		}
 		try {
-
+			copyFilesData.reset();
 			if (!combined) {
 				throw new Exception("Please execute Key Combination.");
 			}
 			validateFromPath(fromPathName);
 			validateToPath(toPathName);
-			
+
 			Path from = Paths.get(fromPathName);
 			Path to = Paths.get(toPathName);
-			copyFilesData.setCopyActive(true);
-			
+			copyFilesData.setFromRootPath(fromPathName).setToRootPath(toPathName)
+			.setAllowOverwriteExisting(allowOverwriteExisting).setUpdate(update)
+			.setCopyActive(true);
+
 			copy(from, to);
 
 		} catch (Exception e) {
 			log.error("CopyFiles failed: " + e, e);
 			copyFilesData.setLastError(e);
+		} finally {
+			copyFilesData.setCopyActive(false);
 		}
-		copyFilesData.setCopyActive(false);
 	}
 
 	public void verify() {
@@ -186,56 +197,89 @@ public class CopyFilesBean implements Serializable {
 		}
 		copyFilesData.setCopyActive(false);
 	}
-	
-	private void copy(Path from, Path to) throws IOException {
-		to = Files.createDirectories(to);
-		try (DirectoryStream<Path> paths = Files.newDirectoryStream(from)) {
-			for (Path path : paths) {
-				if (!copyFilesData.isCopyActive()) {
-					log.info("copyFiles stopped...");
-					return;
-				}
-				if (Files.isRegularFile(path)) {
-					Path toFile = to.resolve(path.getFileName());
-					copyFilesData.setCurrentFromPath(path.toAbsolutePath().toString());
-					copyFilesData.setCurrentToPath(toFile.toAbsolutePath().toString());
-					updateCache();
-					try (OutputStream os = crypterProvider.getEncrypter(toFile, newSecret);
-							InputStream is = crypterProvider.getDecrypter(path)) {
-						IOUtils.copy(is, os);
-					}
-					log.info("copied from: "+path.toAbsolutePath()+" to: "+toFile.toAbsolutePath());
-				}
-				if (Files.isDirectory(path)) {
-					Path subDir = to.resolve(path.getFileName());
-					subDir = Files.createDirectories(subDir);
-					log.info("created subDir: "+subDir.toAbsolutePath());
-					copy(path, subDir);
-				}
+
+	protected void copy(Path from, final Path to) throws IOException {
+		Files.createDirectories(to);
+		int fromStartIndex = from.getNameCount();
+		Files.walk(from).filter(d -> !d.equals(from)).forEach((fromPath) -> {
+			if (copyFilesData.isCopyActive()) {
+				copy(fromPath, fromStartIndex, to, crypterProvider, newSecret, copyFilesData);
 			}
+		});
+	}
+
+	/**
+	 * copy file, overwrite if not update {@link CopyFilesData#isUpdate()}
+	 * @param fromPath
+	 * @param fromStartIndex index of the source root path in fromPath
+	 * @param toRootPath target root path
+	 * @param cp the crypter provider initialized with current secret
+	 * @param newSecret the secret to use for encryption
+	 * @param cfd
+	 */
+	public void copy(Path fromPath, int fromStartIndex, Path toRootPath, CrypterProvider cp, BigInteger newSecret,
+			CopyFilesData cfd) {
+		Path toPath = toRootPath.resolve(fromPath.subpath(fromStartIndex, fromPath.getNameCount()));
+		try {
+			if (Files.isRegularFile(fromPath)) {
+				if (Files.isRegularFile(toPath)) {
+					if (!copyFilesData.isAllowOverwriteExisting()) {
+						throw new SecureFSError("overwrite of existing file not allowed: " + toPath);
+					}
+					if (copyFilesData.isUpdate() 
+							&& Files.getLastModifiedTime(fromPath).toInstant().isBefore(Files.getLastModifiedTime(toPath).toInstant())) {
+						log.info("not overwriting from: " + fromPath.toAbsolutePath() + " to: " + toPath.toAbsolutePath());
+						return;
+					}
+				}
+
+				// write source to target
+				copyFilesData.setCurrentFromPath(fromPath.toAbsolutePath().toString());
+				copyFilesData.setCurrentToPath(toPath.toAbsolutePath().toString());
+				updateCache();
+				try (OutputStream os = crypterProvider.getEncrypter(toPath, newSecret);
+						InputStream is = crypterProvider.getDecrypter(fromPath)) {
+					IOUtils.copy(is, os);
+				}
+				log.info("copied from: " + fromPath.toAbsolutePath() + " to: " + toPath.toAbsolutePath());
+			}
+			if (Files.isDirectory(fromPath)) {
+				Path subDir = Files.createDirectories(toPath);
+				log.info("created subDir: " + subDir.toAbsolutePath());
+			}
+		} catch (Exception e) {
+			throw new SecureFSError("cannot copy from: " + fromPath + " to: " + toPath, e);
 		}
 	}
 
 	private void verify(Path root) throws IOException {
-		try (DirectoryStream<Path> paths = Files.newDirectoryStream(root)) {
-			for (Path path : paths) {
-				if (!copyFilesData.isCopyActive()) {
-					log.info("copyFiles stopped...");
-					return;
-				}
-				if (Files.isRegularFile(path)) {
-					copyFilesData.setCurrentToPath(path.toAbsolutePath().toString());
-					updateCache();
-					try (OutputStream os = new NullOutputStream();
-							InputStream is = crypterProvider.getDecrypter(path, newSecret)) {
-						IOUtils.copy(is, os);
-					}
-					log.info("verified read: "+path.toAbsolutePath());
-				}
-				if (Files.isDirectory(path)) {
-					verify(path);
-				}
+		Files.walk(root).forEach((p) -> {
+			if (copyFilesData.isCopyActive()) {
+				verifyDecryption(p, crypterProvider, newSecret, copyFilesData);
 			}
+		});
+	}
+
+	/**
+	 * verify, that the file is decryptable with provided secret
+	 * 
+	 * @param path
+	 * @param cp
+	 * @param newSecret
+	 * @param cfd
+	 */
+	public void verifyDecryption(Path path, CrypterProvider cp, BigInteger newSecret, CopyFilesData cfd) {
+		if (Files.isRegularFile(path)) {
+			cfd.setCurrentToPath(path.toAbsolutePath().toString());
+			updateCache();
+			try (OutputStream os = new NullOutputStream(); InputStream is = cp.getDecrypter(path, newSecret)) {
+				IOUtils.copy(is, os);
+			} catch (IOException ioe) {
+				log.info("failed to verify: " + path + " err: " + ioe);
+				cfd.putError(path, ioe);
+				cfd.setLastError(ioe);
+			}
+			log.info("verified read: " + path.toAbsolutePath());
 		}
 	}
 
@@ -246,7 +290,7 @@ public class CopyFilesBean implements Serializable {
 				cache.put(SecureFsCacheListener.COPY_FILES_STATE_CACHE_KEY, copyFilesData);
 				utx.commit();
 			} catch (Exception e) {
-				log.info("cannot update cache: "+e, e);
+				log.info("cannot update cache: " + e, e);
 			}
 		}
 	}
@@ -254,7 +298,7 @@ public class CopyFilesBean implements Serializable {
 	public CopyFilesData getCopyFilesData() {
 		return copyFilesData;
 	}
-	
+
 	public DataModel<UiShare> getDataModel() {
 		return new ListDataModel<UiShare>(getUiShares());
 	}
@@ -289,6 +333,16 @@ public class CopyFilesBean implements Serializable {
 	public void setEditedShareIndex(int editedShareIndex) {
 		this.editedShareIndex = editedShareIndex;
 	}
+	
+	/**
+	 * for testing purpose
+	 * @param newSecret
+	 */
+	@Deprecated
+	public void setNewSecret(BigInteger newSecret) {
+		this.newSecret = newSecret;
+		combined = this.newSecret != null;
+	}
 
 	public boolean isCombined() {
 		return combined;
@@ -297,7 +351,7 @@ public class CopyFilesBean implements Serializable {
 	public boolean isKeyGenerated() {
 		return newSecret != null;
 	}
-	
+
 	public String getFromPathName() {
 		return fromPathName;
 	}
@@ -315,13 +369,13 @@ public class CopyFilesBean implements Serializable {
 	private void validateFromPath(String fromPathName) throws IOException {
 		Path from = Paths.get(fromPathName);
 		if (!Files.isDirectory(from, LinkOption.NOFOLLOW_LINKS)) {
-			throw new IOException("Path "+from + " is no directory");
+			throw new IOException("Path " + from + " is no directory");
 		}
 		if (!Files.isReadable(from)) {
-			throw new IOException("Path "+from + " is not readable");
+			throw new IOException("Path " + from + " is not readable");
 		}
 		if (!Files.isExecutable(from)) {
-			throw new IOException("Path "+from + " is not executable");
+			throw new IOException("Path " + from + " is not executable");
 		}
 	}
 
@@ -343,20 +397,38 @@ public class CopyFilesBean implements Serializable {
 		Path to = Paths.get(toPathName);
 		if (Files.exists(to, LinkOption.NOFOLLOW_LINKS)) {
 			if (!Files.isDirectory(to, LinkOption.NOFOLLOW_LINKS)) {
-				throw new IOException("Path "+to + " is no directory");
+				throw new IOException("Path " + to + " is no directory");
 			}
 			if (!Files.isWritable(to)) {
-				throw new IOException("Path "+to + " is not writable");
+				throw new IOException("Path " + to + " is not writable");
 			}
 			if (!Files.isExecutable(to)) {
-				throw new IOException("Path "+to + " is not executable");
+				throw new IOException("Path " + to + " is not executable");
 			}
-			if (Files.newDirectoryStream(to).iterator().hasNext()) {
-				throw new IOException("Path "+to + " is not empty, delete content copy.");
+			if (!allowOverwriteExisting) {
+				if (Files.newDirectoryStream(to).iterator().hasNext()) {
+					throw new IOException("Path " + to + " is not empty, delete content copy.");
+				}
 			}
 		}
 	}
 
+	public boolean isUpdate() {
+		return update;
+	}
+
+	public void setUpdate(boolean update) {
+		this.update = update;
+	}
+
+	public boolean isAllowOverwriteExisting() {
+		return allowOverwriteExisting;
+	}
+	
+	public void setAllowOverwriteExisting(boolean allowOverwriteExisting) {
+		this.allowOverwriteExisting = allowOverwriteExisting;
+	}
+	
 	public void handleEvent(@Observes CopyFiles event) {
 		if (event.getCopyFilesData() != null) {
 			copyFilesData = event.getCopyFilesData();

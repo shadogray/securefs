@@ -39,18 +39,18 @@ public class CrypterProvider {
 
 	private Logger log = Logger.getLogger(getClass());
 	
-    private SecretKeySpecBean sskBean;
+    private SecretKeySpecBean sksBean;
 
     public CrypterProvider() {
 	}
     
     @Inject
-    public CrypterProvider(SecretKeySpecBean sskBean) {
-		this.sskBean = sskBean;
+    public CrypterProvider(SecretKeySpecBean sksBean) {
+		this.sksBean = sksBean;
 	}
 
     public boolean hasKey() {
-    	return sskBean.hasKey();
+    	return sksBean.hasKey();
     }
     
     /**
@@ -73,7 +73,7 @@ public class CrypterProvider {
 	 */
 	public OutputStream getEncrypter(Path path, BigInteger secret) throws IOException {
         try {
-            Cipher cipher = sskBean.getCipher(path.getFileName().toString(), Cipher.ENCRYPT_MODE, secret);
+            Cipher cipher = sksBean.getCipher(path.getFileName().toString(), Cipher.ENCRYPT_MODE, secret);
             return new CipherOutputStream(Files.newOutputStream(path, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING),
                     cipher);
         } catch (Exception e) {
@@ -102,7 +102,7 @@ public class CrypterProvider {
      */
     public InputStream getDecrypter(Path path, BigInteger secret) throws IOException {
         try {
-            Cipher cipher = sskBean.getCipher(path.getFileName().toString(), Cipher.DECRYPT_MODE, secret);
+            Cipher cipher = sksBean.getCipher(path.getFileName().toString(), Cipher.DECRYPT_MODE, secret);
             return new CipherInputStream(Files.newInputStream(path, StandardOpenOption.READ), cipher);
         } catch (Exception e) {
         	log.warn("cannot get Decrypter: "+e);
