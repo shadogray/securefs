@@ -42,12 +42,16 @@ public class SecurefsClient implements Runnable {
     private List<Path> files = new ArrayList<>();
     private boolean asyncTest = false;
     private int threads = 1;
+    private boolean read = true, write = true, delete = true;
 
     {
         options.addOption("b", true, "Base Directory of Server FileSystem, must conform to: sec://<path>");
         options.addOption("f", true, "Files to run to/from Server, comma separated list");
         options.addOption("a", true, "Asynchronous tests, default: "+asyncTest);
         options.addOption("t", true, "Number of concurrent Threads, default: "+threads);
+        options.addOption("r", false, "read file");
+        options.addOption("w", false, "write file");
+        options.addOption("d", false, "delete file");
     }
 
     public static void main(String[] args) throws Exception {
@@ -80,39 +84,56 @@ public class SecurefsClient implements Runnable {
 
             for (Path path : files) {
 
-                if (!path.toFile().exists()) {
-                    System.err.println(Thread.currentThread()+": NoSuchFile: "+path+ " currentWorkdir="+Paths.get("./").toAbsolutePath());
-                    continue;
-                }
-
-                if (path.getParent() != null) {
-                    fs.provider().createDirectory(fs.getPath(path.getParent().toString()));
-                }
                 Path sec = fs.getPath(path.toString()
                         + (asyncTest ? "." + Thread.currentThread().getId() : ""));
-                final OutputStream secOs = Files.newOutputStream(sec);
+                
+            	if (write) {
+	                if (!path.toFile().exists()) {
+	                    System.err.println(Thread.currentThread()+": NoSuchFile: "+path+ " currentWorkdir="+Paths.get("./").toAbsolutePath());
+	                    continue;
+	                }
+	
+	                if (path.getParent() != null) {
+	                    fs.provider().createDirectory(fs.getPath(path.getParent().toString()));
+	                }
+	                final OutputStream secOs = Files.newOutputStream(sec);
+	
+	                System.out.println(Thread.currentThread()+": Sending file: "+ start + " : " + sec);
+	
+	                IOUtils.copyLarge(Files.newInputStream(path), secOs, new byte[128*1024]);
+	                secOs.close();
+            	}
 
-                System.out.println(Thread.currentThread()+": Sending file: "+ start + " : " + sec);
-
-                IOUtils.copyLarge(Files.newInputStream(path), secOs, new byte[128*1024]);
-                secOs.close();
-
-                Path out = path.getParent().resolve(path.getFileName()
+                Path out = path.resolveSibling(path.getFileName()
                         + (asyncTest ? "." + Thread.currentThread().getId() : "") + ".out");
-                System.out.println(Thread.currentThread()+": Reading file: "+ new DateTime() + " : " + out);
-                Files.createDirectories(out.getParent());
-
-                final InputStream secIs = Files.newInputStream(sec);
-                IOUtils.copyLarge(secIs, Files.newOutputStream(out), new byte[128*1024]);
-                secIs.close();
-
-                long inputChk = FileUtils.checksumCRC32(path.toFile());
-                long outputChk = FileUtils.checksumCRC32(out.toFile());
-
-                if (inputChk != outputChk) {
-                    throw new IOException(Thread.currentThread()+": Checksum Failed: failure to write/read: in=" + path + ", out=" + out);
+                
+                if (read) {
+	                System.out.println(Thread.currentThread()+": Reading file: "+ new DateTime() + " : " + out);
+	                Files.createDirectories(out.getParent());
+	
+	                final InputStream secIs = Files.newInputStream(sec);
+	                IOUtils.copyLarge(secIs, Files.newOutputStream(out), new byte[128*1024]);
+	                secIs.close();
                 }
-                System.out.println(Thread.currentThread()+": Checked Checksums: "+ new DateTime() + " : " + inputChk + " / " + outputChk);
+
+                if (write && read) {
+	                long inputChk = FileUtils.checksumCRC32(path.toFile());
+	                long outputChk = FileUtils.checksumCRC32(out.toFile());
+	
+	                if (inputChk != outputChk) {
+	                    throw new IOException(Thread.currentThread()+": Checksum Failed: failure to write/read: in=" + path + ", out=" + out);
+	                }
+	                System.out.println(Thread.currentThread()+": Checked Checksums: "+ new DateTime() + " : " + inputChk + " / " + outputChk);
+                }
+                
+                if (delete) {
+	                boolean deleted = fs.provider().deleteIfExists(sec);
+	                if (!deleted) {
+	                    throw new IOException(Thread.currentThread()+": Delete Failed: failure to delete: in=" + path);
+	                } else {
+	                    System.out.println(Thread.currentThread()+": Deleted File: in=" + path);
+	                }
+                }
             }
         } catch (Throwable t) {
             t.printStackTrace();
@@ -127,5 +148,11 @@ public class SecurefsClient implements Runnable {
         Arrays.stream(cmd.getOptionValue("f").split(",")).forEach(f -> files.add(Paths.get(f)));
         asyncTest = Boolean.parseBoolean(cmd.getOptionValue("a", "false"));
         threads = Integer.parseInt(cmd.getOptionValue("t", "1"));
+        if (cmd.hasOption("r") || cmd.hasOption("w") || cmd.hasOption("d")) {
+        	read = write = delete = false;
+        	read = cmd.hasOption("r");
+        	write = cmd.hasOption("w");
+        	delete = cmd.hasOption("d");
+        }
     }
 }

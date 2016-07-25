@@ -9,6 +9,7 @@ package at.tfr.securefs.ui;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -28,13 +29,13 @@ import javax.enterprise.event.Observes;
 import javax.faces.model.CollectionDataModel;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.mail.internet.InternetAddress;
 
 import org.apache.commons.collections.KeyValue;
 import org.apache.commons.collections.keyvalue.DefaultKeyValue;
 import org.infinispan.Cache;
 import org.jboss.logging.Logger;
 
+import at.tfr.securefs.Configuration;
 import at.tfr.securefs.Role;
 import at.tfr.securefs.beans.Audit;
 import at.tfr.securefs.beans.Logging;
@@ -66,6 +67,8 @@ public class StatusMonitor {
 	@Inject
 	private ValidationBean validationBean;
 	@Inject
+	private Configuration configuration;
+	@Inject
 	@SecureFsCache
 	private Cache<String, Object> cache;
 	private boolean active;
@@ -95,7 +98,7 @@ public class StatusMonitor {
 	}
 
 	public Map<String, String> getState() {
-		Map<String, String> lines = new TreeMap<>();
+		Map<String, String> lines = new LinkedHashMap<>();
 		lines.put("SecretBean", "hasSecret=" + secretBean.hasSecret());
 		lines.put("FileSystem", "activeFS=" + activeFileSystems.get() + ", activeFiles=" + activeFiles.get());
 		lines.put("ValidationBean.modulus", "" + validationBean.getModulus());
@@ -106,6 +109,11 @@ public class StatusMonitor {
 		lines.put("ValidationBean.Activated", "" + validationBean.isActivated());
 		lines.put("ValidationBean.ValidShares", "" + validationBean.getValidSharesCount());
 		lines.put("RevokedKeys.size", "" + revokedKeysBean.getRevokedKeys().size());
+		configuration.getModuleConfigurations().forEach((mc) -> {
+			lines.put("" + mc.getName() + ".jndi", "" + mc.getJndiName());
+			lines.put("" + mc.getName() + ".mandatory", "" + mc.isMandatory());
+			lines.put("" + mc.getName() + ".properties", "" + mc.getProperties());
+		});
 		return lines;
 	}
 

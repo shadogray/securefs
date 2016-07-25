@@ -33,7 +33,7 @@ import at.tfr.securefs.process.PreprocessorBean;
 import at.tfr.securefs.service.CrypterProvider;
 
 @MTOM(enabled = true)
-@WebService(serviceName = "FileService", portName = "FileServicePort")
+@WebService(serviceName = "FileService", targetNamespace = "http://securefs.tfr.at/", portName = "FileServicePort")
 public class FileServiceBean implements FileService {
 
 	private Logger log = Logger.getLogger(getClass());
@@ -51,6 +51,7 @@ public class FileServiceBean implements FileService {
     @Override
     public void write(@WebParam(name = "relativePath") String relPath, @WebParam(name = "bytes") byte[] b) throws IOException {
 		
+        log.debug("write File: " + relPath);
 		try {
 			String tmpFileName = Paths.get(relPath).getFileName().toString()+System.currentTimeMillis();
 			Path tmpPath = Files.createFile(configuration.getTmpPath().resolve(tmpFileName));
@@ -59,6 +60,7 @@ public class FileServiceBean implements FileService {
 					IOUtils.write(b, os);
 				}
 				preProcessor.preProcess(tmpPath);
+		        log.debug("preprocessed File: " + relPath);
 			} finally {
 				Files.deleteIfExists(tmpPath);
 			}

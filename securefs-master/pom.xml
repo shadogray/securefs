@@ -180,6 +180,7 @@
 		<module>securefs-json</module>
 		<module>securefs-modules</module>
 		<module>securefs-ee-client</module>
+		<module>securefs-scan</module>
 		<module>securefs-client-test</module>
 		<!--<module>securefs-json-client</module> -->
 	</modules>
@@ -191,9 +192,18 @@
 				<artifactId>maven-javadoc-plugin</artifactId>
 				<version>2.10.4</version>
 				<configuration>
-					<aggregate>true</aggregate>
 					<additionalparam>-Xdoclint:none</additionalparam>
 				</configuration>
+				<reportSets>
+					<reportSet>
+						<id>aggregate</id>
+						<configuration>
+						</configuration>
+						<reports>
+							<report>aggregate</report>
+						</reports>
+					</reportSet>
+				</reportSets>
 			</plugin>
 		</plugins>
 	</reporting>

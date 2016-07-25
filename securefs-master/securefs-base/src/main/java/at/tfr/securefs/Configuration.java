@@ -367,12 +367,12 @@ public class Configuration {
     }
     
     /**
-     * get ModuleConfiguration for this key.
+     * get ModuleConfiguration for this key. <br>
      * Example: <br> 
-     * serviceModules = test111, test222
-     * serviceModule.test111.jndiName = java:global/test/service/Test
-     * serviceModule.test111.mandatory = true
-     * serviceModule.test111.property = localProp=value
+     * serviceModules = test111, test222 <br>
+     * serviceModule.test111.jndiName = java:global/test/service/Test <br>
+     * serviceModule.test111.mandatory = true <br>
+     * serviceModule.test111.property = localProp=value 
      * @see #SERVICE_MODULES
      * @see #SERVICE_MODULE
      * @see org.apache.commons.configuration2.Configuration#subset(String)

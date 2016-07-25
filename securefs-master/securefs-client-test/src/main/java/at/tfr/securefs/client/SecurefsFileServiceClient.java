@@ -49,6 +49,7 @@ public class SecurefsFileServiceClient implements Runnable {
     private int threads = 1;
     private String username = "user";
     private String password = "User08154711!";
+    private boolean read = true, write = true, delete = true;
 
 
     {
@@ -58,6 +59,9 @@ public class SecurefsFileServiceClient implements Runnable {
         options.addOption("t", true, "Number of concurrent Threads, default: "+threads);
         options.addOption("i", true, "Indentiy, default: "+username);
         options.addOption("p", true, "Password, default: "+password);
+        options.addOption("r", false, "read file");
+        options.addOption("w", false, "write file");
+        options.addOption("d", false, "delete file");
     }
 
     public static void main(String[] args) throws Exception {
@@ -94,36 +98,43 @@ public class SecurefsFileServiceClient implements Runnable {
 
             for (Path path : files) {
 
-                if (!path.toFile().exists()) {
-                    System.err.println(Thread.currentThread()+": NoSuchFile: "+path+ " currentWorkdir="+Paths.get("./").toAbsolutePath());
-                    continue;
+                if (write) {
+	            	if (!path.toFile().exists()) {
+	                    System.err.println(Thread.currentThread()+": NoSuchFile: "+path+ " currentWorkdir="+Paths.get("./").toAbsolutePath());
+	                    continue;
+	                }
+	                
+	                System.out.println(Thread.currentThread()+": Sending file: "+ start + " : " + path);
+	                svc.getFileServicePort().write(path.toString(), IOUtils.toByteArray(Files.newInputStream(path)));
                 }
 
-                System.out.println(Thread.currentThread()+": Sending file: "+ start + " : " + path);
-
-                svc.getFileServicePort().write(path.toString(), IOUtils.toByteArray(Files.newInputStream(path)));
-
-                Path out = path.getParent().resolve(path.getFileName()
+                Path out = path.resolveSibling(path.getFileName()
                         + (asyncTest ? "." + Thread.currentThread().getId() : "") + ".out");
-                System.out.println(Thread.currentThread()+": Reading file: "+ new DateTime() + " : " + out);
-                Files.createDirectories(out.getParent());
 
-                byte[] arr = svc.getFileServicePort().read(path.toString());
-                IOUtils.write(arr, Files.newOutputStream(out));
-
-                long inputChk = FileUtils.checksumCRC32(path.toFile());
-                long outputChk = FileUtils.checksumCRC32(out.toFile());
-
-                if (inputChk != outputChk) {
-                    throw new IOException(Thread.currentThread()+": Checksum Failed: failure to write/read: in=" + path + ", out=" + out);
+                if (read) {
+	                System.out.println(Thread.currentThread()+": Reading file: "+ new DateTime() + " : " + out);
+	                Files.createDirectories(out.getParent());
+	
+	                byte[] arr = svc.getFileServicePort().read(path.toString());
+	                IOUtils.write(arr, Files.newOutputStream(out));
                 }
-                System.out.println(Thread.currentThread()+": Checked Checksums: "+ new DateTime() + " : " + inputChk + " / " + outputChk);
 
-                boolean deleted = svc.getFileServicePort().delete(path.toString());
-                if (!deleted) {
-                    throw new IOException(Thread.currentThread()+": Delete Failed: failure to delete: in=" + path);
-                } else {
-                    System.out.println(Thread.currentThread()+": Deleted File: in=" + path);
+                if (write && read) {
+	                long inputChk = FileUtils.checksumCRC32(path.toFile());
+	                long outputChk = FileUtils.checksumCRC32(out.toFile());
+	                if (inputChk != outputChk) {
+	                    throw new IOException(Thread.currentThread()+": Checksum Failed: failure to write/read: in=" + path + ", out=" + out);
+	                }
+	                System.out.println(Thread.currentThread()+": Checked Checksums: "+ new DateTime() + " : " + inputChk + " / " + outputChk);
+                }
+
+                if (delete) {
+	                boolean deleted = svc.getFileServicePort().delete(path.toString());
+	                if (!deleted) {
+	                    throw new IOException(Thread.currentThread()+": Delete Failed: failure to delete: in=" + path);
+	                } else {
+	                    System.out.println(Thread.currentThread()+": Deleted File: in=" + path);
+	                }
                 }
             }
         } catch (Throwable t) {
@@ -139,5 +150,11 @@ public class SecurefsFileServiceClient implements Runnable {
         Arrays.stream(cmd.getOptionValue("f").split(",")).forEach(f -> files.add(Paths.get(f)));
         asyncTest = Boolean.parseBoolean(cmd.getOptionValue("a", "false"));
         threads = Integer.parseInt(cmd.getOptionValue("t", "1"));
+        if (cmd.hasOption("r") || cmd.hasOption("w") || cmd.hasOption("d")) {
+        	read = write = delete = false;
+        	read = cmd.hasOption("r");
+        	write = cmd.hasOption("w");
+        	delete = cmd.hasOption("d");
+        }
     }
 }
