@@ -113,7 +113,9 @@ public class SecurefsFileServiceClient implements Runnable {
 
                 if (read) {
 	                System.out.println(Thread.currentThread()+": Reading file: "+ new DateTime() + " : " + out);
-	                Files.createDirectories(out.getParent());
+	                if (out.getParent() != null) { 
+	                	Files.createDirectories(out.getParent());
+	                }
 	
 	                byte[] arr = svc.getFileServicePort().read(path.toString());
 	                IOUtils.write(arr, Files.newOutputStream(out));
