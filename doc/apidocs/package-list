@@ -1,4 +1,5 @@
 at.tfr.securefs
+at.tfr.securefs.annotation
 at.tfr.securefs.api
 at.tfr.securefs.api.json
 at.tfr.securefs.api.module
@@ -14,10 +15,12 @@ at.tfr.securefs.key
 at.tfr.securefs.module.scan
 at.tfr.securefs.module.validation
 at.tfr.securefs.process
+at.tfr.securefs.rs
 at.tfr.securefs.service
 at.tfr.securefs.spi
 at.tfr.securefs.spi.fs
 at.tfr.securefs.ui
+at.tfr.securefs.ui.authentication
 at.tfr.securefs.ui.util
 at.tfr.securefs.ui.validation
 at.tfr.securefs.util

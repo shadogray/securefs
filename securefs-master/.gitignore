@@ -2,4 +2,4 @@ target
 **/.project
 **/.classpath
 **/.settings
-lib
+**/pom.xml.versionsBackup
