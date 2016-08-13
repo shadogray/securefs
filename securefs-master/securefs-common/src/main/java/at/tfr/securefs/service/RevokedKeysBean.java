@@ -61,9 +61,13 @@ public class RevokedKeysBean {
 		this.configuration = configuration;
 	}
 
-    @Schedule(persistent=false, second="0")
 	@PostConstruct
     private void init() {
+    	reload();
+    }
+    
+    @Schedule(persistent=false, hour="*", minute="*", second="0")
+    private void reload() {
         Path revokedKeysPath = configuration.getRevokedKeysPath();
 		if (secureFiles.hasKey()) {
 	        try {
