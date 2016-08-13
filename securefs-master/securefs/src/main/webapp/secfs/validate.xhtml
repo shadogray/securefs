@@ -38,7 +38,7 @@
 			<h:outputText value="" />
 	
 			<h:outputLabel value="1) Combine Keys:" />
-			<h:commandButton id="combine" styleClass="form-control" action="#{validationBean.combine()}" value="Combine" />
+			<h:commandButton id="combine" styleClass="form-control" action="#{validationBean.combine()}" value="Combine"/>
 			<h:message for="combine" />
 	
 			<h:outputLabel value="2) Validate Secret:" />
@@ -49,7 +49,7 @@
 			<h:outputLabel value="3) Activate Secret:" />
 			<h:commandButton id="activate" styleClass="form-control" action="#{validationBean.activate()}"
 				value="#{validationBean.validated ? 'Activate' : 'disabled'}"
-				disabled="#{!validationBean.combined || !validationBean.validated}" />
+				disabled="#{!(validationBean.combined and validationBean.validated)}" />
 			<h:message for="activate" />
 		</h:panelGrid>
 	</f:ajax>
@@ -66,7 +66,7 @@
 		<h:column>
 			<f:facet name="header">Submit</f:facet>
 			<a4j:commandButton styleClass="no-decor" render="messages editSharePanel" execute="@this" value="Edit"
-				oncomplete="#{rich:component('editSharePanel')}.show()" resetValues="true" disabled="#{not empty s.share}">
+				oncomplete="#{rich:component('editSharePanel')}.show()" resetValues="true">
 				<f:setPropertyActionListener value="#{it.index}" target="#{validationBean.editedShareIndex}" />
 				<f:setPropertyActionListener value="#{s}" target="#{validationBean.editedShare}" />
 			</a4j:commandButton>
@@ -76,8 +76,7 @@
 	<rich:popupPanel id="editSharePanel" domElementAttachment="parent">
 		<h:panelGrid columns="3">
 			<h:outputLabel value="Index:" />
-			<h:inputText id="sharesTableIndex" styleClass="form-control" value="#{validationBean.editedShare.index}"
-				converter="javax.faces.Integer" disabled="#{validationBean.editedShare.index != 0}">
+			<h:inputText id="sharesTableIndex" styleClass="form-control" value="#{validationBean.editedShare.index}">
 				<f:validateLongRange minimum="1" />
 			</h:inputText>
 			<h:message for="sharesTableIndex" />
@@ -85,7 +84,7 @@
 			<h:outputLabel value="Share:" />
 			<h:inputText id="sharesTableShare" styleClass="form-control #{s.valid ? '' : 'has-error'}"
 				value="#{validationBean.editedShare.share}" converter="javax.faces.BigInteger"
-				validator="#{shareValidator.validateShare}" disabled="#{not empty validationBean.editedShare.share}">
+				validator="#{shareValidator.validateShare}">
 				<f:validateRequired />
 			</h:inputText>
 			<h:message for="sharesTableShare" />

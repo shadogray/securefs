@@ -103,7 +103,7 @@ public class ValidationBean {
 
 	@Audit
 	public void updateShare() {
-		if (editedShare != null && StringUtils.isNotBlank(editedShare.getShare()) && editedShare.hasRealShare()) {
+		if (editedShare != null && StringUtils.isNotBlank(editedShare.getShare())) {
 			if (revokedKeysBean.getRevokedKeys().contains(editedShare.getShare())) {
 				UI.error("Invalid Use of RevokedKey: " + editedShare.getShare());
 				return;
