@@ -23,12 +23,7 @@ public class ProcessFilesData implements Serializable {
 	private String currentFromPath;
 	private String currentToPath;
 	private Exception lastError;
-	private LinkedHashMap<Path, Exception> errors = new LinkedHashMap<Path, Exception>(){
-		@Override
-		protected boolean removeEldestEntry(java.util.Map.Entry<Path,Exception> eldest) {
-			return size() > 100;
-		};
-	};
+	private LinkedHashMap<Path, Exception> errors = new SizeLimitedHashMap();
 	
 	public ProcessFilesData reset() {
 		setProcessActive(false);
@@ -146,5 +141,10 @@ public class ProcessFilesData implements Serializable {
 				+ currentToPath + ", lastError=" + lastError + "]";
 	}
 	
-	
+	static class SizeLimitedHashMap extends LinkedHashMap<Path, Exception> {
+		@Override
+		protected boolean removeEldestEntry(java.util.Map.Entry<Path,Exception> eldest) {
+			return size() > 100;
+		}
+	}
 }
