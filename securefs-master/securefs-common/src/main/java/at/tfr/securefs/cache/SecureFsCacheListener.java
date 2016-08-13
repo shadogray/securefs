@@ -71,11 +71,13 @@ public class SecureFsCacheListener {
 	@CacheEntryModified
 	public void entryModified(CacheEntryModifiedEvent<String, Object> event) {
 		log.debug("cacheEntry: key=" + event.getKey()+" local="+event.isOriginLocal());
-		try {
-			handleEvent(event);
-		} catch (Exception e) {
-			log.warn("cacheEntry: key=" + event.getKey()+" local="+event.isOriginLocal(), e);
-		}		
+		if (!event.isOriginLocal()) {
+			try {
+				handleEvent(event);
+			} catch (Exception e) {
+				log.warn("cacheEntry: key=" + event.getKey()+" local="+event.isOriginLocal(), e);
+			}
+		}
 	}
 
 	private void handleEvent(CacheEntryEvent<String, Object> event) {
