@@ -137,4 +137,14 @@ public class ProcessFilesData implements Serializable {
 		lastError.printStackTrace(new PrintWriter(sw));
 		return sw.toString();
 	}
+
+	@Override
+	public String toString() {
+		return "ProcessFilesData [processActive=" + processActive + ", update=" + update + ", allowOverwriteExisting="
+				+ allowOverwriteExisting + ", validationData=" + validationData + ", fromRootPath=" + fromRootPath
+				+ ", toRootPath=" + toRootPath + ", currentFromPath=" + currentFromPath + ", currentToPath="
+				+ currentToPath + ", lastError=" + lastError + "]";
+	}
+	
+	
 }

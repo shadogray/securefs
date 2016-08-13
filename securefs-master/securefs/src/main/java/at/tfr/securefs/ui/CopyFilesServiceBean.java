@@ -377,13 +377,6 @@ public class CopyFilesServiceBean {
 		this.allowOverwriteExisting = allowOverwriteExisting;
 	}
 	
-	public void handleEvent(@Observes CopyFiles event) {
-		if (event.getProcessFilesData() != null) {
-			processFilesData = event.getProcessFilesData();
-			log.info("updated UiShares: " + event.getProcessFilesData());
-		}
-	}
-
 	private void processActiveErrormsg() {
 		UI.error("Process already active: from=" + processFilesData.getFromRootPath() + " to="
 				+ processFilesData.getToRootPath());
