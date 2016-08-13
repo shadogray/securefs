@@ -376,7 +376,20 @@ public class CopyFilesServiceBean {
 	public void setAllowOverwriteExisting(boolean allowOverwriteExisting) {
 		this.allowOverwriteExisting = allowOverwriteExisting;
 	}
-	
+
+	/**
+	 * receive updates from remote processing
+	 * @param event
+	 */
+	public void handleEvent(@Observes CopyFiles event) {
+		if (event.getProcessFilesData() != null) {
+			processFilesData = event.getProcessFilesData();
+			if (log.isDebugEnabled()) {
+				log.debug("updated UiShares: " + event.getProcessFilesData());
+			}
+		}
+	}
+
 	private void processActiveErrormsg() {
 		UI.error("Process already active: from=" + processFilesData.getFromRootPath() + " to="
 				+ processFilesData.getToRootPath());
