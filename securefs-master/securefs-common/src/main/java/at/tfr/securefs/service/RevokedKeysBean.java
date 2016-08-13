@@ -20,6 +20,7 @@ import javax.annotation.PreDestroy;
 import javax.annotation.security.RolesAllowed;
 import javax.annotation.security.RunAs;
 import javax.ejb.DependsOn;
+import javax.ejb.Schedule;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.enterprise.event.Observes;
@@ -60,6 +61,7 @@ public class RevokedKeysBean {
 		this.configuration = configuration;
 	}
 
+    @Schedule(persistent=false, second="0")
 	@PostConstruct
     private void init() {
         Path revokedKeysPath = configuration.getRevokedKeysPath();
