@@ -48,10 +48,10 @@
 		</div>
 		<div class="container">
 			<div class="col-md-4">
-				<h:button outcome="/secfs/operation" value="Operation" styleClass="form-control" />
+				<h:button outcome="/secfs/operation" value="Operation" styleClass="form-control"  rendered="#{request.isUserInRole('operator') || request.isUserInRole('admin')}"/>
 			</div>
 			<div class="col-md-4">
-				<h:button outcome="/admin/admin" value="Administration" styleClass="form-control" />
+				<h:button outcome="/admin/admin" value="Administration" styleClass="form-control"  rendered="#{request.isUserInRole('operator') || request.isUserInRole('admin')}"/>
 			</div>
 		</div>
 		<ui:insert name="subheader"/>

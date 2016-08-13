@@ -5,11 +5,15 @@
 	xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j" template="/resources/template.xhtml">
 
 	<ui:define name="container1">
-		<div class="col-md-6">
+		<h:panelGroup id="restricted" rendered="#{!(request.isUserInRole('operator') || request.isUserInRole('admin'))}">
+			<h:outputText value="Access restricted!" />
+		</h:panelGroup>
+	
+		<h:panelGroup styleClass="col-md-6" rendered="#{request.isUserInRole('operator') || request.isUserInRole('admin')}">
 			<p></p>
 			<ui:include src="validate.xhtml" />
-		</div>
-		<div class="col-md-6">
+		</h:panelGroup>
+		<h:panelGroup styleClass="col-md-6" rendered="#{request.isUserInRole('operator') || request.isUserInRole('admin')}">
 			<p></p>
 			<h2>Monitor</h2>
 			<h:form id="statusForm">
@@ -33,13 +37,13 @@
 				</h:panelGrid>
 				<rich:dataTable id="statusTable" value="#{statusMonitor.clusterStates}" var="item" styleClass="table-bordered table-hover">
 					<rich:column colspan="6">
-						<h:commandLink actionListener="#{item.state.toggleCollapsed()}">
+						<h:commandLink actionListener="#{item.toggleCollapsed()}">
 							<f:ajax render="statusTable"/>
 							<rich:collapsibleSubTableToggler for="subTable" />
 						</h:commandLink>
 						<h:outputText value="#{item.location}" />
 					</rich:column>
-					<rich:collapsibleSubTable id="subTable" value="#{item.list}" var="entry" expanded="#{!item.state.collapsed}"
+					<rich:collapsibleSubTable id="subTable" value="#{item.list}" var="entry" expanded="#{!item.collapsed}"
 						expandMode="ajax">
 						<rich:column>
 							<h:outputText value="#{entry.key}" />
@@ -49,7 +53,19 @@
 						</rich:column>
 					</rich:collapsibleSubTable>
 				</rich:dataTable>
+				<h:panelGroup id="processFiles" rendered="#{not empty statusMonitor.processFilesData and statusMonitor.processFilesData.processActive}">
+					<h:panelGrid columns="2">
+						<h:outputLabel value="ProcessFilesStatus:" />
+						<h:outputText />
+						<h:outputLabel value="Current CopyFrom:" />
+						<h:outputText value="#{statusMonitor.processFilesData.currentFromPath}" />
+						<h:outputLabel value="Current CopyTo:" />
+						<h:outputText value="#{statusMonitor.processFilesData.currentToPath}" />
+						<h:outputLabel value="LastError:" />
+						<h:outputText value="#{statusMonitor.processFilesData.lastErrorStackTrace}" />
+					</h:panelGrid>
+				</h:panelGroup>
 			</h:form>
-		</div>
+		</h:panelGroup>
 	</ui:define>
 </ui:composition>

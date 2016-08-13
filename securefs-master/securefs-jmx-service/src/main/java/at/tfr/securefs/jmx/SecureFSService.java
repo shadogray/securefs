@@ -33,7 +33,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 
 public class SecureFSService extends FileSystemProvider {

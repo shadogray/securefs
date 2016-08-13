@@ -11,12 +11,11 @@ import java.io.Serializable;
 import java.io.StringWriter;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 
 @SuppressWarnings("serial")
-public class CopyFilesData implements Serializable {
+public class ProcessFilesData implements Serializable {
 
-	private boolean copyActive;
+	private boolean processActive;
 	private boolean update, allowOverwriteExisting;
 	private ValidationData validationData = new ValidationData();
 	private String fromRootPath;
@@ -31,20 +30,22 @@ public class CopyFilesData implements Serializable {
 		};
 	};
 	
-	public CopyFilesData reset() {
-		setCopyActive(false);
+	public ProcessFilesData reset() {
+		setProcessActive(false);
 		setLastError(null);
+		setCurrentFromPath(null);
+		setCurrentToPath(null);
 		validationData.clear();
 		errors.clear();
 		return this;
 	}
 
-	public boolean isCopyActive() {
-		return copyActive;
+	public boolean isProcessActive() {
+		return processActive;
 	}
 
-	public CopyFilesData setCopyActive(boolean copyActive) {
-		this.copyActive = copyActive;
+	public ProcessFilesData setProcessActive(boolean copyActive) {
+		this.processActive = copyActive;
 		return this;
 	}
 
@@ -52,7 +53,7 @@ public class CopyFilesData implements Serializable {
 		return update;
 	}
 	
-	public CopyFilesData setUpdate(boolean update) {
+	public ProcessFilesData setUpdate(boolean update) {
 		this.update = update;
 		return this;
 	}
@@ -61,7 +62,7 @@ public class CopyFilesData implements Serializable {
 		return allowOverwriteExisting;
 	}
 	
-	public CopyFilesData setAllowOverwriteExisting(boolean allowOverwriteExisting) {
+	public ProcessFilesData setAllowOverwriteExisting(boolean allowOverwriteExisting) {
 		this.allowOverwriteExisting = allowOverwriteExisting;
 		return this;
 	}
@@ -70,7 +71,7 @@ public class CopyFilesData implements Serializable {
 		return fromRootPath;
 	}
 
-	public CopyFilesData setFromRootPath(String fromRootPath) {
+	public ProcessFilesData setFromRootPath(String fromRootPath) {
 		this.fromRootPath = fromRootPath;
 		return this;
 	}
@@ -79,7 +80,7 @@ public class CopyFilesData implements Serializable {
 		return toRootPath;
 	}
 
-	public CopyFilesData setToRootPath(String toRootPath) {
+	public ProcessFilesData setToRootPath(String toRootPath) {
 		this.toRootPath = toRootPath;
 		return this;
 	}
@@ -88,7 +89,7 @@ public class CopyFilesData implements Serializable {
 		return validationData;
 	}
 
-	public CopyFilesData setValidationData(ValidationData validationData) {
+	public ProcessFilesData setValidationData(ValidationData validationData) {
 		this.validationData = validationData;
 		return this;
 	}
@@ -97,7 +98,7 @@ public class CopyFilesData implements Serializable {
 		return currentFromPath;
 	}
 
-	public CopyFilesData setCurrentFromPath(String currentFromPath) {
+	public ProcessFilesData setCurrentFromPath(String currentFromPath) {
 		this.currentFromPath = currentFromPath;
 		return this;
 	}
@@ -106,7 +107,7 @@ public class CopyFilesData implements Serializable {
 		return currentToPath;
 	}
 
-	public CopyFilesData setCurrentToPath(String currentToPath) {
+	public ProcessFilesData setCurrentToPath(String currentToPath) {
 		this.currentToPath = currentToPath;
 		return this;
 	}
@@ -115,7 +116,7 @@ public class CopyFilesData implements Serializable {
 		return lastError;
 	}
 	
-	public CopyFilesData setLastError(Exception lastError) {
+	public ProcessFilesData setLastError(Exception lastError) {
 		this.lastError = lastError;
 		return this;
 	}
@@ -130,7 +131,7 @@ public class CopyFilesData implements Serializable {
 	
 	public String getLastErrorStackTrace() {
 		if (lastError == null) {
-			return copyActive ? "Process active.." : "Process stopped.";
+			return processActive ? "Process active.." : "Process stopped.";
 		}
 		StringWriter sw = new StringWriter();
 		lastError.printStackTrace(new PrintWriter(sw));

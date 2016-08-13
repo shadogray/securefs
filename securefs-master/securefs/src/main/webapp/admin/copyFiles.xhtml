@@ -5,105 +5,120 @@
 
 	<ui:define name="content">
 		<h2>Copy Files</h2>
-		<h:form id="regionCopyFiles">
+		
+		<h:panelGroup id="hasNoSecret" rendered="#{!validationBean.activated}">
+			<h:outputText value="SecretKey not activated!" />
+		</h:panelGroup>
 
-			<div class="container">
-				<h:messages id="messages" errorClass="bg-danger" warnClass="bg-warning" infoClass="bg-success" />
-			</div>
+		<h:panelGroup id="hasSecret" rendered="#{validationBean.activated}">
 
-			<h:panelGroup styleClass="col-md-6">
-				<h:panelGrid columns="2" styleClass="table-hover">
-					<h:outputLabel value="Modulus" />
-					<h:selectOneListbox id="modulus" value="#{copyFilesBean.copyFilesData.validationData.modulus}" size="1" required="true" validatorMessage="Modulus must be selected!">
-						<f:selectItem noSelectionOption="true" />
-						<f:selectItems value="#{copyFilesBean.moduli}" var="m" itemLabel="#{m.key}" itemValue="#{m.value}" />
-						<f:ajax />
-					</h:selectOneListbox>
-					<h:outputLabel value="NrOfShares" />
-					<h:inputText id="nrOfShares" styleClass="form-control" value="#{copyFilesBean.copyFilesData.validationData.nrOfShares}" required="true" validatorMessage="NrOfShares must be specified!"
-						converter="javax.faces.Integer">
-						<f:ajax render="@form" />
-					</h:inputText>
-					<h:outputLabel value="Threshold" />
-					<h:inputText id="threshold" styleClass="form-control" value="#{copyFilesBean.copyFilesData.validationData.threshold}" required="true" validatorMessage="Threshold must be specified!"
-						converter="javax.faces.Integer">
-						<f:ajax render="@form" />
-					</h:inputText>
-
-					<h:outputLabel value="Source Directory" />
-					<h:inputText id="fromPathName" styleClass="form-control" value="#{copyFilesBean.fromPathName}" required="true" validatorMessage="SourcePath must be specified!">
-						<f:ajax render="@form" />
-					</h:inputText>
-					<h:outputLabel value="Allow Overwrite Existing Target Files"/>
-					<h:selectBooleanCheckbox id="allowOverwriteExisting" value="#{copyFilesBean.allowOverwriteExisting}" />
-					<h:outputLabel value="Update-ONLY Target Files"/>
-					<h:selectBooleanCheckbox id="update" value="#{copyFilesBean.update}" />
-					<h:outputLabel value="Target Directory" />
-					<h:inputText id="toPathName" styleClass="form-control" value="#{copyFilesBean.toPathName}" required="true" validatorMessage="TargetPath must be specified!">
-						<f:ajax execute="@this allowOverwriteExisting update" render="@form" />
-					</h:inputText>
-
-					<h:outputLabel value="Status:" />
-					<h:outputText value="#{copyFilesBean.keyGenerated ? 'Key Generated' : 'No Key'}" />
-
-					<h:outputLabel value="1) Combine Shares:" />
-					<h:commandButton id="combine" styleClass="form-control" actionListener="#{copyFilesBean.combine()}" value="Combine">
-						<f:ajax render="@form" />
-					</h:commandButton>
-					<h:outputLabel value="2) Copy Files:" />
-					<h:commandButton id="invokeCopyFiles" styleClass="form-control" actionListener="#{asyncBean.invokeCopyFiles()}"
-						value="#{copyFilesBean.combined ? 'CopyFiles' : 'disabled'}" disabled="#{!copyFilesBean.combined}"
-						onclick="return confirm('Do you want to copy files?')">
-						<f:ajax render="@form" />
-					</h:commandButton>
-					<h:outputLabel value="3) Verify:" />
-					<h:commandButton id="verify" styleClass="form-control" actionListener="#{asyncBean.invokeVerify()}"
-						value="Verify">
-						<f:ajax render="@form" />
-					</h:commandButton>
-					<h:outputLabel value="4) Stop/Reset:" />
-					<h:commandButton id="resetCopyFiles" styleClass="form-control" actionListener="#{copyFilesBean.reset()}"
-						value="Reset">
-						<f:ajax render="@form" />
-					</h:commandButton>
-				</h:panelGrid>
-			</h:panelGroup>
-
-			<h:panelGroup styleClass="col-md-6">
-				<h:dataTable id="copyFilesSharesTable" styleClass="table-bordered table-hover" value="#{copyFilesBean.dataModel}"
-					var="s">
-					<h:column>
-						<f:facet name="header">Index</f:facet>
-						<h:inputText styleClass="form-control" value="#{s.index}" converter="javax.faces.Integer"
-							disabled="#{s.index != 0}" />
-					</h:column>
-					<h:column>
-						<f:facet name="header">Share</f:facet>
-						<h:inputText styleClass="form-control" value="#{s.share}" converter="javax.faces.BigInteger"
-							disabled="#{not empty s.share}" />
-					</h:column>
-					<h:column>
-						<f:facet name="header">Submit</f:facet>
-						<h:commandButton actionListener="#{copyFilesBean.updateShares()}" value="Update">
-							<f:ajax execute="@form" render="@form" />
-						</h:commandButton>
-					</h:column>
-				</h:dataTable>
-			</h:panelGroup>
+			<h:form id="regionCopyFiles">
+	
+				<div class="container">
+					<h:messages id="messages" errorClass="bg-danger" warnClass="bg-warning" infoClass="bg-success" />
+				</div>
+	
+				<f:ajax render="messages copyFilesSharesTable">
+					<h:panelGroup styleClass="col-md-6">
+						<h:panelGrid columns="2" styleClass="table-hover">
+							<h:outputLabel value="Modulus" />
+							<h:selectOneListbox id="modulus" value="#{copyFilesServiceBean.processFilesData.validationData.modulus}" size="1" required="true" validatorMessage="Modulus must be selected!">
+								<f:selectItem noSelectionOption="true" />
+								<f:selectItems value="#{copyFilesServiceBean.moduli}" var="m" itemLabel="#{m.key}" itemValue="#{m.value}" />
+							</h:selectOneListbox>
+							<h:outputLabel value="NrOfShares" />
+							<h:inputText id="nrOfShares" styleClass="form-control" value="#{copyFilesServiceBean.processFilesData.validationData.nrOfShares}" required="true" validatorMessage="NrOfShares must be specified!"
+								converter="javax.faces.Integer">
+							</h:inputText>
+							<h:outputLabel value="Threshold" />
+							<h:inputText id="threshold" styleClass="form-control" value="#{copyFilesServiceBean.processFilesData.validationData.threshold}" required="true" validatorMessage="Threshold must be specified!">
+							</h:inputText>
+		
+							<h:outputLabel value="Source Directory" />
+							<h:inputText id="fromPathName" styleClass="form-control" value="#{copyFilesServiceBean.fromPathName}" required="true" validatorMessage="SourcePath must be specified!">
+							</h:inputText>
+							
+							<h:outputLabel value="Verify-FS (optional):" />
+							<h:commandButton id="verify" styleClass="form-control" actionListener="#{asyncBean.invokeVerify()}" title="Verify readability of source FS"
+								value="Verify">
+								<f:ajax />
+							</h:commandButton>
+							
+							<h:outputLabel value="Allow Overwrite Existing Target Files"/>
+							<h:selectBooleanCheckbox id="allowOverwriteExisting" value="#{copyFilesServiceBean.allowOverwriteExisting}" >
+								<f:ajax execute="@this toPathName update" render="messages"/>
+							</h:selectBooleanCheckbox>
+							<h:outputLabel value="Update-ONLY Target Files"/>
+							<h:selectBooleanCheckbox id="update" value="#{copyFilesServiceBean.update}" />
+							<h:outputLabel value="Target Directory" />
+							<h:inputText id="toPathName" styleClass="form-control" value="#{copyFilesServiceBean.toPathName}" required="true" validatorMessage="TargetPath must be specified!">
+								<f:ajax execute="@this allowOverwriteExisting update" render="messages"/>
+							</h:inputText>
+		
+							<h:outputLabel value="Status:" />
+							<h:outputText value="#{copyFilesServiceBean.keyGenerated ? 'Key Generated' : 'No Key'}" />
+		
+							<h:outputLabel value="1) Combine Shares:" />
+							<h:commandButton id="combine" styleClass="form-control" actionListener="#{copyFilesServiceBean.combine()}" value="Combine">
+								<f:ajax execute="@form" render="messages"/>
+							</h:commandButton>
+							<h:outputLabel value="2) Copy Files:" />
+							<h:commandButton id="invokeCopyFiles" styleClass="form-control" actionListener="#{asyncBean.invokeCopyFiles()}"
+								value="#{copyFilesServiceBean.combined ? 'CopyFiles' : 'disabled'}" disabled="#{!copyFilesServiceBean.combined}"
+								onclick="return confirm('Do you want to copy files?')">
+								<f:ajax execute="@form" render="@form" />
+							</h:commandButton>
+							<h:outputLabel value="3) VerifyCopy:" />
+							<h:commandButton id="verifyCopy" styleClass="form-control" actionListener="#{asyncBean.invokeVerifyCopy()}"
+								value="VerifyCopy">
+								<f:ajax render="@form" />
+							</h:commandButton>
+							<h:outputLabel value="4) Stop/Reset:" />
+							<h:commandButton id="resetCopyFiles" styleClass="form-control" actionListener="#{copyFilesServiceBean.reset()}"
+								value="Reset">
+								<f:ajax render="@form" />
+							</h:commandButton>
+						</h:panelGrid>
+					</h:panelGroup>
+				</f:ajax>
+	
+				<h:panelGroup styleClass="col-md-6">
+					<h:dataTable id="copyFilesSharesTable" styleClass="table-bordered table-hover" value="#{copyFilesServiceBean.dataModel}"
+						var="s">
+						<h:column>
+							<f:facet name="header">Index</f:facet>
+							<h:inputText styleClass="form-control" value="#{s.index}" converter="javax.faces.Integer"
+								disabled="#{s.index != 0}" />
+						</h:column>
+						<h:column>
+							<f:facet name="header">Share</f:facet>
+							<h:inputText styleClass="form-control" value="#{s.share}" converter="javax.faces.BigInteger"
+								disabled="#{not empty s.share}" />
+						</h:column>
+						<h:column>
+							<f:facet name="header">Submit</f:facet>
+							<h:commandButton actionListener="#{copyFilesServiceBean.updateShares()}" value="Update">
+								<f:ajax execute="@form" render="@form" />
+							</h:commandButton>
+						</h:column>
+					</h:dataTable>
+				</h:panelGroup>
 			
-			<h:panelGroup id="copyFilesStatus" styleClass="col-md-12">
-				<a4j:poll render="copyFilesStatus" interval="5000" enabled="#{copyFilesBean.copyFilesData.copyActive}" />
-				<h:panelGrid columns="2">
-					<h:outputLabel value="Current CopyFrom:" />
-					<h:outputText value="#{copyFilesBean.copyFilesData.currentFromPath}" />
-					<h:outputLabel value="Current CopyTo:" />
-					<h:outputText value="#{copyFilesBean.copyFilesData.currentToPath}" />
-				</h:panelGrid>
-				<h:panelGrid columns="1">
-					<h:outputLabel value="LastError:" />
-					<h:outputText value="#{copyFilesBean.copyFilesData.lastErrorStackTrace}" />
-				</h:panelGrid>
-			</h:panelGroup>
-		</h:form>
+				<h:panelGroup id="processFilesStatus" styleClass="col-md-12">
+					<a4j:poll render="processFilesStatus messages" interval="5000" enabled="#{copyFilesServiceBean.processFilesData.processActive}" />
+					<h:panelGrid columns="2">
+						<h:outputLabel value="Current CopyFrom:" />
+						<h:outputText value="#{copyFilesServiceBean.processFilesData.currentFromPath}" />
+						<h:outputLabel value="Current CopyTo:" />
+						<h:outputText value="#{copyFilesServiceBean.processFilesData.currentToPath}" />
+					</h:panelGrid>
+					<h:panelGrid columns="1">
+						<h:outputLabel value="LastError:" />
+						<h:outputText value="#{copyFilesServiceBean.processFilesData.lastErrorStackTrace}" />
+					</h:panelGrid>
+				</h:panelGroup>
+			</h:form>
+			
+		</h:panelGroup>
 	</ui:define>
 </ui:composition>

@@ -24,7 +24,6 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 
 import org.apache.commons.lang3.StringUtils;
-import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.xml.sax.SAXParseException;
 
@@ -82,7 +81,8 @@ public class SchemaValidationModule extends ModuleBase implements ServiceModule 
 	@Override
 	public ModuleResult apply(InputStream input, ModuleConfiguration moduleConfiguration) throws ModuleException, IOException {
 		SchemaResolver errorHandler = null;
-
+		moduleStatistics.getCalls().incrementAndGet();
+		
 		try {
 			// parse an XML document into a DOM tree
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -105,6 +105,7 @@ public class SchemaValidationModule extends ModuleBase implements ServiceModule 
 			validator.validate(new StreamSource(input));
 
 		} catch (SAXParseException e) {
+			moduleStatistics.getFailures().incrementAndGet();
 			String message = "error validating: " + getCurrent() + " err: " + e;
 			log.debug(message, e);
 			log.info(message);
@@ -114,6 +115,7 @@ public class SchemaValidationModule extends ModuleBase implements ServiceModule 
 				return new ModuleResult(false, e);
 			}
 		} catch (Exception e) {
+			moduleStatistics.getErrors().incrementAndGet();
 			String message = "error validating: " + getCurrent() + " err: " + e;
 			log.info(message, e);
 			log.warn(message);
@@ -125,6 +127,9 @@ public class SchemaValidationModule extends ModuleBase implements ServiceModule 
 		}
 
 		if (errorHandler != null && errorHandler.getErrors().size() > 0) {
+			
+			moduleStatistics.getFailures().incrementAndGet();
+			
 			String message = "Validation errors for File: " + getCurrent() + " errors: "
 					+ errorHandler.getErrors();
 			if (log.isDebugEnabled()) {
@@ -142,6 +147,7 @@ public class SchemaValidationModule extends ModuleBase implements ServiceModule 
 			return new ModuleResult(false, errorHandler.getErrors().get(0));
 		}
 
+		moduleStatistics.getSuccesses().incrementAndGet();
 		return new ModuleResult(true);
 	}
 

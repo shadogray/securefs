@@ -65,8 +65,11 @@ public class IKScanServiceModule extends ModuleBase implements ServiceModule {
 	public ModuleResult apply(String xmlFilePath, ModuleConfiguration moduleConfiguration)
 			throws IOException, ModuleException {
 
+		moduleStatistics.getCalls().incrementAndGet();
+		
 		String connectionString = moduleConfiguration.getProperties().getProperty(IKSCAN_CONNECTION_STRING);
 		if (StringUtils.isBlank(connectionString)) {
+			moduleStatistics.getErrors().incrementAndGet();
 			log.warn("ScanService URL missing, property: " + IKSCAN_CONNECTION_STRING);
 			throw new ModuleException("ScanService URL missing, property: " + IKSCAN_CONNECTION_STRING);
 		}
@@ -76,12 +79,19 @@ public class IKScanServiceModule extends ModuleBase implements ServiceModule {
 			log.info("IKScanService: found=" + result.elementsFound + ", empty=" + result.elementsEmpty + ", clean="
 					+ result.elementsClean + ", scanned=" + result.elementsScanned + ", infected="
 					+ result.elementsInfected);
+
 			if (result.elementsInfected > 0) {
+
+				moduleStatistics.getFailures().incrementAndGet();
 				return new ModuleResult(false, new ModuleException("IKScanService found " + result.elementsInfected
 						+ " infected elements, results=" + result.nodeResults));
 			}
+
+			moduleStatistics.getSuccesses().incrementAndGet();
 			return new ModuleResult(true);
+			
 		} catch (Exception e) {
+			moduleStatistics.getErrors().incrementAndGet();
 			return new ModuleResult(false, e);
 		}
 	}

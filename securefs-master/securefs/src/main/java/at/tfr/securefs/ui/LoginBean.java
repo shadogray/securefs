@@ -6,21 +6,19 @@
  */
 package at.tfr.securefs.ui;
 
-import javax.enterprise.context.RequestScoped;
+import javax.enterprise.inject.Model;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
-import javax.inject.Named;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
 import org.jboss.logging.Logger;
 
+import at.tfr.securefs.Role;
 import at.tfr.securefs.beans.Audit;
 import at.tfr.securefs.beans.Logging;
 
-@Named
-@RequestScoped
-@Audit
+@Model
 @Logging
 public class LoginBean {
 	private Logger log = Logger.getLogger(getClass());
@@ -44,19 +42,26 @@ public class LoginBean {
 		this.password = password;
 	}
 
+	@Audit
 	public String login() {
 		FacesContext context = FacesContext.getCurrentInstance();
 		HttpServletRequest request = (HttpServletRequest) context.getExternalContext().getRequest();
-		try {
-			request.login(this.username, this.password);
-			log.info("logged in: "+username+" roles: "+request.getUserPrincipal());
-		} catch (ServletException e) {
-			context.addMessage(null, new FacesMessage("Login failed."));
-			return "/login";
+		if (request.getUserPrincipal() == null) {
+			try {
+				request.login(this.username, this.password);
+				log.info("logged in: "+username+" roles: "+request.getUserPrincipal());
+			} catch (ServletException e) {
+				context.addMessage(null, new FacesMessage("Login failed."));
+				return "/login?faces-redirect=true";
+			}
 		}
-		return "/secfs/operation";
+		if (request.isUserInRole(Role.ADMIN) || request.isUserInRole(Role.OPERATOR)) {
+			return "/secfs/operation?faces-redirect=true";
+		}
+		return "/index?faces-redirect=true";
 	}
 
+	@Audit
 	public String logout() {
 		FacesContext context = FacesContext.getCurrentInstance();
 		HttpServletRequest request = (HttpServletRequest) context.getExternalContext().getRequest();
@@ -65,6 +70,6 @@ public class LoginBean {
 		} catch (ServletException e) {
 			context.addMessage(null, new FacesMessage("Logout failed."));
 		}
-		return "/index.html";
+		return "/login?faces-redirect=true";
 	}
 }

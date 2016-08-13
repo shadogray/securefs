@@ -8,6 +8,7 @@ package at.tfr.securefs.event;
 
 import java.math.BigInteger;
 
+@SuppressWarnings("serial")
 public class KeyEvent extends SecureFsEvent {
 	
 	private BigInteger key;

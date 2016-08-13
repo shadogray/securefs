@@ -6,14 +6,8 @@
  */
 package at.tfr.securefs.client;
 
-import at.tfr.securefs.client.ws.FileService;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URI;
 import java.net.URL;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -36,6 +30,8 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.joda.time.DateTime;
 
+import at.tfr.securefs.client.ws.FileService;
+
 /**
  *
  * @author Thomas Frühbeck
@@ -54,7 +50,7 @@ public class SecurefsFileServiceClient implements Runnable {
 
     {
         options.addOption("u", true, "Service URL, default: "+fileServiceUrl);
-        options.addOption("f", true, "Files to run to/from Server, comma separated list");
+        options.addOption("f", true, "Files to run to/from Server, comma separated list, mandatory");
         options.addOption("a", true, "Asynchronous tests, default: "+asyncTest);
         options.addOption("t", true, "Number of concurrent Threads, default: "+threads);
         options.addOption("i", true, "Indentiy, default: "+username);
@@ -148,8 +144,16 @@ public class SecurefsFileServiceClient implements Runnable {
     public void parse(String[] args) throws ParseException {
         CommandLineParser clp = new DefaultParser();
         CommandLine cmd = clp.parse(options, args);
+        
+        // validate:
+        if (!cmd.hasOption("f")) {
+        	throw new ParseException("file name is mandatory");
+        }
+        
         fileServiceUrl = cmd.getOptionValue("u", fileServiceUrl);
-        Arrays.stream(cmd.getOptionValue("f").split(",")).forEach(f -> files.add(Paths.get(f)));
+        if (cmd.hasOption("f")) {
+        	Arrays.stream(cmd.getOptionValue("f").split(",")).forEach(f -> files.add(Paths.get(f)));
+        }
         asyncTest = Boolean.parseBoolean(cmd.getOptionValue("a", "false"));
         threads = Integer.parseInt(cmd.getOptionValue("t", "1"));
         if (cmd.hasOption("r") || cmd.hasOption("w") || cmd.hasOption("d")) {
@@ -158,5 +162,6 @@ public class SecurefsFileServiceClient implements Runnable {
         	write = cmd.hasOption("w");
         	delete = cmd.hasOption("d");
         }
+        
     }
 }

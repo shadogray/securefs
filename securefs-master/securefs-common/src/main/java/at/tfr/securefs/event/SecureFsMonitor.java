@@ -11,6 +11,7 @@ import java.util.TreeMap;
 
 import at.tfr.securefs.cache.ClusterState;
 
+@SuppressWarnings("serial")
 public class SecureFsMonitor extends SecureFsEvent {
 	
 	private Map<String, ClusterState> states = new TreeMap<>();

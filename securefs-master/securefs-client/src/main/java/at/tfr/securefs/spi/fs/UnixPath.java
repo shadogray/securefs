@@ -24,13 +24,23 @@
  */
 package at.tfr.securefs.spi.fs;
 
-import java.nio.*;
-import java.nio.file.*;
-import java.nio.charset.*;
-import java.io.*;
-import java.net.URI;
-import java.util.*;
+import java.io.IOException;
 import java.lang.ref.SoftReference;
+import java.net.URI;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.CharsetEncoder;
+import java.nio.charset.CoderResult;
+import java.nio.charset.CodingErrorAction;
+import java.nio.file.InvalidPathException;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.ProviderMismatchException;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
+import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Solaris/Linux implementation of java.nio.file.Path

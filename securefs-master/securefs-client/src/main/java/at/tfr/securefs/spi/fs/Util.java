@@ -25,11 +25,13 @@
 
 package at.tfr.securefs.spi.fs;
 
-import java.util.*;
-import java.nio.file.*;
 import java.nio.charset.Charset;
-import java.security.*;
-import sun.security.action.*;
+import java.nio.file.LinkOption;
+import java.security.AccessController;
+import java.util.HashSet;
+import java.util.Set;
+
+import sun.security.action.GetPropertyAction;
 
 /**
  * Utility methods

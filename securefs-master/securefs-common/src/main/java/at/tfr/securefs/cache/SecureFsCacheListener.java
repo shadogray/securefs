@@ -24,7 +24,7 @@ import org.jboss.logging.Logger;
 
 import at.tfr.securefs.Role;
 import at.tfr.securefs.beans.Logging;
-import at.tfr.securefs.data.CopyFilesData;
+import at.tfr.securefs.data.ProcessFilesData;
 import at.tfr.securefs.data.ValidationData;
 import at.tfr.securefs.event.CopyFiles;
 import at.tfr.securefs.event.Events;
@@ -44,9 +44,9 @@ public class SecureFsCacheListener {
 
 	private Logger log = Logger.getLogger(getClass());
 
-	public static final String STATUS_MONITOR_CACHE_KEY = "securefs.statusMonitor.cacheKey";
-	public static final String VALIDATION_DATA_CACHE_KEY = "securefs.validationBean.validationData";
-	public static final String COPY_FILES_STATE_CACHE_KEY = "securefs.copyFilesBean.state";
+	public static final String STATUS_MONITOR_CACHE_KEY = "SecureFS.Status";
+	public static final String VALIDATION_DATA_CACHE_KEY = "SecureFS.Validation";
+	public static final String COPY_FILES_STATE_CACHE_KEY = "SecureFS.Files";
 
 	private Events events;
 
@@ -61,16 +61,23 @@ public class SecureFsCacheListener {
 	@CacheEntryCreated
 	public void entryCreated(CacheEntryCreatedEvent<String, Object> event) {
 		log.debug("cacheEntry: key=" + event.getKey()+" local="+event.isOriginLocal());
-		handleEvent(event);
+		try {
+			handleEvent(event);
+		} catch (Exception e) {
+			log.warn("cacheEntry: key=" + event.getKey()+" local="+event.isOriginLocal(), e);
+		}
 	}
 
 	@CacheEntryModified
 	public void entryModified(CacheEntryModifiedEvent<String, Object> event) {
 		log.debug("cacheEntry: key=" + event.getKey()+" local="+event.isOriginLocal());
-		handleEvent(event);
+		try {
+			handleEvent(event);
+		} catch (Exception e) {
+			log.warn("cacheEntry: key=" + event.getKey()+" local="+event.isOriginLocal(), e);
+		}		
 	}
 
-	@SuppressWarnings("unchecked")
 	private void handleEvent(CacheEntryEvent<String, Object> event) {
 		if (!event.isOriginLocal()) {
 			
@@ -105,8 +112,8 @@ public class SecureFsCacheListener {
 				}
 				break;
 			case COPY_FILES_STATE_CACHE_KEY:
-				if (event.getValue() instanceof CopyFilesData) {
-					events.sendEvent(new CopyFiles((CopyFilesData)event.getValue()));
+				if (event.getValue() instanceof ProcessFilesData) {
+					events.sendEvent(new CopyFiles((ProcessFilesData)event.getValue()));
 				} else {
 					log.info("unknown value: " + event.getValue());
 				}

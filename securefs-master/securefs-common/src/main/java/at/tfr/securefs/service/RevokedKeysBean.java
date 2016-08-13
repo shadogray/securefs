@@ -68,7 +68,7 @@ public class RevokedKeysBean {
 				if (Files.exists(revokedKeysPath)) {
 		        	revokedKeys = readAndValidate(revokedKeysPath, null);
 		        } else {
-		        	writeAndValidate(revokedKeysPath, false);
+		        	writeAndValidate(revokedKeysPath, Files.notExists(revokedKeysPath));
 		        }
 	        } catch (Exception e) {
 	        	log.error("Cannot read " + REVOKED_KEYS + " : " + e, e);
@@ -78,7 +78,7 @@ public class RevokedKeysBean {
 		}
     }
 
-	@RolesAllowed(Role.ADMIN)
+	@RolesAllowed({Role.ADMIN, Role.OPERATOR})
 	public List<String> revoke(BigInteger key) throws IOException {
 		if (revokedKeys == null) {
 			initializeRevokedKeys();

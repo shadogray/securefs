@@ -50,7 +50,7 @@ import at.tfr.securefs.beans.BeanProvider;
 import at.tfr.securefs.beans.Logging;
 import at.tfr.securefs.event.Events;
 import at.tfr.securefs.event.SecfsEventType;
-import at.tfr.securefs.event.SecureFs;
+import at.tfr.securefs.event.SecureFsFile;
 import at.tfr.securefs.service.CrypterProvider;
 
 /**
@@ -94,7 +94,7 @@ public class SecureFileSystemBean implements SecureFileSystemItf {
         rootPath = config.getBasePath();
         rootPathName = rootPath.toString();
         log.debug("init: " + rootPath);
-        events.sendEvent(new SecureFs(rootPathName, true, SecfsEventType.construct));
+        events.sendEvent(new SecureFsFile(rootPathName, true, SecfsEventType.construct));
     }
 
     @Override
@@ -215,7 +215,7 @@ public class SecureFileSystemBean implements SecureFileSystemItf {
     	boolean isclosed = closed.getAndSet(true);
     	if (!isclosed) {
 	        logInfo("Closing FileSystem: " + rootPath);
-	        events.sendEvent(new SecureFs(rootPathName, true, SecfsEventType.destroy));
+	        events.sendEvent(new SecureFsFile(rootPathName, true, SecfsEventType.destroy));
     	}
     }
 

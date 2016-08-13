@@ -13,8 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jboss.logging.Logger;
-import org.w3c.dom.DOMImplementation;
-import org.w3c.dom.bootstrap.DOMImplementationRegistry;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSInput;
 import org.w3c.dom.ls.LSResourceResolver;

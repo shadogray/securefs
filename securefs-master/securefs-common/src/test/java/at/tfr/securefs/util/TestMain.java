@@ -6,7 +6,6 @@
  */
 package at.tfr.securefs.util;
 
-import at.tfr.securefs.util.Main;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 

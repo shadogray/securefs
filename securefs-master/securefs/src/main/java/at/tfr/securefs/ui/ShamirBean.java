@@ -27,7 +27,6 @@ import at.tfr.securefs.ui.util.UI;
 
 @Named
 @ApplicationScoped
-@Audit
 @Logging
 public class ShamirBean {
 
@@ -41,6 +40,7 @@ public class ShamirBean {
 	private BigInteger modulus;
 	private SecureRandom random;
 
+	@Audit
 	public String reset() {
 		key = null;
 		secret = null;
@@ -51,6 +51,7 @@ public class ShamirBean {
 		return UI.redirect();
 	}
 	
+	@Audit
 	public String generate() {
 
 		try {

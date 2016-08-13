@@ -21,10 +21,17 @@
 		<dependencies>
 			<dependency>
 				<groupId>org.wildfly.bom</groupId>
-				<artifactId>jboss-javaee7-wildfly</artifactId>
-				<version>10.0.0-SNAPSHOT</version>
+				<artifactId>wildfly-javaee7</artifactId>
+				<version>10.0.0.Final</version>
 				<type>pom</type>
 				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.picketlink</groupId>
+				<artifactId>picketlink-javaee-7.0</artifactId>
+				<version>2.7.1.Final</version>
+				<scope>import</scope>
+				<type>pom</type>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -58,6 +65,26 @@
 			<artifactId>jboss-annotations-ejb3</artifactId>
 			<version>4.2.3.GA</version>
 			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.picketlink</groupId>
+			<artifactId>picketlink-api</artifactId>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.picketlink</groupId>
+			<artifactId>picketlink-impl</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.picketlink</groupId>
+			<artifactId>picketlink-idm-api</artifactId>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.picketlink</groupId>
+			<artifactId>picketlink-idm-impl</artifactId>
+			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.resteasy</groupId>
@@ -187,7 +214,8 @@
 					<version>1.1.2.Final</version>
 					<scope>test</scope>
 				</dependency>
-				<!-- Arquillian Weld EE Embedded requires the EL and EJB 3.1 APIs; Weld runtime provided by weld-servlet -->
+				<!-- Arquillian Weld EE Embedded requires the EL and EJB 3.1 APIs; Weld 
+					runtime provided by weld-servlet -->
 				<dependency>
 					<groupId>javax.el</groupId>
 					<artifactId>el-api</artifactId>
@@ -215,10 +243,11 @@
 
 	</profiles>
 	<repositories>
-		<!-- The JBoss public Nexus repository is a composite repository of several major repositories -->
+		<!-- The JBoss public Nexus repository is a composite repository of several 
+			major repositories -->
 		<!-- see http://community.jboss.org/wiki/MavenGettingStarted-Users -->
-		<!-- At the time of writing, Arquillian and the JBoss Java EE specification POMs are only in the JBoss Community public 
-			repository (not Maven central) -->
+		<!-- At the time of writing, Arquillian and the JBoss Java EE specification 
+			POMs are only in the JBoss Community public repository (not Maven central) -->
 		<repository>
 			<id>jboss-public-repository</id>
 			<name>JBoss Repository</name>

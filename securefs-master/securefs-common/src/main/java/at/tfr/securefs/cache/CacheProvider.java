@@ -18,10 +18,15 @@ import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
 import org.infinispan.manager.EmbeddedCacheManager;
+import org.jboss.logging.Logger;
+
+import at.tfr.securefs.annotation.SecureFs;
 
 @Singleton
 public class CacheProvider {
 
+	private Logger log = Logger.getLogger(getClass());
+	
 	@Inject
 	private at.tfr.securefs.Configuration configuration;
 	private Cache<String,Object> cache;
@@ -48,19 +53,26 @@ public class CacheProvider {
 	}
 	
 	@Produces
-	@SecureFsCache
+	@SecureFs
 	public Cache<String, Object> getSecureFsCache() {
 		return cache;
 	}
 	
 	@PreDestroy
 	private void destroy() {
-//		if (cache != null) {
-//			cache.stop();
-//		}
-//		if (cacheManager != null) {
-//			cacheManager.stop();
-//		}
+		try {
+			if (cache != null) {
+				cache.removeListener(cacheListener);
+			}
+		} catch (Exception e) {
+			log.warn("cannot remove CacheListener", e);
+		}
+		try {
+			if (cacheManager != null) {
+				cacheManager.removeListener(topologyListener);
+			}
+		} catch (Exception e) {
+			log.warn("cannot remove CacheTopologyListener", e);
+		}
 	}
-
 }

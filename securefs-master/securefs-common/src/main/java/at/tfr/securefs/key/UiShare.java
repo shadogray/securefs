@@ -8,7 +8,11 @@ package at.tfr.securefs.key;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class UiShare implements Serializable {
+
+	public static final String SHIELD = "xxxxxxxxxxx";
 	int index;
 	String share;
 	String realShare;
@@ -40,9 +44,10 @@ public class UiShare implements Serializable {
 	}
 
 	public void setShare(String share) {
-		if (share != null && share.length() > 0) {
-			this.share = share;
+		if (StringUtils.isBlank(share)) {
+			this.share = null;
 		}
+		this.share = share;
 	}
 	
 	public UiShare index(int index) {
@@ -55,7 +60,18 @@ public class UiShare implements Serializable {
 		return this;
 	}
 
-	public String getRealShare() {
+	public boolean hasRealShare() {
+		return StringUtils.isNotBlank(realShare);
+	}
+	
+	public boolean equalsReal(String share) {
+		return StringUtils.isNotBlank(share) && share.equals(realShare);
+	}
+	
+	/**
+	 * accessor to real share only for local package
+	 */
+	String getRealShare() {
 		return realShare;
 	}
 
@@ -66,7 +82,10 @@ public class UiShare implements Serializable {
 	}
 	
 	public UiShare toReal() {
-		this.realShare = this.share;
+		realShare = share;
+		if (realShare != null) {
+			this.share = SHIELD;
+		}
 		return this;
 	}
 	
@@ -95,6 +114,6 @@ public class UiShare implements Serializable {
 	
 	@Override
 	public String toString() {
-		return "UiShare[index="+index+", share="+(share != null ? share.hashCode() : null)+", real="+(realShare != null ? realShare.hashCode() : null)+"]";
+		return "UiShare[index="+index+", share="+(SHIELD.equals(share) ? "shield" : share)+", real="+(realShare != null ? "exists" : null)+"]";
 	}
 }

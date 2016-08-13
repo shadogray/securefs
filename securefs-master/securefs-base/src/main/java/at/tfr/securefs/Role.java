@@ -12,5 +12,6 @@ public enum Role {
 	public static final String USER = "user";
 	public static final String OPERATOR = "operator";
 	public static final String ADMIN = "admin";
+	public static final String MONITOR = "monitor";
 	public static final String LOCAL = "$local";
 }

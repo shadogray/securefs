@@ -14,43 +14,41 @@
 				<h:messages id="messages" errorClass="bg-danger" warnClass="bg-warning" infoClass="bg-success" />
 			</div>
 
-			<h:panelGroup styleClass="col-md-6">
-
-				<h:panelGrid id="regionGenerate" styleClass="table-hover" columns="2">
-					<h:outputLabel value="Key: " />
-					<h:inputText id="key" styleClass="form-control" value="#{shamirBean.key}" required="true">
-						<f:ajax render="@form"/>
-					</h:inputText>
-
-					<h:outputLabel value="Modulus: " />
-					<h:selectOneMenu id="modulus" value="#{validationBean.modulus}">
-						<f:selectItem />
-						<f:selectItems value="#{validationBean.moduli}" var="m" itemLabel="#{m.key}" itemValue="#{m.value}" />
-						<f:ajax render="@form"/>
-					</h:selectOneMenu>
-
-					<h:outputLabel value="NrOfShares: " />
-					<h:inputText id="nrOfShares" styleClass="form-control" value="#{shamirBean.nrOfShares}" converter="javax.faces.BigInteger"
-						required="true">
-						<f:ajax render="sharesTable"/>
-					</h:inputText>
-
-					<h:outputLabel value="Threshold: " />
-					<h:inputText id="threshold" styleClass="form-control" value="#{shamirBean.threshold}" converter="javax.faces.BigInteger"
-						required="true">
-						<f:ajax render="@form"/>
-					</h:inputText>
-
-					<h:outputLabel value="" />
-					<h:commandButton id="actionGenerate" styleClass="form-control" actionListener="#{shamirBean.generate()}" value="Generate">
-						<f:ajax execute="@form" render="@form"/>
-					</h:commandButton>
-					<h:outputLabel value="" />
-					<h:commandButton id="reset" styleClass="form-control" actionListener="#{shamirBean.reset()}" value="Reset" immediate="true">
-						<f:ajax execute="@form" render="@form"/>
-					</h:commandButton>
-				</h:panelGrid>
-			</h:panelGroup>
+			<f:ajax render="sharesTable messages">
+				<h:panelGroup styleClass="col-md-6">
+	
+					<h:panelGrid id="regionGenerate" styleClass="table-hover" columns="2">
+						<h:outputLabel value="Key: " />
+						<h:inputText id="key" styleClass="form-control" value="#{shamirBean.key}" required="true">
+						</h:inputText>
+	
+						<h:outputLabel value="Modulus: " />
+						<h:selectOneMenu id="modulus" value="#{validationBean.modulus}">
+							<f:selectItem />
+							<f:selectItems value="#{validationBean.moduli}" var="m" itemLabel="#{m.key}" itemValue="#{m.value}" />
+						</h:selectOneMenu>
+	
+						<h:outputLabel value="NrOfShares: " />
+						<h:inputText id="nrOfShares" styleClass="form-control" value="#{shamirBean.nrOfShares}" converter="javax.faces.BigInteger"
+							required="true">
+						</h:inputText>
+	
+						<h:outputLabel value="Threshold: " />
+						<h:inputText id="threshold" styleClass="form-control" value="#{shamirBean.threshold}" converter="javax.faces.BigInteger"
+							required="true">
+						</h:inputText>
+	
+						<h:outputLabel value="" />
+						<h:commandButton id="actionGenerate" styleClass="form-control" actionListener="#{shamirBean.generate()}" value="Generate">
+							<f:ajax execute="@form" render="@form"/>
+						</h:commandButton>
+						<h:outputLabel value="" />
+						<h:commandButton id="reset" styleClass="form-control" actionListener="#{shamirBean.reset()}" value="Reset" immediate="true">
+							<f:ajax execute="@form" render="@form"/>
+						</h:commandButton>
+					</h:panelGrid>
+				</h:panelGroup>
+			</f:ajax>
 
 			<h:panelGroup styleClass="col-md-6">
 				<h:dataTable id="sharesTable" styleClass="table-bordered table-hover" var="s" value="#{shamirBean.shares}">

@@ -111,18 +111,21 @@ public class TestFileSystem {
         Properties props = new Properties();
         props.load(getClass().getResourceAsStream("/securefs.properties"));
 		props.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
-        SecureFileSystemItf proxy = new SecureProxyProvider(props).getProxy("./");
-        String rootPath = proxy.getRootPath();
-        Collection<String> list = proxy.list("./");
-        Assert.assertNotNull(list);
-        Assert.assertTrue(list.size() > 0);
-        proxy.setRootPath("/");
-        Collection<String> list2 = proxy.list(rootPath);
-        Assert.assertNotNull(list2);
-        Assert.assertTrue(list2.size() > 0);
-        Assert.assertEquals(list, list2);
-        
-        
+		try (SecureProxyProvider secureProxyProvider = new SecureProxyProvider(props)) {
+			SecureFileSystemItf proxy = secureProxyProvider.getProxy("./");
+	        String rootPath = proxy.getRootPath();
+	        Collection<String> list = proxy.list("./");
+	        
+	        Assert.assertNotNull("RootPath "+rootPath+" not accessible", list);
+	        Assert.assertTrue("No Entry in RootPath "+rootPath, list.size() > 0);
+	
+	        proxy.setRootPath("/");
+	        Collection<String> list2 = proxy.list(rootPath);
+	        
+	        Assert.assertNotNull("Root not accessible", list2);
+	        Assert.assertTrue("No Entry in Root", list2.size() > 0);
+	        Assert.assertEquals("RootPath and current Path differ", list, list2);
+		}
     }
 
 }

@@ -25,10 +25,10 @@
 
 package at.tfr.securefs.spi.fs;
 
-import java.nio.file.Path;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.util.Arrays;
 
 /**

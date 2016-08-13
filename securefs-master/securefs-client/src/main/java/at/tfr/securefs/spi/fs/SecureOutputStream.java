@@ -6,11 +6,12 @@
  */
 package at.tfr.securefs.spi.fs;
 
-import at.tfr.securefs.api.Buffer;
-import at.tfr.securefs.api.SecureRemoteFile;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
+
+import at.tfr.securefs.api.Buffer;
+import at.tfr.securefs.api.SecureRemoteFile;
 
 /**
  *

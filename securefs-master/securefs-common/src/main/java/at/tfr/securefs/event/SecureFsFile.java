@@ -6,12 +6,13 @@
  */
 package at.tfr.securefs.event;
 
-public class SecureFs extends SecureFsEvent {
+@SuppressWarnings("serial")
+public class SecureFsFile extends SecureFsEvent {
 
 	private String path;
 	private boolean fileSystem;
 
-	public SecureFs(String path, boolean fileSystem, SecfsEventType type) {
+	public SecureFsFile(String path, boolean fileSystem, SecfsEventType type) {
 		this.path = path;
 		this.fileSystem = fileSystem;
 		this.type = type;
@@ -21,7 +22,7 @@ public class SecureFs extends SecureFsEvent {
 		return path;
 	}
 
-	public SecureFs setPath(String path) {
+	public SecureFsFile setPath(String path) {
 		this.path = path;
 		return this;
 	}
@@ -30,7 +31,7 @@ public class SecureFs extends SecureFsEvent {
 		return fileSystem;
 	}
 
-	public SecureFs setFileSystem(boolean file) {
+	public SecureFsFile setFileSystem(boolean file) {
 		this.fileSystem = file;
 		return this;
 	}

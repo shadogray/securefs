@@ -11,10 +11,13 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.tiemens.secretshare.engine.SecretShare;
+
 import at.tfr.securefs.key.UiShare;
 
+@SuppressWarnings("serial")
 public class ValidationData implements Serializable {
-	private BigInteger modulus;
+	private BigInteger modulus = SecretShare.getPrimeUsedFor4096bigSecretPayload();
 	private int threshold;
 	private int nrOfShares;
 	private List<UiShare> uiShares = new ArrayList<>();
@@ -67,7 +70,7 @@ public class ValidationData implements Serializable {
 
 	public boolean adaptToThreshold() {
 		if (uiShares.size() > threshold) {
-			uiShares = new ArrayList<>(uiShares.subList(0, threshold - 1));
+			uiShares = new ArrayList<>(uiShares.subList(0, threshold));
 			return true;
 		}
 		if (uiShares.size() < threshold) {

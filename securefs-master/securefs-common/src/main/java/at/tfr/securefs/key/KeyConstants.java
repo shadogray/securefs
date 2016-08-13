@@ -43,9 +43,9 @@ public class KeyConstants {
 	public static int nrOfSharesForTest = 10;
 
 	static {
-		sharesForTest.add(new UiShare(1, "63116732139562502"));
-		sharesForTest.add(new UiShare(2, "120513004896685933"));
-		sharesForTest.add(new UiShare(3, "202981094231335342"));
+		sharesForTest.add(new UiShare(1, "63116732139562502").toReal());
+		sharesForTest.add(new UiShare(2, "120513004896685933").toReal());
+		sharesForTest.add(new UiShare(3, "202981094231335342").toReal());
 	}
 
 }

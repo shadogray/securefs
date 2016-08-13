@@ -8,6 +8,7 @@ package at.tfr.securefs.event;
 
 import at.tfr.securefs.data.ValidationData;
 
+@SuppressWarnings("serial")
 public class UiUpdate extends SecureFsEvent {
 	
 	private ValidationData validationData;

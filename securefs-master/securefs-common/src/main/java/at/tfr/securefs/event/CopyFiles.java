@@ -6,25 +6,26 @@
  */
 package at.tfr.securefs.event;
 
-import at.tfr.securefs.data.CopyFilesData;
+import at.tfr.securefs.data.ProcessFilesData;
 
+@SuppressWarnings("serial")
 public class CopyFiles extends SecureFsEvent {
 
-	private CopyFilesData copyFilesData;
+	private ProcessFilesData processFilesData;
 
 	public CopyFiles() {
 	}
 
-	public CopyFiles(CopyFilesData data) {
-		this.copyFilesData = data;
+	public CopyFiles(ProcessFilesData data) {
+		this.processFilesData = data;
 	}
 
-	public CopyFilesData getCopyFilesData() {
-		return copyFilesData;
+	public ProcessFilesData getProcessFilesData() {
+		return processFilesData;
 	}
 
-	public CopyFiles setCopyFilesData(CopyFilesData copyFilesData) {
-		this.copyFilesData = copyFilesData;
+	public CopyFiles setProcessFilesData(ProcessFilesData copyFilesData) {
+		this.processFilesData = copyFilesData;
 		return this;
 	}
 }

@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.LocalBean;
@@ -27,6 +28,7 @@ import at.tfr.securefs.Configuration;
 import at.tfr.securefs.api.module.ModuleConfiguration;
 import at.tfr.securefs.api.module.ModuleException;
 import at.tfr.securefs.api.module.ModuleResult;
+import at.tfr.securefs.api.module.ModuleStatistics;
 import at.tfr.securefs.api.module.ServiceModule;
 
 @Stateless
@@ -52,7 +54,25 @@ public class PreprocessorBean {
 		moduleConfigurations = configuration.getModuleConfigurations();
 	}
 
-	private ServiceModule getServiceModule(ModuleConfiguration config) throws ModuleException, IOException {
+	public ModuleStatistics getModuleStatistics(String name) {
+		
+		try {
+			Optional<ModuleConfiguration> modConf = moduleConfigurations.stream().filter(m -> m.getName().equals(name)).findFirst();
+			if (modConf.isPresent()) {
+				ServiceModule sm = getServiceModule(modConf.get());
+				if (sm != null) {
+					return sm.getModuleStatistics();
+				}
+			}
+		} catch (Exception e) {
+			if (log.isDebugEnabled()) {
+				log.debug("failure to access module: "+name, e);
+			}
+		}
+		return new ModuleStatistics(name).setSuccesses(-1);
+	}
+	
+	public ServiceModule getServiceModule(ModuleConfiguration config) throws ModuleException, IOException {
 		ServiceModule sm = null;
 		try {
 			sm = (ServiceModule) new InitialContext().lookup(config.getJndiName());

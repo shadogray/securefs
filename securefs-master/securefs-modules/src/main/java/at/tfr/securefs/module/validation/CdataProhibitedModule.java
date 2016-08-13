@@ -7,16 +7,12 @@
 package at.tfr.securefs.module.validation;
 
 import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Scanner;
 
-import javax.ejb.Local;
-import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
@@ -34,21 +30,26 @@ public class CdataProhibitedModule extends ModuleBase implements ServiceModule {
 
 	@Override
 	public ModuleResult apply(String xmlFilePath, ModuleConfiguration moduleConfiguration) throws IOException, ModuleException {
-
 		try (InputStream is = new BufferedInputStream(Files.newInputStream(Paths.get(xmlFilePath)))) {
 			return apply(is, moduleConfiguration);
 		} catch (Exception e) {
+			moduleStatistics.getErrors().incrementAndGet();
 			throw new ModuleException("invalid CDATA section in: " + xmlFilePath, e);
 		}
 	}
 
 	@Override
 	public ModuleResult apply(InputStream is, ModuleConfiguration moduleConfiguration) throws ModuleException {
+
+		moduleStatistics.getCalls().incrementAndGet();
+		
 		try (Scanner scanner = new Scanner(is)) {
 			if (scanner.findWithinHorizon(CDATA, 0) != null) {
+				moduleStatistics.getFailures().incrementAndGet();
 				throw new ModuleException("CDATA section found");
 			}
 		}
+		moduleStatistics.getSuccesses().incrementAndGet();
 		return new ModuleResult(true);
 	}
 

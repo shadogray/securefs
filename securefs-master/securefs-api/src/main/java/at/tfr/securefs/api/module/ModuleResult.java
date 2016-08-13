@@ -8,6 +8,7 @@ package at.tfr.securefs.api.module;
 
 import java.io.Serializable;
 
+@SuppressWarnings("serial")
 public class ModuleResult implements Serializable {
 
 	boolean valid;

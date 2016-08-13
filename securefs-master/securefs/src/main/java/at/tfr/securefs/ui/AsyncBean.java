@@ -6,25 +6,31 @@
  */
 package at.tfr.securefs.ui;
 
-import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.Asynchronous;
 import javax.ejb.DependsOn;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import at.tfr.securefs.Role;
+
 @Named
 @Stateless
 @Asynchronous
-@PermitAll
-@DependsOn({"CopyFilesBean"})
+@RolesAllowed(Role.ADMIN)
+@DependsOn({"CopyFilesServiceBean"})
 public class AsyncBean {
 
 	@Inject
-	private CopyFilesBean copyFilesBean;
+	private CopyFilesServiceBean copyFilesBean;
 	
 	public void invokeCopyFiles() {
 		copyFilesBean.copyFiles();
+	}
+	
+	public void invokeVerifyCopy() {
+		copyFilesBean.verifyCopy();
 	}
 	
 	public void invokeVerify() {

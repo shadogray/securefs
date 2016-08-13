@@ -10,32 +10,62 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.TreeMap;
 
+@SuppressWarnings("serial")
 public class ClusterState implements Serializable {
 	private Map<String, String> stateInfo = new TreeMap<>();
-	private boolean collapsed;
+	private String node;
+	private String clusterKey;
+	private boolean hasSecret;
+	private int secretHash;
 
 	public Map<String, String> getStateInfo() {
 		return stateInfo;
 	}
+	
+	public String getNode() {
+		return node;
+	}
+	
+	public ClusterState setNode(String node) {
+		this.node = node;
+		return this;
+	}
 
-	public void setStateInfo(Map<String, String> stateInfo) {
+	public String getClusterKey() {
+		return clusterKey;
+	}
+	
+	public ClusterState setClusterKey(String clusterKey) {
+		this.clusterKey = clusterKey;
+		return this;
+	}
+	
+	public ClusterState setStateInfo(Map<String, String> stateInfo) {
 		this.stateInfo = stateInfo;
+		return this;
 	}
 
-	public boolean isCollapsed() {
-		return collapsed;
+	public ClusterState setHasSecret(boolean hasSecret) {
+		this.hasSecret = hasSecret;
+		return this;
 	}
-
-	public void setCollapsed(boolean collapsed) {
-		this.collapsed = collapsed;
+	
+	public boolean isHasSecret() {
+		return hasSecret;
 	}
-
-	public void toggleCollapsed() {
-		collapsed = !collapsed;
+	
+	public int getSecretHash() {
+		return secretHash;
+	}
+	
+	public ClusterState setSecretHash(int secretHash) {
+		this.secretHash = secretHash;
+		return this;
 	}
 	
 	@Override
 	public String toString() {
-		return "ClusterState[" + stateInfo + "]";
+		return "ClusterState [node=" + node + ", hasSecret=" + hasSecret + ", secretHash=" + secretHash + ", stateInfo="
+				+ stateInfo + "]";
 	}
 }

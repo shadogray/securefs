@@ -7,7 +7,6 @@
 package at.tfr.securefs.ui;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +23,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.apache.commons.lang.StringUtils;
-import org.infinispan.Cache;
 import org.jboss.logging.Logger;
 
 import at.tfr.securefs.Configuration;
@@ -46,11 +44,8 @@ import at.tfr.securefs.ui.util.UI;
 @Singleton
 @RolesAllowed({Role.OPERATOR, Role.ADMIN})
 @DependsOn({"Configuration", "RevokedKeysBean"})
-@Audit
 @Logging
-public class ValidationBean implements Serializable {
-
-	private static final String XXXXXXXXXXX = "xxxxxxxxxxx";
+public class ValidationBean {
 
 	private Logger log = Logger.getLogger(getClass());
 
@@ -67,29 +62,27 @@ public class ValidationBean implements Serializable {
 	private SecretBean secretBean;
 	private Configuration configuration;
 	private RevokedKeysBean revokedKeysBean;
-	private Cache<String,Object> cache;
+	private SecureFsCache secureFsCache;
 
 	public ValidationBean() {
 	}
 
 	@Inject
-	public ValidationBean(Configuration configuration, SecretBean secretBean, RevokedKeysBean revokedKeysBean, @SecureFsCache Cache<String,Object> cache) {
+	public ValidationBean(Configuration configuration, SecretBean secretBean, RevokedKeysBean revokedKeysBean, SecureFsCache secureFsCache) {
 		this.configuration = configuration;
 		this.secretBean = secretBean;
 		this.revokedKeysBean = revokedKeysBean;
-		this.cache = cache;
+		this.secureFsCache = secureFsCache;
 	}
 
 	@PostConstruct
 	private void init() {
 		boolean validationDataInitialized = false;
-		if (cache != null) {
-			Object value = cache.get(SecureFsCacheListener.VALIDATION_DATA_CACHE_KEY);
-			if (value instanceof ValidationData) {
-				validationData = (ValidationData)value;
-				validationDataInitialized = true;
-				log.info("retrieved data from cache: "+value);
-			}
+		Object value = secureFsCache.get(SecureFsCacheListener.VALIDATION_DATA_CACHE_KEY);
+		if (value instanceof ValidationData) {
+			validationData = (ValidationData)value;
+			validationDataInitialized = true;
+			log.info("retrieved data from cache: "+value);
 		}
 		if (!validationDataInitialized) {
 			validationData.setNrOfShares(KeyConstants.nrOfSharesForTest);
@@ -98,6 +91,7 @@ public class ValidationBean implements Serializable {
 		}
 	}
 
+	@Audit
 	public String reset() {
 		validationData.clear();
 		secret = null;
@@ -107,23 +101,26 @@ public class ValidationBean implements Serializable {
 		return UI.redirect();
 	}
 
+	@Audit
 	public void updateShare() {
-		if (editedShare != null && StringUtils.isNotBlank(editedShare.getShare()) && editedShare.getRealShare() == null) {
+		if (editedShare != null && StringUtils.isNotBlank(editedShare.getShare()) && editedShare.hasRealShare()) {
 			if (revokedKeysBean.getRevokedKeys().contains(editedShare.getShare())) {
 				UI.error("Invalid Use of RevokedKey: " + editedShare.getShare());
 				return;
 			}
-			editedShare.toReal().setShare(XXXXXXXXXXX);
+			editedShare.toReal();
 			updateCache();
 		}
 	}
 	
+	@Audit
 	public String updateShares() {
-		validationData.getUiShares().stream().forEach(s->s.toReal().setShare(XXXXXXXXXXX));
+		validationData.getUiShares().stream().forEach(s->s.toReal());
 		updateCache();
 		return UI.redirect();
 	}
 	
+	@Audit
 	public String combine() {
 		combined = false;
 		validated = false;
@@ -135,9 +132,7 @@ public class ValidationBean implements Serializable {
 			}
 			List<String> revokedKeys = revokedKeysBean.getRevokedKeys();
 			assureNonRevokedShares(revokedKeys);
-			List<UiShare> shares = validationData.getUiShares().stream()
-					.map(s->new UiShare(s.getIndex(), s.getRealShare()))
-					.collect(Collectors.toList());
+			List<UiShare> shares = validationData.getUiShares();
 			secret = new Shamir().combine(validationData.getNrOfShares(), validationData.getThreshold(), validationData.getModulus(), shares);
 			combined = true;
 		} catch (Exception e) {
@@ -148,6 +143,7 @@ public class ValidationBean implements Serializable {
 		return UI.redirect();
 	}
 
+	@Audit
 	public String validate() {
 		validated = false;
 		try {
@@ -181,13 +177,14 @@ public class ValidationBean implements Serializable {
 	private void assureNonRevokedShares(List<String> revokedKeys) {
 		if (revokedKeys != null && !revokedKeys.isEmpty()) {
 			for (UiShare share : validationData.getUiShares()) {
-				if (revokedKeys.contains("" + share.getRealShare())) {
-					throw new SecurityException("Invalid Use of RevokedKey: " + share.getRealShare());
+				if (revokedKeys.stream().anyMatch(k -> share.equalsReal(k))) {
+					throw new SecurityException("Invalid Use of RevokedKey: " + share);
 				}
 			}
 		}
 	}
 
+	@Audit
 	@RolesAllowed(Role.ADMIN)
 	public String activate() {
 		try {
@@ -202,6 +199,7 @@ public class ValidationBean implements Serializable {
 		return UI.redirect();
 	}
 
+	@Audit
 	public String activateNewSecret() {
 		try {
 			secretBean.setSecret(secret);
@@ -215,8 +213,10 @@ public class ValidationBean implements Serializable {
 	}
 
 	private void updateCache() {
-		if (cache != null) {
-			cache.put(SecureFsCacheListener.VALIDATION_DATA_CACHE_KEY, validationData);
+		try {
+			secureFsCache.put(SecureFsCacheListener.VALIDATION_DATA_CACHE_KEY, validationData);
+		} catch (Exception e) {
+			log.warn("updateCache", e);
 		}
 	}
 

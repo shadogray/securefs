@@ -6,7 +6,6 @@
  */
 package at.tfr.securefs.service;
 
-import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.List;
 
@@ -24,9 +23,9 @@ import org.jboss.logging.Logger;
 
 import at.tfr.securefs.Configuration;
 import at.tfr.securefs.Role;
+import at.tfr.securefs.annotation.SecureFs;
 import at.tfr.securefs.api.SecureFSKeyNotInitializedError;
 import at.tfr.securefs.beans.Logging;
-import at.tfr.securefs.cache.SecureFsCache;
 import at.tfr.securefs.event.Events;
 import at.tfr.securefs.event.KeyEvent;
 import at.tfr.securefs.event.SecfsEventType;
@@ -37,7 +36,7 @@ import at.tfr.securefs.key.UiShare;
 @Singleton
 @RolesAllowed(Role.ADMIN)
 @DependsOn({"Configuration"})
-public class SecretBean implements Serializable {
+public class SecretBean {
 
 	private Logger log = Logger.getLogger(getClass());
 
@@ -55,7 +54,7 @@ public class SecretBean implements Serializable {
 	}
 
 	@Inject
-    public SecretBean(Configuration configuration, Events events, @SecureFsCache Cache<String, Object> cache) {
+    public SecretBean(Configuration configuration, Events events, @SecureFs Cache<String, Object> cache) {
 		this.configuration = configuration;
 		this.events = events;
 		this.cache = cache;
@@ -121,6 +120,11 @@ public class SecretBean implements Serializable {
     @Logging
     public boolean hasSecret() {
     	return secret != null;
+    }
+    
+    @RolesAllowed({Role.ADMIN, Role.OPERATOR, Role.MONITOR})
+    public int getSecretHash() {
+    	return secret != null ? secret.hashCode() : 0;
     }
     
     @RolesAllowed(Role.ADMIN)

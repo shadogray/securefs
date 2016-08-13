@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.activity.InvalidActivityException;
 import javax.annotation.PostConstruct;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.ConcurrencyManagement;
@@ -33,26 +32,26 @@ import javax.faces.model.DataModel;
 import javax.faces.model.ListDataModel;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.transaction.UserTransaction;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang.StringUtils;
-import org.infinispan.Cache;
 import org.jboss.logging.Logger;
 
+import at.tfr.securefs.Configuration;
 import at.tfr.securefs.Role;
 import at.tfr.securefs.api.SecureFSError;
 import at.tfr.securefs.beans.Audit;
 import at.tfr.securefs.beans.Logging;
 import at.tfr.securefs.cache.SecureFsCache;
 import at.tfr.securefs.cache.SecureFsCacheListener;
-import at.tfr.securefs.data.CopyFilesData;
+import at.tfr.securefs.data.ProcessFilesData;
 import at.tfr.securefs.data.ValidationData;
 import at.tfr.securefs.event.CopyFiles;
 import at.tfr.securefs.key.KeyConstants;
 import at.tfr.securefs.key.Shamir;
 import at.tfr.securefs.key.UiShare;
+import at.tfr.securefs.process.ProcessFiles;
 import at.tfr.securefs.service.CrypterProvider;
 import at.tfr.securefs.ui.util.UI;
 
@@ -60,17 +59,14 @@ import at.tfr.securefs.ui.util.UI;
 @Singleton
 @RolesAllowed(Role.ADMIN)
 @DependsOn({ "SecretKeySpecBean" })
-@Audit
 @Logging
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 @TransactionManagement(TransactionManagementType.BEAN)
-public class CopyFilesBean implements Serializable {
-
-	private static final String XXXXXXXXXXX = "xxxxxxxxxxx";
+public class CopyFilesServiceBean {
 
 	private Logger log = Logger.getLogger(getClass());
 
-	private CopyFilesData copyFilesData = new CopyFilesData();
+	private ProcessFilesData processFilesData = new ProcessFilesData();
 
 	private BigInteger newSecret;
 	private static Map<String, BigInteger> moduli = KeyConstants.moduli;
@@ -79,68 +75,74 @@ public class CopyFilesBean implements Serializable {
 	private int editedShareIndex;
 	private String fromPathName, toPathName;
 	private boolean update, allowOverwriteExisting;
+	private Configuration configuration;
+	private ProcessFiles processFiles;
 	private CrypterProvider crypterProvider;
-	private Cache<String, Object> cache;
-	@Inject
-	private UserTransaction utx;
+	private SecureFsCache secureFsCache;
 
-	public CopyFilesBean() {
+	public CopyFilesServiceBean() {
 	}
 
 	@Inject
-	public CopyFilesBean(CrypterProvider crypterProvider, @SecureFsCache Cache<String, Object> cache) {
+	public CopyFilesServiceBean(Configuration configuration, CrypterProvider crypterProvider, ProcessFiles processFiles, SecureFsCache secureFsCache) {
+		this.configuration = configuration;
 		this.crypterProvider = crypterProvider;
-		this.cache = cache;
+		this.processFiles = processFiles;
+		this.secureFsCache = secureFsCache;
 	}
 
 	@PostConstruct
 	private void init() {
-		if (cache != null) {
-			Object value = cache.get(SecureFsCacheListener.COPY_FILES_STATE_CACHE_KEY);
-			if (value instanceof CopyFilesData) {
-				copyFilesData = (CopyFilesData) value;
-				log.info("retrieved data from cache: " + value);
-			}
+		fromPathName = configuration.getBasePath().toString();
+		Object value = secureFsCache.get(SecureFsCacheListener.COPY_FILES_STATE_CACHE_KEY);
+		if (value instanceof ProcessFilesData) {
+			processFilesData = (ProcessFilesData) value;
+			log.info("retrieved data from cache: " + value);
+		} else {
+			updateCache();
 		}
 	}
 
+	@Audit
 	public void reset() {
-		if (copyFilesData.isCopyActive()) {
-			UI.error("Copy already active: from=" + copyFilesData.getFromRootPath() + " to="
-					+ copyFilesData.getToRootPath());
+		if (processFilesData.isProcessActive()) {
+			UI.error("Copy active: from=" + processFilesData.getFromRootPath() + " to="
+					+ processFilesData.getToRootPath());
 			return;
 		}
-		copyFilesData.reset();
+		processFilesData.reset();
 		newSecret = null;
 		combined = false;
 		updateCache();
 	}
 
+	@Audit
 	public void updateShare() {
 		if (editedShare != null && StringUtils.isNotBlank(editedShare.getShare())
-				&& editedShare.getRealShare() == null) {
-			editedShare.toReal().setShare(XXXXXXXXXXX);
+				&& editedShare.hasRealShare()) {
+			editedShare.toReal();
 			updateCache();
 		}
 	}
 
+	@Audit
 	public void updateShares() {
-		copyFilesData.getValidationData().getUiShares().stream().forEach(s -> s.toReal().setShare(XXXXXXXXXXX));
+		processFilesData.getValidationData().getUiShares().stream().forEach(s -> s.toReal());
 		updateCache();
 	}
 
+	@Audit
 	public String combine() {
 		combined = false;
 		try {
-			ValidationData validationData = copyFilesData.getValidationData();
+			ValidationData validationData = processFilesData.getValidationData();
 			List<UiShare> badShares = validationData.getUiShares().stream()
 					.filter(s -> s.getIndex() <= 0 || s.getShare() == null).collect(Collectors.toList());
 			if (!badShares.isEmpty()) {
 				UI.error("Found " + badShares.size() + " invalid Shares");
 				return null;
 			}
-			List<UiShare> shares = validationData.getUiShares().stream()
-					.map(s -> new UiShare(s.getIndex(), s.getRealShare())).collect(Collectors.toList());
+			List<UiShare> shares = validationData.getUiShares();
 			newSecret = new Shamir().combine(validationData.getNrOfShares(), validationData.getThreshold(),
 					validationData.getModulus(), shares);
 			combined = true;
@@ -155,15 +157,15 @@ public class CopyFilesBean implements Serializable {
 	/**
 	 * run the copy process, has to be called by asyncBean, so no FacesContext
 	 */
+	@Audit
 	@RolesAllowed(Role.ADMIN)
 	public void copyFiles() {
-		if (copyFilesData.isCopyActive()) {
-			UI.error("Copy already active: from=" + copyFilesData.getFromRootPath() + " to="
-					+ copyFilesData.getToRootPath());
+		if (processFilesData.isProcessActive()) {
+			processActiveErrormsg();
 			return;
 		}
 		try {
-			copyFilesData.reset();
+			processFilesData.reset();
 			if (!combined) {
 				throw new Exception("Please execute Key Combination.");
 			}
@@ -172,131 +174,74 @@ public class CopyFilesBean implements Serializable {
 
 			Path from = Paths.get(fromPathName);
 			Path to = Paths.get(toPathName);
-			copyFilesData.setFromRootPath(fromPathName).setToRootPath(toPathName)
+			processFilesData.setFromRootPath(fromPathName).setToRootPath(toPathName)
 			.setAllowOverwriteExisting(allowOverwriteExisting).setUpdate(update)
-			.setCopyActive(true);
+			.setProcessActive(true);
 
-			copy(from, to);
+			processFiles.copy(from, to, crypterProvider, newSecret, processFilesData);
 
 		} catch (Exception e) {
 			log.error("CopyFiles failed: " + e, e);
-			copyFilesData.setLastError(e);
+			processFilesData.setLastError(e);
 		} finally {
-			copyFilesData.setCopyActive(false);
+			processFilesData.setProcessActive(false);
+			updateCache();
 		}
 	}
 
+	@Audit
 	public void verify() {
-		copyFilesData.setLastError(null);
-		copyFilesData.setCurrentFromPath(null);
+		if (processFilesData.isProcessActive()) {
+			processActiveErrormsg();
+			return;
+		}
+		processFilesData.reset().setProcessActive(true);
+		
 		try {
-			verify(Paths.get(toPathName));
+			
+			processFiles.verify(Paths.get(fromPathName), crypterProvider, newSecret, processFilesData);
+		
 		} catch (Exception e) {
 			log.error("Verification failed: " + e, e);
-			copyFilesData.setLastError(e);
-		}
-		copyFilesData.setCopyActive(false);
-	}
-
-	protected void copy(Path from, final Path to) throws IOException {
-		Files.createDirectories(to);
-		int fromStartIndex = from.getNameCount();
-		Files.walk(from).filter(d -> !d.equals(from)).forEach((fromPath) -> {
-			if (copyFilesData.isCopyActive()) {
-				copy(fromPath, fromStartIndex, to, crypterProvider, newSecret, copyFilesData);
-			}
-		});
-	}
-
-	/**
-	 * copy file, overwrite if not update {@link CopyFilesData#isUpdate()}
-	 * @param fromPath
-	 * @param fromStartIndex index of the source root path in fromPath
-	 * @param toRootPath target root path
-	 * @param cp the crypter provider initialized with current secret
-	 * @param newSecret the secret to use for encryption
-	 * @param cfd
-	 */
-	public void copy(Path fromPath, int fromStartIndex, Path toRootPath, CrypterProvider cp, BigInteger newSecret,
-			CopyFilesData cfd) {
-		Path toPath = toRootPath.resolve(fromPath.subpath(fromStartIndex, fromPath.getNameCount()));
-		try {
-			if (Files.isRegularFile(fromPath)) {
-				if (Files.isRegularFile(toPath)) {
-					if (!copyFilesData.isAllowOverwriteExisting()) {
-						throw new SecureFSError("overwrite of existing file not allowed: " + toPath);
-					}
-					if (copyFilesData.isUpdate() 
-							&& Files.getLastModifiedTime(fromPath).toInstant().isBefore(Files.getLastModifiedTime(toPath).toInstant())) {
-						log.info("not overwriting from: " + fromPath.toAbsolutePath() + " to: " + toPath.toAbsolutePath());
-						return;
-					}
-				}
-
-				// write source to target
-				copyFilesData.setCurrentFromPath(fromPath.toAbsolutePath().toString());
-				copyFilesData.setCurrentToPath(toPath.toAbsolutePath().toString());
-				updateCache();
-				try (OutputStream os = crypterProvider.getEncrypter(toPath, newSecret);
-						InputStream is = crypterProvider.getDecrypter(fromPath)) {
-					IOUtils.copy(is, os);
-				}
-				log.info("copied from: " + fromPath.toAbsolutePath() + " to: " + toPath.toAbsolutePath());
-			}
-			if (Files.isDirectory(fromPath)) {
-				Path subDir = Files.createDirectories(toPath);
-				log.info("created subDir: " + subDir.toAbsolutePath());
-			}
-		} catch (Exception e) {
-			throw new SecureFSError("cannot copy from: " + fromPath + " to: " + toPath, e);
-		}
-	}
-
-	private void verify(Path root) throws IOException {
-		Files.walk(root).forEach((p) -> {
-			if (copyFilesData.isCopyActive()) {
-				verifyDecryption(p, crypterProvider, newSecret, copyFilesData);
-			}
-		});
-	}
-
-	/**
-	 * verify, that the file is decryptable with provided secret
-	 * 
-	 * @param path
-	 * @param cp
-	 * @param newSecret
-	 * @param cfd
-	 */
-	public void verifyDecryption(Path path, CrypterProvider cp, BigInteger newSecret, CopyFilesData cfd) {
-		if (Files.isRegularFile(path)) {
-			cfd.setCurrentToPath(path.toAbsolutePath().toString());
+			processFilesData.setLastError(e);
+		} finally {
+			processFilesData.setProcessActive(false);
 			updateCache();
-			try (OutputStream os = new NullOutputStream(); InputStream is = cp.getDecrypter(path, newSecret)) {
-				IOUtils.copy(is, os);
-			} catch (IOException ioe) {
-				log.info("failed to verify: " + path + " err: " + ioe);
-				cfd.putError(path, ioe);
-				cfd.setLastError(ioe);
-			}
-			log.info("verified read: " + path.toAbsolutePath());
+		}
+	}
+
+	@Audit
+	public void verifyCopy() {
+		if (processFilesData.isProcessActive()) {
+			processActiveErrormsg();
+			return;
+		}
+		processFilesData.reset().setProcessActive(true);
+		
+		try {
+		
+			processFiles.verify(Paths.get(toPathName), crypterProvider, newSecret, processFilesData);
+
+		} catch (Exception e) {
+			log.error("Verification failed: " + e, e);
+			processFilesData.setLastError(e);
+		} finally {
+			processFilesData.setProcessActive(false);
+			updateCache();
 		}
 	}
 
 	private void updateCache() {
-		if (cache != null && utx != null) {
-			try {
-				utx.begin();
-				cache.put(SecureFsCacheListener.COPY_FILES_STATE_CACHE_KEY, copyFilesData);
-				utx.commit();
-			} catch (Exception e) {
-				log.info("cannot update cache: " + e, e);
-			}
+		try {
+			secureFsCache.put(SecureFsCacheListener.COPY_FILES_STATE_CACHE_KEY, processFilesData);
+		} catch (Exception e) {
+			log.warn("cannot update cache: " + e, e);
 		}
 	}
 
-	public CopyFilesData getCopyFilesData() {
-		return copyFilesData;
+	@RolesAllowed({ Role.ADMIN, Role.OPERATOR })
+	public ProcessFilesData getProcessFilesData() {
+		return processFilesData;
 	}
 
 	public DataModel<UiShare> getDataModel() {
@@ -304,10 +249,10 @@ public class CopyFilesBean implements Serializable {
 	}
 
 	private List<UiShare> getUiShares() {
-		if (copyFilesData.getValidationData().adaptToThreshold()) {
+		if (processFilesData.getValidationData().adaptToThreshold()) {
 			updateCache();
 		}
-		return copyFilesData.getValidationData().getUiShares();
+		return processFilesData.getValidationData().getUiShares();
 	}
 
 	public Map<String, BigInteger> getModuli() {
@@ -396,6 +341,9 @@ public class CopyFilesBean implements Serializable {
 	private void validateToPath(String toPathName) throws IOException {
 		Path to = Paths.get(toPathName);
 		if (Files.exists(to, LinkOption.NOFOLLOW_LINKS)) {
+			if (Files.isSameFile(to, Paths.get(fromPathName))) {
+				throw new IOException("Path " + to + " may not be same as FromPath: " + fromPathName);
+			}
 			if (!Files.isDirectory(to, LinkOption.NOFOLLOW_LINKS)) {
 				throw new IOException("Path " + to + " is no directory");
 			}
@@ -430,12 +378,26 @@ public class CopyFilesBean implements Serializable {
 	}
 	
 	public void handleEvent(@Observes CopyFiles event) {
-		if (event.getCopyFilesData() != null) {
-			copyFilesData = event.getCopyFilesData();
-			log.info("updated UiShares: " + event.getCopyFilesData());
+		if (event.getProcessFilesData() != null) {
+			processFilesData = event.getProcessFilesData();
+			log.info("updated UiShares: " + event.getProcessFilesData());
 		}
 	}
 
+	private void processActiveErrormsg() {
+		UI.error("Process already active: from=" + processFilesData.getFromRootPath() + " to="
+				+ processFilesData.getToRootPath());
+	}
+
+	/**
+	 * for testing purpose only
+	 * @param copyFilesData
+	 */
+	@Deprecated
+	void setCopyFilesData(ProcessFilesData copyFilesData) {
+		this.processFilesData = copyFilesData;
+	}
+	
 	// String SecretAsString:
 	// com.tiemens.secretshare.math.BigIntUtilities.Human.createHumanString(secret);
 }

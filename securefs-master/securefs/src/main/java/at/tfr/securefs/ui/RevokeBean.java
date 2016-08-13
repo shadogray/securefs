@@ -6,15 +6,13 @@
  */
 package at.tfr.securefs.ui;
 
-import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.List;
 
+import javax.enterprise.inject.Model;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
-import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.jboss.logging.Logger;
 
@@ -22,11 +20,9 @@ import at.tfr.securefs.beans.Audit;
 import at.tfr.securefs.beans.Logging;
 import at.tfr.securefs.service.RevokedKeysBean;
 
-@Named
-@ViewScoped
-@Audit
+@Model
 @Logging
-public class RevokeBean implements Serializable {
+public class RevokeBean {
 
 	private Logger log = Logger.getLogger(getClass());
 
@@ -35,9 +31,11 @@ public class RevokeBean implements Serializable {
 	
     private BigInteger key;
 
+    @Audit
 	public String revoke() {
 		try {
 			revokedKeysBean.revoke(key);
+			log.info("Revoked key: "+key);
 		} catch (Exception e) {
 			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR, e.getMessage(), null));
 		}

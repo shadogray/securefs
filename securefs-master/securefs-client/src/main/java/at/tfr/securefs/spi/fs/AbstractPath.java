@@ -25,9 +25,12 @@
 
 package at.tfr.securefs.spi.fs;
 
-import java.nio.file.*;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 

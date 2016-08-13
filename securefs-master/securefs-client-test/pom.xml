@@ -168,5 +168,6 @@
       </profile>
    </profiles>
    <build>
+		<finalName>securefs-client-test</finalName>
    </build>
 </project>

@@ -23,7 +23,7 @@ public class Shamir {
 
 		PublicInfo info = new SecretShare.PublicInfo(nrOfShares, threshold, modulus, "Combine:" + new Date());
 		for (UiShare s : shares) {
-			shareInfos.add(new ShareInfo(s.getIndex(), parse(s.getShare()), info));
+			shareInfos.add(new ShareInfo(s.getIndex(), parse(s.getRealShare()), info));
 		}
 		SecretShare secretShare = new SecretShare(info);
 

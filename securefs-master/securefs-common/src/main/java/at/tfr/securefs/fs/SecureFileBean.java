@@ -29,7 +29,6 @@ import javax.ejb.TransactionManagementType;
 import javax.imageio.IIOException;
 import javax.inject.Inject;
 import javax.persistence.PostLoad;
-import javax.xml.rpc.holders.LongWrapperHolder;
 
 import org.jboss.annotation.ejb.cache.simple.CacheConfig;
 import org.jboss.logging.Logger;
@@ -39,7 +38,7 @@ import at.tfr.securefs.api.SecureRemoteFile;
 import at.tfr.securefs.beans.Logging;
 import at.tfr.securefs.event.Events;
 import at.tfr.securefs.event.SecfsEventType;
-import at.tfr.securefs.event.SecureFs;
+import at.tfr.securefs.event.SecureFsFile;
 
 /**
  *
@@ -77,7 +76,7 @@ public class SecureFileBean implements SecureRemoteFile {
     @PostConstruct
     private void init() {
         log.debug("created ctx=" + ctx);
-        events.sendEvent(new SecureFs(pathName, false, SecfsEventType.construct));
+        events.sendEvent(new SecureFsFile(pathName, false, SecfsEventType.construct));
     }
 
     @Override
@@ -171,7 +170,7 @@ public class SecureFileBean implements SecureRemoteFile {
         }
     	boolean isclosed = closed.getAndSet(true);
     	if (!isclosed) {
-    		events.sendEvent(new SecureFs(pathName, false, SecfsEventType.destroy));
+    		events.sendEvent(new SecureFsFile(pathName, false, SecfsEventType.destroy));
     	}
     }
 
@@ -199,7 +198,7 @@ public class SecureFileBean implements SecureRemoteFile {
         this.path = path;
         this.pathName = path.toString();
         log.debug("setPath: " + path + " ctx=" + ctx);
-        events.sendEvent(new SecureFs(pathName, false, SecfsEventType.init));
+        events.sendEvent(new SecureFsFile(pathName, false, SecfsEventType.init));
     }
 
     public SecureRemoteFile getRemote() {

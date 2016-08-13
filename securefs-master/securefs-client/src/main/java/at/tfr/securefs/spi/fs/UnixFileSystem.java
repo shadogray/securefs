@@ -24,14 +24,14 @@
  */
 package at.tfr.securefs.spi.fs;
 
-import java.nio.file.*;
-import java.nio.file.attribute.*;
-import java.nio.file.spi.*;
 import java.io.IOException;
-import java.util.*;
+import java.nio.file.FileSystem;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
+import java.nio.file.spi.FileSystemProvider;
+import java.util.Arrays;
+import java.util.List;
 import java.util.regex.Pattern;
-import java.security.AccessController;
-import sun.security.action.GetPropertyAction;
 
 /**
  * Base implementation of FileSystem for Unix-like implementations.

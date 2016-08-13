@@ -8,19 +8,19 @@ package at.tfr.securefs.module.validation;
 
 import java.nio.file.Path;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.jboss.logging.Logger;
 
 import at.tfr.securefs.Configuration;
-import at.tfr.securefs.api.module.ModuleConfiguration;
+import at.tfr.securefs.api.module.ModuleStatistics;
 
 public class ModuleBase {
 
 	protected Logger log = Logger.getLogger(getClass());
 	protected Configuration configuration;
 	protected Path currentPath;
+	protected ModuleStatistics moduleStatistics = new ModuleStatistics(getClass().getSimpleName());
 
 	protected ModuleBase() {
 	}
@@ -33,5 +33,8 @@ public class ModuleBase {
 	protected String getCurrent() {
 		return currentPath != null ? currentPath.getFileName().toString() : "stream";
 	}
-
+	
+	public ModuleStatistics getModuleStatistics() {
+		return moduleStatistics;
+	}
 }

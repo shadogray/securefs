@@ -4,7 +4,7 @@
  * Licensed under the Eclipse Public License version 1.0, available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-package at.tfr.securefs;
+package at.tfr.securefs.ui;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -18,21 +18,24 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
+import at.tfr.securefs.Configuration;
 import at.tfr.securefs.api.SecureFSError;
-import at.tfr.securefs.data.CopyFilesData;
+import at.tfr.securefs.data.ProcessFilesData;
 import at.tfr.securefs.key.SecretKeySpecBean;
+import at.tfr.securefs.process.ProcessFiles;
+import at.tfr.securefs.process.ProcessFilesBean;
 import at.tfr.securefs.service.CrypterProvider;
 import at.tfr.securefs.service.SecretBean;
-import at.tfr.securefs.ui.CopyFilesBean;
+import at.tfr.securefs.ui.CopyFilesServiceBean;
 import junit.framework.Assert;
 
 public class CopyFilesTest {
 
 	@Rule
 	public TemporaryFolder temp = new TemporaryFolder();
-	protected Configuration configuration = new Configuration();
-	protected SecretBean secretBean = new SecretBean(configuration);
-	protected SecretKeySpecBean sksBean = new SecretKeySpecBean(configuration, secretBean);
+	protected Configuration config = new Configuration();
+	protected SecretBean secretBean = new SecretBean(config);
+	protected SecretKeySpecBean sksBean = new SecretKeySpecBean(config, secretBean);
 	protected CrypterProvider cp = new CrypterProvider(sksBean);
 	protected BigInteger secret = new BigInteger("1234567890");
 	protected BigInteger newSecret = new BigInteger("9876543210");
@@ -51,62 +54,6 @@ public class CopyFilesTest {
 		targetToFile = toRoot.resolve(DATA_FILES).resolve("file1.txt");
 	}
 	
-	@Test
-	public void testCopyFile() throws Exception {
-
-		// Given: the target directory, the source file
-		toFilesPath = Files.createDirectories(toRoot.resolve(DATA_FILES));
-		final String data = "Hallo Echo";
-		try (OutputStream os = cp.getEncrypter(fromFile)) {
-			IOUtils.write(data, os);
-		}
-		
-		CopyFilesData cfd = new CopyFilesData()
-				.setFromRootPath(fromRoot.toString())
-				.setToRootPath(toRoot.toString())
-				.setUpdate(false)
-				.setCopyActive(true);
-		
-		// When: copy of source file to toRoot
-		CopyFilesBean cfb = new CopyFilesBean(cp, null);
-		cfb.copy(fromFile, fromRoot.getNameCount(), toRoot, cp, newSecret, cfd);
-		
-		// Then: a target file is created in same subpath like sourceFile:
-		Assert.assertTrue(Files.exists(targetToFile));
-		
-		// Then: the content of target file is decryptable with newSecret 
-		// 	and equals content of source file
-		byte[] buf = new byte[data.getBytes().length];
-		try (InputStream is = cp.getDecrypter(targetToFile, newSecret)) {
-			IOUtils.read(is, buf);
-		}
-		Assert.assertEquals("failed to decrypt data", data, String.valueOf(data));
-	}
-
-	@Test(expected=SecureFSError.class)
-	public void overwriteExistingFileProhibited() throws Exception {
-		// Given: the target directory AND file(!), the source file
-		toFilesPath = Files.createDirectories(toRoot.resolve(DATA_FILES));
-		final String data = "Hallo Echo";
-		try (OutputStream os = cp.getEncrypter(fromFile)) {
-			IOUtils.write(data, os);
-		}
-		Files.copy(fromFile, targetToFile);
-		Assert.assertTrue(Files.exists(targetToFile));
-		
-		CopyFilesData cfd = new CopyFilesData()
-				.setFromRootPath(fromRoot.toString())
-				.setToRootPath(toRoot.toString())
-				.setUpdate(false)
-				.setCopyActive(true);
-		
-		// When: copy of source file to toRoot
-		CopyFilesBean cfb = new CopyFilesBean(cp, null);
-		cfb.copy(fromFile, fromRoot.getNameCount(), toRoot, cp, newSecret, cfd);
-		
-		// Then: Exception overwrite not allowed!!
-	}
-	
 	@Test(expected=Exception.class)
 	public void testSetTargetPathOverwriteNotAllowed() throws Exception {
 
@@ -114,7 +61,8 @@ public class CopyFilesTest {
 		toFilesPath = Files.createDirectories(toRoot.resolve(DATA_FILES));
 		
 		// When: setting target path with exitsting files:
-		CopyFilesBean cfb = new CopyFilesBean(cp, null);
+		ProcessFiles pf = new ProcessFilesBean(new MockSecureFsCache());
+		CopyFilesServiceBean cfb = new CopyFilesServiceBean(config, cp, pf, new MockSecureFsCache());
 		cfb.setFromPathName(fromRoot.toString());
 		cfb.setToPathName(toRoot.toString());
 		
@@ -133,7 +81,8 @@ public class CopyFilesTest {
 		Assert.assertFalse(Files.exists(targetToFile));
 		
 		// When: copy of fromRoot to toRoot
-		CopyFilesBean cfb = new CopyFilesBean(cp, null);
+		ProcessFiles pf = new ProcessFilesBean(new MockSecureFsCache());
+		CopyFilesServiceBean cfb = new CopyFilesServiceBean(config, cp, pf, new MockSecureFsCache());
 		cfb.setFromPathName(fromRoot.toString());
 		cfb.setToPathName(toRoot.toString());
 		cfb.setNewSecret(newSecret);
@@ -168,7 +117,8 @@ public class CopyFilesTest {
 				Files.getLastModifiedTime(targetToFile).toInstant().isAfter(Files.getLastModifiedTime(fromFile).toInstant()));
 		
 		// When: copy files with "UPDATE"
-		CopyFilesBean cfb = new CopyFilesBean(cp, null);
+		ProcessFiles pf = new ProcessFilesBean(new MockSecureFsCache());
+		CopyFilesServiceBean cfb = new CopyFilesServiceBean(config, cp, pf, new MockSecureFsCache());
 		cfb.setAllowOverwriteExisting(true);
 		cfb.setUpdate(true);
 		cfb.setFromPathName(fromRoot.toString());
