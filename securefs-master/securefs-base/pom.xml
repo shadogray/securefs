@@ -9,7 +9,7 @@
 	<parent>
 		<groupId>at.tfr.securefs</groupId>
 		<artifactId>securefs-master</artifactId>
-		<version>1.3.1.Final</version>
+		<version>true</version>
 	</parent>
 	<artifactId>securefs-base</artifactId>
 	<name>securefs-base</name>
