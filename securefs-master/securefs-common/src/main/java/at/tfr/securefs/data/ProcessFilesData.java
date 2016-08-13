@@ -12,8 +12,9 @@ import java.io.StringWriter;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
 
-@SuppressWarnings("serial")
 public class ProcessFilesData implements Serializable {
+
+	private static final long serialVersionUID = -815941953642592421L;
 
 	private boolean processActive;
 	private boolean update, allowOverwriteExisting;
