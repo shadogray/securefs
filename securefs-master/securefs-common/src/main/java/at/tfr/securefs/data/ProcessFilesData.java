@@ -140,11 +140,4 @@ public class ProcessFilesData implements Serializable {
 				+ ", toRootPath=" + toRootPath + ", currentFromPath=" + currentFromPath + ", currentToPath="
 				+ currentToPath + ", lastError=" + lastError + "]";
 	}
-	
-	static class SizeLimitedHashMap extends LinkedHashMap<Path, Exception> {
-		@Override
-		protected boolean removeEldestEntry(java.util.Map.Entry<Path,Exception> eldest) {
-			return size() > 100;
-		}
-	}
 }
