@@ -12,6 +12,7 @@ import java.io.OutputStream;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -41,8 +42,8 @@ public class ProcessFilesBean implements ProcessFiles {
 		this.secureFsCache = secureFsCache;
 	}
 
-	/* (non-Javadoc)
-	 * @see at.tfr.securefs.process.ProcessFiles#copy(java.nio.file.Path, java.nio.file.Path, at.tfr.securefs.service.CrypterProvider, java.math.BigInteger, at.tfr.securefs.data.CopyFilesData)
+	/**
+	 * Copy from path to path, decrypting with activated secret and encrypting using provided newSecret.
 	 */
 	@Override
 	public void copy(Path from, final Path to, CrypterProvider crypterProvider, BigInteger newSecret, ProcessFilesData cfd) throws IOException {
@@ -55,10 +56,6 @@ public class ProcessFilesBean implements ProcessFiles {
 		});
 	}
 
-	/* (non-Javadoc)
-	 * @see at.tfr.securefs.process.ProcessFiles#copy(java.nio.file.Path, int, java.nio.file.Path, at.tfr.securefs.service.CrypterProvider, java.math.BigInteger, at.tfr.securefs.data.CopyFilesData)
-	 */
-	@Override
 	public void copy(Path fromPath, int fromStartIndex, Path toRootPath, CrypterProvider cp, BigInteger newSecret,
 			ProcessFilesData cfd) {
 		Path toPath = toRootPath.resolve(fromPath.subpath(fromStartIndex, fromPath.getNameCount()));
@@ -94,21 +91,38 @@ public class ProcessFilesBean implements ProcessFiles {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see at.tfr.securefs.process.ProcessFiles#verify(java.nio.file.Path, at.tfr.securefs.service.CrypterProvider, java.math.BigInteger, at.tfr.securefs.data.CopyFilesData)
+	/**
+	 * Verify {@link ProcessFilesData#getFromRootPath()}, using active secret.
 	 */
 	@Override
-	public void verify(Path root, CrypterProvider cp, BigInteger newSecret, ProcessFilesData cfd) throws IOException {
-		Files.walk(root).forEach((p) -> {
+	public void verify(CrypterProvider cp, ProcessFilesData cfd) throws IOException {
+		Path path = Paths.get(cfd.getFromRootPath());
+		verify(path, cp, null, cfd);
+	}
+	
+	/**
+	 * Verify {@link ProcessFilesData#getToRootPath()}, using newSecret.
+	 */
+	@Override
+	public void verify(CrypterProvider cp, BigInteger newSecret, ProcessFilesData cfd) throws IOException {
+		Path path = Paths.get(cfd.getToRootPath());
+		verify(path, cp, newSecret, cfd);
+	}
+
+	/**
+	 * Verify path, using provided secret.
+	 * 
+	 * @param path 
+	 */
+	@Override
+	public void verify(Path path, CrypterProvider cp, BigInteger newSecret, ProcessFilesData cfd) throws IOException {
+		Files.walk(path).forEach((p) -> {
 			if (cfd.isProcessActive()) {
 				verifyDecryption(p, cp, newSecret, cfd);
 			}
 		});
 	}
 
-	/* (non-Javadoc)
-	 * @see at.tfr.securefs.process.ProcessFiles#verifyDecryption(java.nio.file.Path, at.tfr.securefs.service.CrypterProvider, java.math.BigInteger, at.tfr.securefs.data.CopyFilesData)
-	 */
 	@Override
 	public void verifyDecryption(Path path, CrypterProvider cp, BigInteger newSecret, ProcessFilesData cfd) {
 		if (Files.isRegularFile(path)) {
@@ -120,7 +134,7 @@ public class ProcessFilesBean implements ProcessFiles {
 			} catch (IOException ioe) {
 				log.info("failed to verify: " + path + " err: " + ioe);
 				cfd.putError(path, ioe);
-				cfd.setLastError(ioe);
+				cfd.setLastErrorException(ioe);
 			}
 		}
 	}

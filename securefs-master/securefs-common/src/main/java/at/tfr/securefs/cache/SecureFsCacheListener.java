@@ -26,9 +26,9 @@ import at.tfr.securefs.Role;
 import at.tfr.securefs.beans.Logging;
 import at.tfr.securefs.data.ProcessFilesData;
 import at.tfr.securefs.data.ValidationData;
+import at.tfr.securefs.event.ClusterKeyEvent;
 import at.tfr.securefs.event.CopyFiles;
 import at.tfr.securefs.event.Events;
-import at.tfr.securefs.event.KeyEvent;
 import at.tfr.securefs.event.SecfsEventType;
 import at.tfr.securefs.event.SecureFsMonitor;
 import at.tfr.securefs.event.UiUpdate;
@@ -61,10 +61,12 @@ public class SecureFsCacheListener {
 	@CacheEntryCreated
 	public void entryCreated(CacheEntryCreatedEvent<String, Object> event) {
 		log.debug("cacheEntry: key=" + event.getKey()+" local="+event.isOriginLocal());
-		try {
-			handleEvent(event);
-		} catch (Exception e) {
-			log.warn("cacheEntry: key=" + event.getKey()+" local="+event.isOriginLocal(), e);
+		if (!event.isOriginLocal()) {
+			try {
+				handleEvent(event);
+			} catch (Exception e) {
+				log.warn("cacheEntry: key=" + event.getKey()+" local="+event.isOriginLocal(), e);
+			}
 		}
 	}
 
@@ -81,48 +83,45 @@ public class SecureFsCacheListener {
 	}
 
 	private void handleEvent(CacheEntryEvent<String, Object> event) {
-		if (!event.isOriginLocal()) {
-			
-			if (event.getKey().startsWith(STATUS_MONITOR_CACHE_KEY)) {
-				if (event.getValue() instanceof ClusterState) {
-					events.sendEvent(new SecureFsMonitor().add(event.getKey(), (ClusterState)event.getValue()));
-				} else {
-					log.info("unknown event="+event+", key=" + event.getKey()+", value="+event.getValue());
-				}
-				return;
+		if (event.getKey().startsWith(STATUS_MONITOR_CACHE_KEY)) {
+			if (event.getValue() instanceof ClusterState) {
+				events.sendEvent(new SecureFsMonitor().add(event.getKey(), (ClusterState)event.getValue()));
+			} else {
+				log.info("unknown event="+event+", key=" + event.getKey()+", value="+event.getValue());
 			}
-			
-			switch (event.getKey()) {
-			case SecretBean.SECRET_CACHE_KEY:
-				if (event.getValue() instanceof BigInteger) {
-					BigInteger k = (BigInteger) event.getValue();
-					if (BigInteger.ZERO.equals(k)) {
-						events.sendEvent(new KeyEvent(SecfsEventType.noKey));
-					} else {
-						events.sendEvent(new KeyEvent(SecfsEventType.updateKey).setKey(k));
-					}
-					log.info("handled cacheEntry: key=" + event.getKey());
+			return;
+		}
+		
+		switch (event.getKey()) {
+		case SecretBean.SECRET_CACHE_KEY:
+			if (event.getValue() instanceof BigInteger) {
+				BigInteger k = (BigInteger) event.getValue();
+				if (BigInteger.ZERO.equals(k)) {
+					events.sendEvent(new ClusterKeyEvent(SecfsEventType.noKey));
 				} else {
-					log.info("unknown type for secret value: " + event.getValue());
+					events.sendEvent(new ClusterKeyEvent(SecfsEventType.updateKey).setKey(k));
 				}
-				break;
-			case VALIDATION_DATA_CACHE_KEY:
-				if (event.getValue() instanceof ValidationData) {
-					events.sendEvent(new UiUpdate((ValidationData)event.getValue()));
-				} else {
-					log.info("unknown value: " + event.getValue());
-				}
-				break;
-			case COPY_FILES_STATE_CACHE_KEY:
-				if (event.getValue() instanceof ProcessFilesData) {
-					events.sendEvent(new CopyFiles((ProcessFilesData)event.getValue()));
-				} else {
-					log.info("unknown value: " + event.getValue());
-				}
-				break;
-			default:
-				log.info("unknown key=" + event.getKey());
+				log.info("handled cacheEntry: key=" + event.getKey());
+			} else {
+				log.info("unknown type for secret value: " + event.getValue());
 			}
+			break;
+		case VALIDATION_DATA_CACHE_KEY:
+			if (event.getValue() instanceof ValidationData) {
+				events.sendEvent(new UiUpdate((ValidationData)event.getValue()));
+			} else {
+				log.info("unknown value: " + event.getValue());
+			}
+			break;
+		case COPY_FILES_STATE_CACHE_KEY:
+			if (event.getValue() instanceof ProcessFilesData) {
+				events.sendEvent(new CopyFiles((ProcessFilesData)event.getValue()));
+			} else {
+				log.info("unknown value: " + event.getValue());
+			}
+			break;
+		default:
+			log.info("unknown key=" + event.getKey());
 		}
 	}
 }

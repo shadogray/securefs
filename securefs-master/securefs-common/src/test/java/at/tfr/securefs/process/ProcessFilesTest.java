@@ -76,7 +76,7 @@ public class ProcessFilesTest {
 				.setProcessActive(true);
 		
 		// When: copy of source file to toRoot
-		ProcessFiles pf = new ProcessFilesBean(new MockSecureFsCache());
+		ProcessFilesBean pf = new ProcessFilesBean(new MockSecureFsCache());
 		pf.copy(fromFile, fromRoot.getNameCount(), toRoot, cp, newSecret, cfd);
 		
 		// Then: a target file is created in same subpath like sourceFile:
@@ -109,7 +109,7 @@ public class ProcessFilesTest {
 				.setProcessActive(true);
 		
 		// When: copy of source file to toRoot
-		ProcessFiles pf = new ProcessFilesBean(new MockSecureFsCache());
+		ProcessFilesBean pf = new ProcessFilesBean(new MockSecureFsCache());
 		pf.copy(fromFile, fromRoot.getNameCount(), toRoot, cp, newSecret, cfd);
 		
 		// Then: Exception overwrite not allowed!!
@@ -240,11 +240,11 @@ public class ProcessFilesTest {
 		Assert.assertFalse("verification failed", cfd.getErrors().isEmpty());
 		
 		cfd.getErrors().clear();
-		cfd.setLastError(null);
+		cfd.setLastError((String)null);
 		pf.verifyDecryption(generateSomeFile(fromRoot), cp, newSecret, cfd);
 		Assert.assertTrue("no error on validation", cfd.getErrors().size() == 1);
-		Assert.assertTrue("no error on validation", cfd.getErrors().entrySet().iterator().next().getValue() instanceof IOException);
-		Assert.assertTrue("no error on validation", cfd.getLastError() instanceof IOException);
+		Assert.assertTrue("no error on validation", cfd.getErrors().entrySet().iterator().next().getValue().contains("IOException"));
+		Assert.assertTrue("no error on validation", cfd.getLastError().contains("IOException"));
 		
 	}
 
@@ -266,11 +266,11 @@ public class ProcessFilesTest {
 		Assert.assertFalse("verification failed", cfd.getErrors().isEmpty());
 
 		cfd.getErrors().clear();
-		cfd.setLastError(null);
+		cfd.setLastError((String)null);
 		pf.verifyDecryption(generateSomeFile(toRoot), cp, secret, cfd);
 		Assert.assertTrue("no error on validation", cfd.getErrors().size() == 1);
-		Assert.assertTrue("no error on validation", cfd.getErrors().entrySet().iterator().next().getValue() instanceof IOException);
-		Assert.assertTrue("no error on validation", cfd.getLastError() instanceof IOException);
+		Assert.assertTrue("no error on validation", cfd.getErrors().entrySet().iterator().next().getValue().contains("IOException"));
+		Assert.assertTrue("no error on validation", cfd.getLastError().contains("IOException"));
 		
 	}
 

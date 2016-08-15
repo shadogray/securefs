@@ -55,10 +55,7 @@ public class LoginBean {
 				return "/login?faces-redirect=true";
 			}
 		}
-		if (request.isUserInRole(Role.ADMIN) || request.isUserInRole(Role.OPERATOR)) {
-			return "/secfs/operation?faces-redirect=true";
-		}
-		return "/index?faces-redirect=true";
+		return "/secfs/operation?faces-redirect=true";
 	}
 
 	@Audit

@@ -12,10 +12,16 @@ import java.io.StringWriter;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
+import org.apache.commons.lang.StringUtils;
+
+@SuppressWarnings("serial")
+@XmlRootElement
 public class ProcessFilesData implements Serializable {
 
-	private static final long serialVersionUID = -815941953642592421L;
-
+	private String node;
+	private String principal;
 	private boolean processActive;
 	private boolean update, allowOverwriteExisting;
 	private ValidationData validationData = new ValidationData();
@@ -23,8 +29,8 @@ public class ProcessFilesData implements Serializable {
 	private String toRootPath;
 	private String currentFromPath;
 	private String currentToPath;
-	private Exception lastError;
-	private LinkedHashMap<Path, Exception> errors = new SizeLimitedHashMap();
+	private String lastError;
+	private LinkedHashMap<String, String> errors = new SizeLimitedHashMap();
 	
 	public ProcessFilesData reset() {
 		setProcessActive(false);
@@ -33,6 +39,16 @@ public class ProcessFilesData implements Serializable {
 		setCurrentToPath(null);
 		validationData.clear();
 		errors.clear();
+		return this;
+	}
+	
+	public ProcessFilesData copy(ProcessFilesData from) {
+		reset();
+		update = from.update;
+		allowOverwriteExisting = from.allowOverwriteExisting;
+		fromRootPath = from.fromRootPath;
+		toRootPath = from.toRootPath;
+		validationData = from.validationData;
 		return this;
 	}
 
@@ -108,35 +124,61 @@ public class ProcessFilesData implements Serializable {
 		return this;
 	}
 	
-	public Exception getLastError() {
+	public String getLastError() {
 		return lastError;
 	}
 	
-	public ProcessFilesData setLastError(Exception lastError) {
+	public ProcessFilesData setLastError(String lastError) {
 		this.lastError = lastError;
 		return this;
 	}
 	
-	public LinkedHashMap<Path, Exception> getErrors() {
+	public ProcessFilesData setLastErrorException(Exception lastError) {
+		this.lastError = abbreviate(lastError);
+		return this;
+	}
+	
+	public LinkedHashMap<String, String> getErrors() {
 		return errors;
 	}
 	
 	public void putError(Path path, Exception e) {
-		errors.put(path, e);
+		errors.put(path.toString(), abbreviate(e));
 	}
 	
 	public String getLastErrorStackTrace() {
 		if (lastError == null) {
 			return processActive ? "Process active.." : "Process stopped.";
 		}
-		StringWriter sw = new StringWriter();
-		lastError.printStackTrace(new PrintWriter(sw));
-		return sw.toString();
+		return lastError;
 	}
 
+	private String abbreviate(Exception e) {
+		StringWriter sw = new StringWriter();
+		e.printStackTrace(new PrintWriter(sw));
+		return StringUtils.abbreviate(sw.toString(), 100);
+	}
+
+	public String getNode() {
+		return node;
+	}
+	
+	public ProcessFilesData setNode(String node) {
+		this.node = node;
+		return this;
+	}
+
+	public String getPrincipal() {
+		return principal;
+	}
+	
+	public void setPrincipal(String principal) {
+		this.principal = principal;
+	}
+	
 	@Override
 	public String toString() {
-		return "ProcessFilesData [processActive=" + processActive + ", update=" + update + ", allowOverwriteExisting="
+		return "ProcessFilesData [node=" + node + ", principal=" + principal + ", processActive=" + processActive + ", update=" + update + ", allowOverwriteExisting="
 				+ allowOverwriteExisting + ", validationData=" + validationData + ", fromRootPath=" + fromRootPath
 				+ ", toRootPath=" + toRootPath + ", currentFromPath=" + currentFromPath + ", currentToPath="
 				+ currentToPath + ", lastError=" + lastError + "]";

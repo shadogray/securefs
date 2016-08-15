@@ -8,6 +8,7 @@ package at.tfr.securefs.event;
 
 import java.io.Serializable;
 
+@SuppressWarnings("serial")
 public class SecureFsEvent implements Serializable {
 
 	protected SecfsEventType type = SecfsEventType.none;

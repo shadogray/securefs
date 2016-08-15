@@ -39,9 +39,9 @@
 							</h:inputText>
 							
 							<h:outputLabel value="Verify-FS (optional):" />
-							<h:commandButton id="verify" styleClass="form-control" actionListener="#{asyncBean.invokeVerify()}" title="Verify readability of source FS"
+							<h:commandButton id="verify" styleClass="form-control" actionListener="#{copyFilesServiceBean.verify()}" title="Verify readability of source FS"
 								value="Verify">
-								<f:ajax />
+								<f:ajax render="messages"/>
 							</h:commandButton>
 							
 							<h:outputLabel value="Allow Overwrite Existing Target Files"/>
@@ -63,13 +63,13 @@
 								<f:ajax execute="@form" render="messages"/>
 							</h:commandButton>
 							<h:outputLabel value="2) Copy Files:" />
-							<h:commandButton id="invokeCopyFiles" styleClass="form-control" actionListener="#{asyncBean.invokeCopyFiles()}"
+							<h:commandButton id="invokeCopyFiles" styleClass="form-control" actionListener="#{copyFilesServiceBean.copyFiles()}"
 								value="#{copyFilesServiceBean.combined ? 'CopyFiles' : 'disabled'}" disabled="#{!copyFilesServiceBean.combined}"
 								onclick="return confirm('Do you want to copy files?')">
 								<f:ajax execute="@form" render="@form" />
 							</h:commandButton>
 							<h:outputLabel value="3) VerifyCopy:" />
-							<h:commandButton id="verifyCopy" styleClass="form-control" actionListener="#{asyncBean.invokeVerifyCopy()}"
+							<h:commandButton id="verifyCopy" styleClass="form-control" actionListener="#{copyFilesServiceBean.verifyCopy()}"
 								value="VerifyCopy">
 								<f:ajax render="@form" />
 							</h:commandButton>

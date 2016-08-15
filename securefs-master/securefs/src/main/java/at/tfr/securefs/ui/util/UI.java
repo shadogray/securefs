@@ -38,4 +38,12 @@ public class UI {
 	public static void info(String id, String message) {
 		FacesContext.getCurrentInstance().addMessage(id, new FacesMessage(FacesMessage.SEVERITY_INFO, message, null));
 	}
+	
+	public static String getUser() {
+		FacesContext ctx = FacesContext.getCurrentInstance();
+		if (ctx == null) {
+			return null;
+		}
+		return ctx.getExternalContext().getRemoteUser();
+	}
 }

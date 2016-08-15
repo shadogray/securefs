@@ -20,25 +20,31 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import at.tfr.securefs.Role;
+import at.tfr.securefs.cache.SecureFsCache;
+import at.tfr.securefs.cache.SecureFsCacheListener;
+import at.tfr.securefs.data.ProcessFilesData;
+import at.tfr.securefs.data.ValidationData;
 import at.tfr.securefs.ui.StatusMonitor;
 
 /**
  * Provide status information to monitoring clients
  */
 @Path("/internal")
-@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 @Stateless
 @RolesAllowed({Role.ADMIN, Role.OPERATOR, Role.MONITOR})
 public class InternalStatusService {
 
 	private StatusMonitor statusMonitor;
+	private SecureFsCache cache;
 
 	public InternalStatusService() {
 	}
 
 	@Inject
-	public InternalStatusService(StatusMonitor statusMonitor) {
+	public InternalStatusService(StatusMonitor statusMonitor, SecureFsCache cache) {
 		this.statusMonitor = statusMonitor;
+		this.cache = cache;
 	}
 
 	@GET
@@ -63,4 +69,18 @@ public class InternalStatusService {
 		return Response.ok(ges).build();
 	}
 
+	@GET
+	@Path("/validation")
+	@RolesAllowed({ Role.ADMIN, Role.OPERATOR })
+	public ValidationData getValidationData() {
+		return cache.<ValidationData>get(SecureFsCacheListener.VALIDATION_DATA_CACHE_KEY);
+	}
+
+	@GET
+	@Path("/processFiles")
+	@RolesAllowed({ Role.ADMIN, Role.OPERATOR })
+	public ProcessFilesData getProcessFilesData() {
+		return cache.<ProcessFilesData>get(SecureFsCacheListener.COPY_FILES_STATE_CACHE_KEY);
+	}
+	
 }

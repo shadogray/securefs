@@ -6,18 +6,20 @@
  */
 package at.tfr.securefs.ui.authentication;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Default;
 
 import org.picketlink.event.SecurityConfigurationEvent;
 
-@Default
+@ApplicationScoped
 public class SecurityConfiguration {
 
 	public void configure(@Observes SecurityConfigurationEvent event) {
 		event.getBuilder()
-		.identity().stateless()
+		//.identity().stateless()
 		.http().forPath("/rs/internal/*").authenticateWith().basic().realmName("SecureFS")
+		.http().forPath("/rs/services/*").authenticateWith().basic().realmName("SecureFS")
 		.build();
 	}
 }

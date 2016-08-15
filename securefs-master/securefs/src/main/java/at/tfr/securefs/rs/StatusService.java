@@ -6,7 +6,6 @@
  */
 package at.tfr.securefs.rs;
 
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -28,7 +27,7 @@ import at.tfr.securefs.ui.StatusMonitor;
  * Provide status information to all clients
  */
 @Path("/status")
-@Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
+@Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML })
 @Stateless
 @PermitAll
 @RunAs(Role.OPERATOR)

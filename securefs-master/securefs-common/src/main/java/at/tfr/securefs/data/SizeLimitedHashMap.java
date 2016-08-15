@@ -6,15 +6,13 @@
  */
 package at.tfr.securefs.data;
 
-import java.nio.file.Path;
 import java.util.LinkedHashMap;
 
-class SizeLimitedHashMap extends LinkedHashMap<Path, Exception> {
-
-	private static final long serialVersionUID = -5484202878498903002L;
+@SuppressWarnings("serial")
+class SizeLimitedHashMap extends LinkedHashMap<String, String> {
 
 	@Override
-	protected boolean removeEldestEntry(java.util.Map.Entry<Path,Exception> eldest) {
+	protected boolean removeEldestEntry(java.util.Map.Entry<String,String> eldest) {
 		return size() > 100;
 	}
 }

@@ -13,10 +13,12 @@ import javax.ejb.Singleton;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
+import org.infinispan.AdvancedCache;
 import org.infinispan.Cache;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
+import org.infinispan.context.Flag;
 import org.infinispan.manager.EmbeddedCacheManager;
 import org.jboss.logging.Logger;
 
@@ -29,27 +31,32 @@ public class CacheProvider {
 	
 	@Inject
 	private at.tfr.securefs.Configuration configuration;
-	private Cache<String,Object> cache;
+	private AdvancedCache<String,Object> cache;
 	@Inject
 	private SecureFsCacheListener cacheListener;
 	@Inject
 	private SecureFsToplogyListener topologyListener;
+	private String cacheName;
 
 	@Resource(lookup="java:jboss/infinispan/container/web")
 	private EmbeddedCacheManager cacheManager;
 	
 	@PostConstruct
 	private void init() {
-		String cacheName = configuration.getCacheName();
+		cacheName = configuration.getCacheName();
 		Configuration cfg = new ConfigurationBuilder()
 				.clustering().cacheMode(CacheMode.REPL_ASYNC)
 				.stateTransfer().async()
 				.persistence().passivation(false)
+				.storeAsBinary().enable().storeValuesAsBinary(true)
 				.build();
 		cacheManager.defineConfiguration(cacheName, cfg);
-		cache = cacheManager.getCache(cacheName, true);
+		Cache<String,Object> baseCache = cacheManager.getCache(cacheName, true);
+		cache = baseCache.getAdvancedCache()
+			.with(Thread.currentThread().getContextClassLoader())
+			.withFlags(Flag.SKIP_REMOTE_LOOKUP, Flag.IGNORE_RETURN_VALUES);
 		cache.addListener(cacheListener);
-		cacheManager.addListener(topologyListener);
+		cache.getCacheManager().addListener(topologyListener);
 	}
 	
 	@Produces
@@ -68,6 +75,7 @@ public class CacheProvider {
 			log.warn("cannot remove CacheListener", e);
 		}
 		try {
+			EmbeddedCacheManager cacheManager = cache.getCacheManager();
 			if (cacheManager != null) {
 				cacheManager.removeListener(topologyListener);
 			}

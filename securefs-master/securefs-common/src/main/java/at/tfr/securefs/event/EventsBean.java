@@ -7,6 +7,7 @@
 package at.tfr.securefs.event;
 
 import javax.annotation.security.PermitAll;
+import javax.annotation.security.RunAs;
 import javax.ejb.Asynchronous;
 import javax.ejb.ConcurrencyManagement;
 import javax.ejb.ConcurrencyManagementType;
@@ -16,8 +17,11 @@ import javax.ejb.TransactionManagementType;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
+import at.tfr.securefs.Role;
+
 @Stateless
 @PermitAll
+@RunAs(Role.OPERATOR)
 @TransactionManagement(TransactionManagementType.BEAN)
 @ConcurrencyManagement(ConcurrencyManagementType.BEAN)
 public class EventsBean implements Events {

@@ -26,15 +26,15 @@ public class AsyncBean {
 	private CopyFilesServiceBean copyFilesBean;
 	
 	public void invokeCopyFiles() {
-		copyFilesBean.copyFiles();
+		copyFilesBean.runCopyFiles();
 	}
 	
 	public void invokeVerifyCopy() {
-		copyFilesBean.verifyCopy();
+		copyFilesBean.runVerifyCopy();
 	}
 	
 	public void invokeVerify() {
-		copyFilesBean.verify();
+		copyFilesBean.runVerify();
 	}
 	
 }

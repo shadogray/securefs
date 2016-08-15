@@ -12,21 +12,22 @@ import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import javax.ejb.SessionContext;
+
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.picketlink.Identity;
+import org.picketlink.internal.DefaultIdentity;
 
 import at.tfr.securefs.Configuration;
-import at.tfr.securefs.api.SecureFSError;
-import at.tfr.securefs.data.ProcessFilesData;
 import at.tfr.securefs.key.SecretKeySpecBean;
 import at.tfr.securefs.process.ProcessFiles;
 import at.tfr.securefs.process.ProcessFilesBean;
 import at.tfr.securefs.service.CrypterProvider;
 import at.tfr.securefs.service.SecretBean;
-import at.tfr.securefs.ui.CopyFilesServiceBean;
 import junit.framework.Assert;
 
 public class CopyFilesTest {
@@ -37,6 +38,7 @@ public class CopyFilesTest {
 	protected SecretBean secretBean = new SecretBean(config);
 	protected SecretKeySpecBean sksBean = new SecretKeySpecBean(config, secretBean);
 	protected CrypterProvider cp = new CrypterProvider(sksBean);
+	protected AsyncBean async = new AsyncBean();
 	protected BigInteger secret = new BigInteger("1234567890");
 	protected BigInteger newSecret = new BigInteger("9876543210");
 	
@@ -62,7 +64,7 @@ public class CopyFilesTest {
 		
 		// When: setting target path with exitsting files:
 		ProcessFiles pf = new ProcessFilesBean(new MockSecureFsCache());
-		CopyFilesServiceBean cfb = new CopyFilesServiceBean(config, cp, pf, new MockSecureFsCache());
+		CopyFilesServiceBean cfb = new CopyFilesServiceBean(config, cp, pf, new MockSecureFsCache(), async);
 		cfb.setFromPathName(fromRoot.toString());
 		cfb.setToPathName(toRoot.toString());
 		
@@ -82,11 +84,11 @@ public class CopyFilesTest {
 		
 		// When: copy of fromRoot to toRoot
 		ProcessFiles pf = new ProcessFilesBean(new MockSecureFsCache());
-		CopyFilesServiceBean cfb = new CopyFilesServiceBean(config, cp, pf, new MockSecureFsCache());
+		CopyFilesServiceBean cfb = new CopyFilesServiceBean(config, cp, pf, new MockSecureFsCache(), async);
 		cfb.setFromPathName(fromRoot.toString());
 		cfb.setToPathName(toRoot.toString());
 		cfb.setNewSecret(newSecret);
-		cfb.copyFiles();
+		cfb.runCopyFiles();
 		
 		// Then: a target file is created in same subpath like sourceFile:
 		Assert.assertTrue("subpath is not created", Files.exists(toRoot.resolve(DATA_FILES)));
@@ -118,13 +120,13 @@ public class CopyFilesTest {
 		
 		// When: copy files with "UPDATE"
 		ProcessFiles pf = new ProcessFilesBean(new MockSecureFsCache());
-		CopyFilesServiceBean cfb = new CopyFilesServiceBean(config, cp, pf, new MockSecureFsCache());
+		CopyFilesServiceBean cfb = new CopyFilesServiceBean(config, cp, pf, new MockSecureFsCache(), async);
 		cfb.setAllowOverwriteExisting(true);
 		cfb.setUpdate(true);
 		cfb.setFromPathName(fromRoot.toString());
 		cfb.setToPathName(toRoot.toString());
 		cfb.setNewSecret(newSecret);
-		cfb.copyFiles();
+		cfb.runCopyFiles();
 		
 		// Then: a target file is NOT overwritten:
 		byte[] buf = new byte[data.getBytes().length];

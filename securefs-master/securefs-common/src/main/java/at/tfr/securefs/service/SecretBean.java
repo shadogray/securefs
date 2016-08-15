@@ -26,6 +26,7 @@ import at.tfr.securefs.Role;
 import at.tfr.securefs.annotation.SecureFs;
 import at.tfr.securefs.api.SecureFSKeyNotInitializedError;
 import at.tfr.securefs.beans.Logging;
+import at.tfr.securefs.event.ClusterKeyEvent;
 import at.tfr.securefs.event.Events;
 import at.tfr.securefs.event.KeyEvent;
 import at.tfr.securefs.event.SecfsEventType;
@@ -35,7 +36,7 @@ import at.tfr.securefs.key.UiShare;
 
 @Singleton
 @RolesAllowed(Role.ADMIN)
-@DependsOn({"Configuration"})
+@DependsOn({ "Configuration" })
 public class SecretBean {
 
 	private Logger log = Logger.getLogger(getClass());
@@ -48,13 +49,13 @@ public class SecretBean {
 
 	public SecretBean() {
 	}
-	
-    public SecretBean(Configuration configuration) {
+
+	public SecretBean(Configuration configuration) {
 		this.configuration = configuration;
 	}
 
 	@Inject
-    public SecretBean(Configuration configuration, Events events, @SecureFs Cache<String, Object> cache) {
+	public SecretBean(Configuration configuration, Events events, @SecureFs Cache<String, Object> cache) {
 		this.configuration = configuration;
 		this.events = events;
 		this.cache = cache;
@@ -63,32 +64,32 @@ public class SecretBean {
 	@PostConstruct
 	void init() {
 		retrieveSecret();
-        if (secret == null && configuration.isTest()) {
-            int nrOfShares = KeyConstants.nrOfSharesForTest;
-            int threshold = KeyConstants.thresholdForTest;
-            BigInteger modulus = KeyConstants.modulusForTest;
-            List<UiShare> shares = KeyConstants.sharesForTest;
-            secret = new Shamir().combine(nrOfShares, threshold, modulus, shares);
-            if (cache != null) {
-            	cache.put(SECRET_CACHE_KEY, secret);
-            }
-            log.info("created Test-Secret.");
-        }
+		if (secret == null && configuration.isTest()) {
+			int nrOfShares = KeyConstants.nrOfSharesForTest;
+			int threshold = KeyConstants.thresholdForTest;
+			BigInteger modulus = KeyConstants.modulusForTest;
+			List<UiShare> shares = KeyConstants.sharesForTest;
+			secret = new Shamir().combine(nrOfShares, threshold, modulus, shares);
+			if (cache != null) {
+				cache.put(SECRET_CACHE_KEY, secret);
+			}
+			log.info("created Test-Secret.");
+		}
 	}
 
-	@Schedule(persistent=false, second="0/5") 
+	@Schedule(persistent = false, second = "0/5")
 	void schedule() {
 		retrieveSecret();
 	}
-	
+
 	private void retrieveSecret() {
 		if (cache != null) {
 			if (secret == null) {
 				Object cached = cache.get(SECRET_CACHE_KEY);
 				if (cached instanceof BigInteger && !BigInteger.ZERO.equals(cached)) {
-					secret = (BigInteger)cached;
+					secret = (BigInteger) cached;
 					log.info("retrieved secret from cache.");
-				} 
+				}
 			}
 			if (secret == null) {
 				cache.put(SECRET_CACHE_KEY, BigInteger.ZERO);
@@ -101,42 +102,42 @@ public class SecretBean {
 	public BigInteger getSecret() {
 		if (secret == null) {
 			throw new SecureFSKeyNotInitializedError("SecretKey not available.");
-		}					
-        return secret;
-    }
+		}
+		return secret;
+	}
 
-    @RolesAllowed({Role.ADMIN, Role.OPERATOR})
-    public void setSecret(BigInteger secret) {
-        this.secret = secret;
-        if (cache != null) {
-        	cache.put(SECRET_CACHE_KEY, secret);
-        }
-        if (events != null) {
-        	events.sendEvent(new KeyEvent(SecfsEventType.newKey));
-        }
-    }
+	@RolesAllowed({ Role.ADMIN, Role.OPERATOR })
+	public void setSecret(BigInteger secret) {
+		this.secret = secret;
+		if (cache != null) {
+			cache.put(SECRET_CACHE_KEY, secret);
+		}
+		if (events != null) {
+			events.sendEvent(new KeyEvent(SecfsEventType.newKey));
+		}
+	}
 
-    @PermitAll
-    @Logging
-    public boolean hasSecret() {
-    	return secret != null;
-    }
-    
-    @RolesAllowed({Role.ADMIN, Role.OPERATOR, Role.MONITOR})
-    public int getSecretHash() {
-    	return secret != null ? secret.hashCode() : 0;
-    }
-    
-    @RolesAllowed(Role.ADMIN)
-    public void handleEvent(@Observes KeyEvent event) {
-    	log.debug("handleEvent: "+event.getClass().getSimpleName());
-    	if (SecfsEventType.updateKey.equals(event.getType()) && event.getKey() != null 
-    			&& !BigInteger.ZERO.equals(event.getKey()) && !event.getKey().equals(secret)) {
-    		secret = event.getKey();
-        	log.info("handleEvent: updated secret.");
-            if (events != null) {
-            	events.sendEvent(new KeyEvent(SecfsEventType.newKey));
-            }
-    	}
-    }
+	@PermitAll
+	@Logging
+	public boolean hasSecret() {
+		return secret != null;
+	}
+
+	@RolesAllowed({ Role.ADMIN, Role.OPERATOR, Role.MONITOR })
+	public int getSecretHash() {
+		return secret != null ? secret.hashCode() : 0;
+	}
+
+	@RolesAllowed({ Role.ADMIN, Role.OPERATOR })
+	public void handleEvent(@Observes ClusterKeyEvent event) {
+		log.debug("handleEvent: " + event.getClass().getSimpleName());
+		if (SecfsEventType.updateKey.equals(event.getType()) && event.getKey() != null
+				&& !BigInteger.ZERO.equals(event.getKey()) && !event.getKey().equals(secret)) {
+			secret = event.getKey();
+			log.info("handleEvent: updated secret.");
+			if (events != null) {
+				events.sendEvent(new KeyEvent(SecfsEventType.newKey));
+			}
+		}
+	}
 }

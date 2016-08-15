@@ -11,12 +11,16 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import com.tiemens.secretshare.engine.SecretShare;
 
 import at.tfr.securefs.key.UiShare;
 
 @SuppressWarnings("serial")
+@XmlRootElement
 public class ValidationData implements Serializable {
+	
 	private BigInteger modulus = SecretShare.getPrimeUsedFor4096bigSecretPayload();
 	private int threshold;
 	private int nrOfShares;

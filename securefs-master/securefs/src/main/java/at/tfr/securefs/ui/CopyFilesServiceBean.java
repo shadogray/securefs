@@ -7,23 +7,23 @@
 package at.tfr.securefs.ui;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.Serializable;
 import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.Resource;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.ConcurrencyManagement;
 import javax.ejb.ConcurrencyManagementType;
 import javax.ejb.DependsOn;
+import javax.ejb.SessionContext;
 import javax.ejb.Singleton;
 import javax.ejb.TransactionManagement;
 import javax.ejb.TransactionManagementType;
@@ -33,10 +33,9 @@ import javax.faces.model.ListDataModel;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.output.NullOutputStream;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.logging.Logger;
+import org.picketlink.Identity;
 
 import at.tfr.securefs.Configuration;
 import at.tfr.securefs.Role;
@@ -68,46 +67,50 @@ public class CopyFilesServiceBean {
 
 	private ProcessFilesData processFilesData = new ProcessFilesData();
 
+	@Resource
+	private SessionContext ctx;
 	private BigInteger newSecret;
 	private static Map<String, BigInteger> moduli = KeyConstants.moduli;
 	private boolean combined;
 	private UiShare editedShare;
 	private int editedShareIndex;
-	private String fromPathName, toPathName;
-	private boolean update, allowOverwriteExisting;
 	private Configuration configuration;
 	private ProcessFiles processFiles;
 	private CrypterProvider crypterProvider;
 	private SecureFsCache secureFsCache;
+	private AsyncBean asyncBean;
 
 	public CopyFilesServiceBean() {
 	}
 
 	@Inject
-	public CopyFilesServiceBean(Configuration configuration, CrypterProvider crypterProvider, ProcessFiles processFiles, SecureFsCache secureFsCache) {
+	public CopyFilesServiceBean(Configuration configuration, CrypterProvider crypterProvider, ProcessFiles processFiles, 
+			SecureFsCache secureFsCache, AsyncBean asyncBean) {
 		this.configuration = configuration;
 		this.crypterProvider = crypterProvider;
 		this.processFiles = processFiles;
 		this.secureFsCache = secureFsCache;
+		this.asyncBean = asyncBean;
 	}
 
 	@PostConstruct
 	private void init() {
-		fromPathName = configuration.getBasePath().toString();
+		processFilesData.setNode(secureFsCache.getNodeName());
+		processFilesData.setFromRootPath(configuration.getBasePath().toString());
 		Object value = secureFsCache.get(SecureFsCacheListener.COPY_FILES_STATE_CACHE_KEY);
 		if (value instanceof ProcessFilesData) {
-			processFilesData = (ProcessFilesData) value;
-			log.info("retrieved data from cache: " + value);
-		} else {
-			updateCache();
+			ProcessFilesData pfdTmp = (ProcessFilesData) value;
+			if (processFilesData.isProcessActive()) {
+				processFilesData = pfdTmp;
+				log.info("retrieved active process data from cache: " + processFilesData);
+			}
 		}
 	}
 
 	@Audit
 	public void reset() {
 		if (processFilesData.isProcessActive()) {
-			UI.error("Copy active: from=" + processFilesData.getFromRootPath() + " to="
-					+ processFilesData.getToRootPath());
+			processActiveErrormsg();
 			return;
 		}
 		processFilesData.reset();
@@ -118,6 +121,10 @@ public class CopyFilesServiceBean {
 
 	@Audit
 	public void updateShare() {
+		if (processFilesData.isProcessActive()) {
+			processActiveErrormsg();
+			return;
+		}
 		if (editedShare != null && StringUtils.isNotBlank(editedShare.getShare())
 				&& editedShare.hasRealShare()) {
 			editedShare.toReal();
@@ -127,25 +134,24 @@ public class CopyFilesServiceBean {
 
 	@Audit
 	public void updateShares() {
+		if (processFilesData.isProcessActive()) {
+			processActiveErrormsg();
+			return;
+		}
 		processFilesData.getValidationData().getUiShares().stream().forEach(s -> s.toReal());
 		updateCache();
 	}
 
 	@Audit
+	@RolesAllowed(Role.ADMIN)
 	public String combine() {
-		combined = false;
+		if (processFilesData.isProcessActive()) {
+			processActiveErrormsg();
+			return null;
+		}
 		try {
-			ValidationData validationData = processFilesData.getValidationData();
-			List<UiShare> badShares = validationData.getUiShares().stream()
-					.filter(s -> s.getIndex() <= 0 || s.getShare() == null).collect(Collectors.toList());
-			if (!badShares.isEmpty()) {
-				UI.error("Found " + badShares.size() + " invalid Shares");
-				return null;
-			}
-			List<UiShare> shares = validationData.getUiShares();
-			newSecret = new Shamir().combine(validationData.getNrOfShares(), validationData.getThreshold(),
-					validationData.getModulus(), shares);
-			combined = true;
+			processFilesData.setPrincipal(UI.getUser());
+			runCombine();
 		} catch (Exception e) {
 			log.warn("Combination failed: " + e, e);
 			UI.error("Combination failed: " + e.getMessage());
@@ -155,7 +161,7 @@ public class CopyFilesServiceBean {
 	}
 
 	/**
-	 * run the copy process, has to be called by asyncBean, so no FacesContext
+	 * UI-method to invoke async CopyFiles processing.
 	 */
 	@Audit
 	@RolesAllowed(Role.ADMIN)
@@ -164,74 +170,157 @@ public class CopyFilesServiceBean {
 			processActiveErrormsg();
 			return;
 		}
-		try {
-			processFilesData.reset();
-			if (!combined) {
-				throw new Exception("Please execute Key Combination.");
-			}
-			validateFromPath(fromPathName);
-			validateToPath(toPathName);
 
-			Path from = Paths.get(fromPathName);
-			Path to = Paths.get(toPathName);
-			processFilesData.setFromRootPath(fromPathName).setToRootPath(toPathName)
-			.setAllowOverwriteExisting(allowOverwriteExisting).setUpdate(update)
-			.setProcessActive(true);
-
-			processFiles.copy(from, to, crypterProvider, newSecret, processFilesData);
-
-		} catch (Exception e) {
-			log.error("CopyFiles failed: " + e, e);
-			processFilesData.setLastError(e);
-		} finally {
-			processFilesData.setProcessActive(false);
-			updateCache();
-		}
+		processFilesData.setPrincipal(UI.getUser());
+		asyncBean.invokeCopyFiles();
 	}
 
+	/**
+	 * UI-method to invoke async Verify processing.
+	 */
 	@Audit
+	@RolesAllowed({ Role.ADMIN, Role.OPERATOR })
 	public void verify() {
 		if (processFilesData.isProcessActive()) {
 			processActiveErrormsg();
 			return;
 		}
-		processFilesData.reset().setProcessActive(true);
 		
-		try {
-			
-			processFiles.verify(Paths.get(fromPathName), crypterProvider, newSecret, processFilesData);
-		
-		} catch (Exception e) {
-			log.error("Verification failed: " + e, e);
-			processFilesData.setLastError(e);
-		} finally {
-			processFilesData.setProcessActive(false);
-			updateCache();
-		}
+		processFilesData.setPrincipal(UI.getUser());
+		asyncBean.invokeVerify();
 	}
 
+	/**
+	 * UI-method to invoke async VerifyCopy processing.
+	 */
 	@Audit
+	@RolesAllowed({ Role.ADMIN, Role.OPERATOR })
 	public void verifyCopy() {
 		if (processFilesData.isProcessActive()) {
 			processActiveErrormsg();
 			return;
 		}
-		processFilesData.reset().setProcessActive(true);
-		
+
+		processFilesData.setPrincipal(UI.getUser());
+		asyncBean.invokeVerifyCopy();
+	}
+
+	@Audit
+	@RolesAllowed(Role.ADMIN)
+	public void runCombine() {
+		if (processFilesData.isProcessActive()) {
+			throw new SecureFSError("Process already active!");
+		}
+
+		combined = false;
+		ValidationData validationData = processFilesData.getValidationData();
+		List<UiShare> badShares = validationData.getUiShares().stream()
+				.filter(s -> s.getIndex() <= 0 || s.getShare() == null).collect(Collectors.toList());
+		if (!badShares.isEmpty()) {
+			throw new SecureFSError("Found " + badShares.size() + " invalid Shares");
+		}
+		List<UiShare> shares = validationData.getUiShares();
+		BigInteger tmpSecret = new Shamir().combine(validationData.getNrOfShares(), validationData.getThreshold(),
+				validationData.getModulus(), shares);
+		if (tmpSecret == null || tmpSecret.intValue() == 0) {
+			throw new SecureFSError("Generated invalid Secret");
+		}
+		newSecret = tmpSecret;
+		combined = true;
+	}
+
+	/**
+	 * run the copy process, has to be called by asyncBean, so no FacesContext
+	 */
+	@Audit
+	@RolesAllowed(Role.ADMIN)
+	public void runCopyFiles() {
+		if (processFilesData.isProcessActive()) {
+			throw new SecureFSError("Process already active!");
+		}
+
 		try {
-		
-			processFiles.verify(Paths.get(toPathName), crypterProvider, newSecret, processFilesData);
+			processFilesData.reset();
+			if (!combined) {
+				throw new Exception("Please execute Key Combination.");
+			}
+			Path from = validateFromPath(processFilesData.getFromRootPath());
+			Path to = validateToPath(processFilesData.getToRootPath(), processFilesData);
+
+			processFilesData.setProcessActive(true);
+			processFiles.copy(from, to, crypterProvider, newSecret, processFilesData);
 
 		} catch (Exception e) {
-			log.error("Verification failed: " + e, e);
-			processFilesData.setLastError(e);
+			log.error("CopyFiles failed: " + e, e);
+			processFilesData.setLastErrorException(e);
 		} finally {
 			processFilesData.setProcessActive(false);
 			updateCache();
 		}
 	}
 
+	/**
+	 * run the verify process, has to be called by asyncBean, so no FacesContext
+	 */
+	@Audit
+	public void runVerify() {
+		if (processFilesData.isProcessActive()) {
+			throw new SecureFSError("Process already active!");
+		}
+
+		processFilesData.reset().setProcessActive(true);
+		
+		try {
+			
+			processFiles.verify(crypterProvider, processFilesData);
+		
+		} catch (Exception e) {
+			log.error("Verification failed: " + e, e);
+			processFilesData.setLastErrorException(e);
+		} finally {
+			processFilesData.setProcessActive(false);
+			updateCache();
+		}
+	}
+
+	/**
+	 * run the verifyCopy process, has to be called by asyncBean, so no FacesContext
+	 */
+	@Audit
+	public void runVerifyCopy() {
+		if (processFilesData.isProcessActive()) {
+			throw new SecureFSError("Process already active!");
+		}
+
+		processFilesData.reset().setProcessActive(true);
+		
+		try {
+		
+			processFiles.verify(crypterProvider, newSecret, processFilesData);
+
+		} catch (Exception e) {
+			log.error("Verification failed: " + e, e);
+			processFilesData.setLastErrorException(e);
+		} finally {
+			processFilesData.setProcessActive(false);
+			updateCache();
+		}
+	}
+
+	/**
+	 * processing data originating from local node
+	 * @return
+	 */
+	private boolean isProcessLocal() {
+		return secureFsCache.getNodeName().equals(processFilesData.getNode());
+	}
+
 	private void updateCache() {
+		if (!isProcessLocal() && processFilesData.isProcessActive()) {
+			throw new SecureFSError("remote process currently active on node: " + processFilesData.getNode());
+		}
+		processFilesData.setNode(secureFsCache.getNodeName());
+		processFilesData.setPrincipal(getPrincipal());
 		try {
 			secureFsCache.put(SecureFsCacheListener.COPY_FILES_STATE_CACHE_KEY, processFilesData);
 		} catch (Exception e) {
@@ -244,12 +333,37 @@ public class CopyFilesServiceBean {
 		return processFilesData;
 	}
 
+	/**
+	 * service layer may provide new set of processing data
+	 * @param processFilesData
+	 */
+	@RolesAllowed(Role.ADMIN)
+	public ProcessFilesData setProcessFilesData(final ProcessFilesData processFilesData, Principal principal) {
+		if (this.processFilesData.isProcessActive()) {
+			throw new SecureFSError("Process already active!");
+		}
+
+		String user = UI.getUser();
+		if (user == null) {
+			user = principal.getName();
+		}
+		this.processFilesData.setPrincipal(user);
+
+		if (StringUtils.isBlank(processFilesData.getFromRootPath())) {
+			processFilesData.setFromRootPath(configuration.getBasePath().toString());
+		}
+		this.processFilesData.copy(processFilesData);
+		this.processFilesData.setNode(secureFsCache.getNodeName());
+		updateShares();
+		return this.processFilesData;
+	}
+	
 	public DataModel<UiShare> getDataModel() {
 		return new ListDataModel<UiShare>(getUiShares());
 	}
 
 	private List<UiShare> getUiShares() {
-		if (processFilesData.getValidationData().adaptToThreshold()) {
+		if (!processFilesData.isProcessActive() && processFilesData.getValidationData().adaptToThreshold()) {
 			updateCache();
 		}
 		return processFilesData.getValidationData().getUiShares();
@@ -279,16 +393,6 @@ public class CopyFilesServiceBean {
 		this.editedShareIndex = editedShareIndex;
 	}
 	
-	/**
-	 * for testing purpose
-	 * @param newSecret
-	 */
-	@Deprecated
-	public void setNewSecret(BigInteger newSecret) {
-		this.newSecret = newSecret;
-		combined = this.newSecret != null;
-	}
-
 	public boolean isCombined() {
 		return combined;
 	}
@@ -298,7 +402,7 @@ public class CopyFilesServiceBean {
 	}
 
 	public String getFromPathName() {
-		return fromPathName;
+		return processFilesData.getFromRootPath();
 	}
 
 	public void setFromPathName(String fromPathName) {
@@ -308,10 +412,10 @@ public class CopyFilesServiceBean {
 			UI.error("Invalid path " + fromPathName + " error:" + e);
 			return;
 		}
-		this.fromPathName = fromPathName;
+		processFilesData.setFromRootPath(fromPathName);
 	}
 
-	private void validateFromPath(String fromPathName) throws IOException {
+	private Path validateFromPath(String fromPathName) throws IOException {
 		Path from = Paths.get(fromPathName);
 		if (!Files.isDirectory(from, LinkOption.NOFOLLOW_LINKS)) {
 			throw new IOException("Path " + from + " is no directory");
@@ -322,27 +426,28 @@ public class CopyFilesServiceBean {
 		if (!Files.isExecutable(from)) {
 			throw new IOException("Path " + from + " is not executable");
 		}
+		return from;
 	}
 
 	public String getToPathName() {
-		return toPathName;
+		return processFilesData.getToRootPath();
 	}
 
 	public void setToPathName(String toPathName) {
 		try {
-			validateToPath(toPathName);
+			validateToPath(toPathName, processFilesData);
 		} catch (Exception e) {
 			UI.error("Invalid path " + toPathName + " error:" + e);
 			return;
 		}
-		this.toPathName = toPathName;
+		processFilesData.setToRootPath(toPathName);
 	}
 
-	private void validateToPath(String toPathName) throws IOException {
+	private Path validateToPath(String toPathName, ProcessFilesData pfd) throws IOException {
 		Path to = Paths.get(toPathName);
 		if (Files.exists(to, LinkOption.NOFOLLOW_LINKS)) {
-			if (Files.isSameFile(to, Paths.get(fromPathName))) {
-				throw new IOException("Path " + to + " may not be same as FromPath: " + fromPathName);
+			if (Files.isSameFile(to, Paths.get(pfd.getFromRootPath()))) {
+				throw new IOException("Path " + to + " may not be same as FromPath: " + pfd.getFromRootPath());
 			}
 			if (!Files.isDirectory(to, LinkOption.NOFOLLOW_LINKS)) {
 				throw new IOException("Path " + to + " is no directory");
@@ -353,28 +458,29 @@ public class CopyFilesServiceBean {
 			if (!Files.isExecutable(to)) {
 				throw new IOException("Path " + to + " is not executable");
 			}
-			if (!allowOverwriteExisting) {
+			if (!pfd.isAllowOverwriteExisting()) {
 				if (Files.newDirectoryStream(to).iterator().hasNext()) {
 					throw new IOException("Path " + to + " is not empty, delete content copy.");
 				}
 			}
 		}
+		return to;
 	}
 
 	public boolean isUpdate() {
-		return update;
+		return processFilesData.isUpdate();
 	}
 
 	public void setUpdate(boolean update) {
-		this.update = update;
+		processFilesData.setUpdate(update);
 	}
 
 	public boolean isAllowOverwriteExisting() {
-		return allowOverwriteExisting;
+		return processFilesData.isAllowOverwriteExisting();
 	}
 	
 	public void setAllowOverwriteExisting(boolean allowOverwriteExisting) {
-		this.allowOverwriteExisting = allowOverwriteExisting;
+		processFilesData.setAllowOverwriteExisting(allowOverwriteExisting);
 	}
 
 	/**
@@ -390,20 +496,25 @@ public class CopyFilesServiceBean {
 		}
 	}
 
+	private String getPrincipal() {
+		return ""+(ctx != null ? ctx.getCallerPrincipal() : "");
+	}
+
 	private void processActiveErrormsg() {
 		UI.error("Process already active: from=" + processFilesData.getFromRootPath() + " to="
 				+ processFilesData.getToRootPath());
 	}
 
 	/**
-	 * for testing purpose only
-	 * @param copyFilesData
+	 * for testing purpose
+	 * @param newSecret
 	 */
 	@Deprecated
-	void setCopyFilesData(ProcessFilesData copyFilesData) {
-		this.processFilesData = copyFilesData;
+	public void setNewSecret(BigInteger newSecret) {
+		this.newSecret = newSecret;
+		combined = this.newSecret != null;
 	}
-	
+
 	// String SecretAsString:
 	// com.tiemens.secretshare.math.BigIntUtilities.Human.createHumanString(secret);
 }

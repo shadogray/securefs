@@ -3,22 +3,28 @@ package at.tfr.securefs.beans;
 import java.security.Principal;
 import java.util.Arrays;
 
+import javax.enterprise.context.ContextNotActiveException;
+import javax.enterprise.inject.Instance;
+import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 
 import org.jboss.logging.Logger;
+import org.picketlink.Identity;
 
 @Interceptor
 @Audit
 public class AuditInterceptor {
 
 	private Logger log = Logger.getLogger(getClass());
+	@Inject
+	private Instance<Identity> identity;
 
 	@AroundInvoke
 	public Object aroundInvoke(InvocationContext ctx) throws Throwable {
-		Principal principal = null;
+		String principal = getPrincipal();
 		if (log.isDebugEnabled()) {
 			log.debug("invoke: "+ctx.getTarget()+":"+ctx.getMethod()+" by: "+principal+" params: "+getParams(ctx));
 		}
@@ -32,6 +38,18 @@ public class AuditInterceptor {
 				log.debug("invoke: "+ctx.getTarget()+":"+ctx.getMethod()+" by: "+principal+" params: "+getParams(ctx)+" exc: "+t, t);
 			}
 			throw t;
+		}
+	}
+
+	private String getPrincipal() {
+		if (identity.isUnsatisfied()) {
+			return "undef";
+		}
+		try {
+			Identity id = identity.get();
+			return id.isLoggedIn() ? ""+id.getAccount() : "undef";
+		} catch (ContextNotActiveException e) {
+			return "async";
 		}
 	}
 
