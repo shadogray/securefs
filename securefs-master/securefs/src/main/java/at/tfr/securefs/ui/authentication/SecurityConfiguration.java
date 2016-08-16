@@ -17,9 +17,9 @@ public class SecurityConfiguration {
 
 	public void configure(@Observes SecurityConfigurationEvent event) {
 		event.getBuilder()
-		//.identity().stateless()
-		.http().forPath("/rs/internal/*").authenticateWith().basic().realmName("SecureFS")
-		.http().forPath("/rs/services/*").authenticateWith().basic().realmName("SecureFS")
+		.identity().stateless()
+		//.http().forPath("/rs/internal/*").authenticateWith().basic().realmName("SecureFS")
+		//.http().forPath("/rs/services/*").authenticateWith().basic().realmName("SecureFS")
 		.build();
 	}
 }
