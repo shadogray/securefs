@@ -56,6 +56,8 @@
 			<web-resource-name>secfs</web-resource-name>
 			<url-pattern>/faces/secfs/*</url-pattern>
 			<url-pattern>/secfs/*</url-pattern>
+			<url-pattern>/rs/internal/*</url-pattern>
+			<url-pattern>/rs/services/*</url-pattern>
 		</web-resource-collection>
 		<auth-constraint>
 			<role-name>admin</role-name>
@@ -63,7 +65,7 @@
 		</auth-constraint>
 	</security-constraint>
 	<login-config>
-		<auth-method>FORM</auth-method>
+		<auth-method>BASIC?silent=true,FORM</auth-method>
 		<form-login-config>
 			<form-login-page>/login.xhtml</form-login-page>
 			<form-error-page>/login.xhtml</form-error-page>

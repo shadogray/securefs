@@ -35,7 +35,6 @@ import javax.inject.Named;
 
 import org.apache.commons.lang.StringUtils;
 import org.jboss.logging.Logger;
-import org.picketlink.Identity;
 
 import at.tfr.securefs.Configuration;
 import at.tfr.securefs.Role;

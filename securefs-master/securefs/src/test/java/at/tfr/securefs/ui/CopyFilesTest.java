@@ -12,15 +12,11 @@ import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import javax.ejb.SessionContext;
-
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.picketlink.Identity;
-import org.picketlink.internal.DefaultIdentity;
 
 import at.tfr.securefs.Configuration;
 import at.tfr.securefs.key.SecretKeySpecBean;

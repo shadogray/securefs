@@ -6,6 +6,7 @@
 			<module name="org.infinispan.client.hotrod"/>
 			<module name="at.tfr.securefs.configuration" optional="true" />
 			<!-- <module name="org.jboss.resteasy.resteasy-jackson2-provider"/> -->
+			<module name="io.undertow.websocket"/>
 		</dependencies>
 	</deployment>
 </jboss-deployment-structure>

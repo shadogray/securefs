@@ -5,14 +5,12 @@ import java.util.Arrays;
 
 import javax.enterprise.context.ContextNotActiveException;
 import javax.enterprise.inject.Instance;
-import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
 import javax.interceptor.InvocationContext;
 
 import org.jboss.logging.Logger;
-import org.picketlink.Identity;
 
 @Interceptor
 @Audit
@@ -20,7 +18,7 @@ public class AuditInterceptor {
 
 	private Logger log = Logger.getLogger(getClass());
 	@Inject
-	private Instance<Identity> identity;
+	private Instance<Principal> identity;
 
 	@AroundInvoke
 	public Object aroundInvoke(InvocationContext ctx) throws Throwable {
@@ -46,8 +44,7 @@ public class AuditInterceptor {
 			return "undef";
 		}
 		try {
-			Identity id = identity.get();
-			return id.isLoggedIn() ? ""+id.getAccount() : "undef";
+			return ""+identity.get();
 		} catch (ContextNotActiveException e) {
 			return "async";
 		}
