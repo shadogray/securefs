@@ -91,3 +91,11 @@ mvn clean install
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
 ```
+
+##5. External Dependencies
+
+For a complete build Ikarus libraries are needed and have to be supplied by eternal process.
+
+```
+mvn install:install-file -Dfile=../doc/lib/scan-1.0.0.jar -DgroupId=at.ikarus -DartifactId=scan -Dversion=1.0.0 -Dpackaging=jar
+```
