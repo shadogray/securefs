@@ -105,17 +105,23 @@ public class PreprocessorBean {
 		}
 
 		for (ModuleConfiguration config : moduleConfigurations) {
-			log.debug("starting module: path=" + path + " cfg:" + config);
+			log.debug("starting module[" + config.getName() + "]: path=" + path + " cfg:" + config);
 			ServiceModule module = getServiceModule(config);
 			if (module == null) {
 				continue;
 			}
 			
-			ModuleResult result = module.apply(path.toString(), config);
-			if (config.isMandatory() && !result.isValid()) {
-				throw new ModuleException("mandatory module failed", result.getException());
+			if (config.isApplicable(path.toString())) {
+
+				ModuleResult result = module.apply(path.toString(), config);
+				if (config.isMandatory() && !result.isValid()) {
+					throw new ModuleException("mandatory module failed", result.getException());
+				}
+				log.info("done module[" + config.getName() + "]: path=" + path + " result:" + result);
+			
+			} else {
+				log.info("not applicable module[" + config.getName() + "]: path=" + path);
 			}
-			log.info("done module: path=" + path + " result:" + result);
 		}
 	}
 
