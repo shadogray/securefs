@@ -48,6 +48,16 @@ public class ModuleConfiguration implements Serializable {
 		return this;
 	}
 
+	public String getIgnoreFileNameRegex() {
+		String ignoreFileNameRegex = getProperties().getProperty("ignoreFileNameRegex");
+		try {
+			Pattern.compile(ignoreFileNameRegex);
+			return ignoreFileNameRegex;
+		} catch (Exception e) {
+			return "invalid Pattern: " + ignoreFileNameRegex + " err: " + e.getMessage();
+		}
+	}
+	
 	public Properties getProperties() {
 		return properties;
 	}

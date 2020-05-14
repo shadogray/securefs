@@ -117,6 +117,7 @@ public class StatusMonitor {
 			lines.put("" + mc.getName() + ".jndi", "" + mc.getJndiName());
 			lines.put("" + mc.getName() + ".mandatory", "" + mc.isMandatory());
 			lines.put("" + mc.getName() + ".properties", "" + mc.getProperties());
+			lines.put("" + mc.getName() + ".ignoreFileNameRegex", "" + mc.getIgnoreFileNameRegex());
 			lines.put("" + mc.getName() + ".stats", ""+preprocessorBean.getModuleStatistics(mc.getName()));
 		});
 		return lines;
