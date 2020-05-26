@@ -6,8 +6,13 @@
  */
 package at.tfr.securefs.api;
 
+import java.nio.charset.Charset;
+
 public class Constants {
 
+	public static Charset UTF8 = Charset.forName("UTF-8");
+	
 	public static final int BUFFER_SIZE = 10240;
 
+	public static enum Property { ignoreFileNameRegex, ignoreFileContentRegex };
 }

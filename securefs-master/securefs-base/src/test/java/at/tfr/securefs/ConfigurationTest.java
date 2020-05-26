@@ -6,11 +6,19 @@
  */
 package at.tfr.securefs;
 
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
+import at.tfr.securefs.api.Constants;
+import at.tfr.securefs.api.Constants.Property;
 import at.tfr.securefs.api.module.ModuleConfiguration;
 import junit.framework.Assert;
 
@@ -70,4 +78,53 @@ public class ConfigurationTest {
 		Assert.assertEquals(test222.getProperties().getProperty("lastValue"), "end");
 	}
 
+	@Test
+	public void testModuleProperties() throws Exception {
+		Properties testProps = new Properties();
+		testProps.put(Property.ignoreFileNameRegex.name(), "(?i).*\\.dcom");
+		testProps.put(Property.ignoreFileContentRegex.name(), "(?is)^< *\\? *xml.*");
+		
+		ModuleConfiguration config = new ModuleConfiguration();
+		config.setProperties(testProps);
+		
+		// null always true:
+		Assert.assertTrue(config.isApplicable(null));
+		Assert.assertTrue(config.isContentApplicable(null));
+		
+		Path testContent = Files.createTempFile("testModuleProperties",".dcom");
+		Files.write(testContent, xmlContent.getBytes(Constants.UTF8), StandardOpenOption.TRUNCATE_EXISTING);
+		
+		// simple pattern:
+		Assert.assertFalse(config.isApplicable(testContent.getFileName().toString()));
+		Assert.assertFalse(config.isContentApplicable(testContent));
+		
+		// multiple patterns:
+		config.getProperties().put(Property.ignoreFileNameRegex.name(), ".*\\.something;(?i).*\\.dcom");
+		config.getProperties().put(Property.ignoreFileContentRegex.name(), "something;(?is)^< *\\? *xml.*");
+		Assert.assertFalse(config.isApplicable(testContent.getFileName().toString()));
+		Assert.assertFalse(config.isContentApplicable(testContent));
+
+	}
+
+	
+	@Test
+	public void testBadModuleProperties() throws Exception {
+		Properties testProps = new Properties();
+		testProps.put(Property.ignoreFileNameRegex.name(), "?i.*.dcom");
+		testProps.put(Property.ignoreFileContentRegex.name(), "?is^< *? *xml.*");
+		
+		ModuleConfiguration config = new ModuleConfiguration();
+		config.setProperties(testProps);
+		
+		String value = config.getIgnoreFileNameRegex();
+		Assert.assertTrue(value.startsWith("invalid"));
+		value = config.getIgnoreFileContentRegex();
+		Assert.assertTrue(value.startsWith("invalid"));
+	}
+	
+	private final String xmlContent = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + 
+			"<!-- * Copyright 2015 Thomas Frühbeck, fruehbeck(at)aon(dot)at. -->\n" + 
+			"<project xmlns=\"http://maven.apache.org/POM/4.0.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n" + 
+			"	xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd\">"+
+			"</project>";
 }

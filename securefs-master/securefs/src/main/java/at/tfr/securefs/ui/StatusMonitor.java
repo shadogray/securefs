@@ -37,6 +37,8 @@ import org.jboss.logging.Logger;
 
 import at.tfr.securefs.Configuration;
 import at.tfr.securefs.Role;
+import at.tfr.securefs.api.Constants;
+import at.tfr.securefs.api.Constants.Property;
 import at.tfr.securefs.beans.Logging;
 import at.tfr.securefs.cache.ClusterState;
 import at.tfr.securefs.cache.SecureFsCache;
@@ -117,7 +119,16 @@ public class StatusMonitor {
 			lines.put("" + mc.getName() + ".jndi", "" + mc.getJndiName());
 			lines.put("" + mc.getName() + ".mandatory", "" + mc.isMandatory());
 			lines.put("" + mc.getName() + ".properties", "" + mc.getProperties());
-			lines.put("" + mc.getName() + ".ignoreFileNameRegex", "" + mc.getIgnoreFileNameRegex());
+			
+			final String ignoreFileNameRegex = mc.getIgnoreFileNameRegex();
+			if (ignoreFileNameRegex != null) {
+				lines.put("" + mc.getName() + "." + Property.ignoreFileNameRegex, "" + ignoreFileNameRegex);
+			}
+			final String ignoreFileContentRegex = mc.getIgnoreFileContentRegex();
+			if (ignoreFileContentRegex != null) {
+				lines.put("" + mc.getName() + "." + Property.ignoreFileContentRegex, "" + ignoreFileContentRegex);
+			}
+			
 			lines.put("" + mc.getName() + ".stats", ""+preprocessorBean.getModuleStatistics(mc.getName()));
 		});
 		return lines;

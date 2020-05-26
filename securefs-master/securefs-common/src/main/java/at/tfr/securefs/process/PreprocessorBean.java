@@ -111,7 +111,7 @@ public class PreprocessorBean {
 				continue;
 			}
 			
-			if (config.isApplicable(path.toString())) {
+			if (config.isApplicable(path.toString()) && config.isContentApplicable(path)) {
 
 				ModuleResult result = module.apply(path.toString(), config);
 				if (config.isMandatory() && !result.isValid()) {
