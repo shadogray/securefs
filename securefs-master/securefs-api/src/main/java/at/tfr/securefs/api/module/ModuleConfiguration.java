@@ -12,8 +12,12 @@ import java.io.Serializable;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.IOUtils;
@@ -76,11 +80,31 @@ public class ModuleConfiguration implements Serializable {
 		}
 	}
 	
-	private void validateRegex(String regex) {
-		if (regex != null) {
-			Stream.of(regex.split(";")).forEach(p -> Pattern.compile(p));
-		}
+	private List<InvertiblePattern> validateRegex(final String regex) {
+		return toPatterns(regex, false);
 	}
+
+	private List<InvertiblePattern> toPatterns(final String regex) {
+		return toPatterns(regex, true);
+	}
+	
+	private List<InvertiblePattern> toPatterns(final String regex, final boolean silent) {
+		List<InvertiblePattern> patterns = new ArrayList<>();
+		if (regex != null) {
+			for (String r : regex.split("(?<!\\\\);")) {
+				try { 
+					patterns.add(new InvertiblePattern(r));
+				} catch (Exception e) {
+					log.debug("cannot compile: " + r + " in: " + regex, e);
+					if (!silent) 
+						throw e;
+				}
+			}
+		}
+		return patterns;
+	}
+	
+	
 	
 	public Properties getProperties() {
 		return properties;
@@ -100,8 +124,8 @@ public class ModuleConfiguration implements Serializable {
 		if (inputPath != null) {
 			try {
 				if (ignoreFileNameRegex != null && ignoreFileNameRegex.length() > 0) {
-					for (String regEx : ignoreFileNameRegex.split(";")) {
-						if (regEx != null && Pattern.matches(regEx, inputPath)) {
+					for (InvertiblePattern regEx : toPatterns(ignoreFileNameRegex)) {
+						if (regEx != null && regEx.matches(inputPath)) {
 							log.info("ignoreFileNameRegex: regEx=" + regEx + " path=" + inputPath);
 							return false;
 						}
@@ -122,8 +146,8 @@ public class ModuleConfiguration implements Serializable {
 				int bytes = IOUtils.read(in, start);
 				String content = new String(start, 0, bytes, Charset.forName("UTF-8"));
 				if (ignoreFileContentRegex != null && ignoreFileContentRegex.length() > 0) {
-					for (String regEx : ignoreFileContentRegex.split(";")) {
-						if (regEx != null && Pattern.matches(regEx, content)) {
+					for (InvertiblePattern regEx : toPatterns(ignoreFileContentRegex)) {
+						if (regEx != null && regEx.find(content)) {
 							log.info("ignoreFileContentRegex: regEx=" + regEx + " path=" + contentPath);
 							return false;
 						}
@@ -140,5 +164,40 @@ public class ModuleConfiguration implements Serializable {
 	public String toString() {
 		return "ModuleConfiguration [name=" + name + ", jndiName=" + jndiName + ", mandatory=" + mandatory + ", props="
 				+ properties + "]";
+	}
+	
+	class InvertiblePattern {
+		
+		private Pattern pattern;
+		private boolean invert;
+		
+		public InvertiblePattern(String pattern) {
+			if (pattern.startsWith("!")) {
+				invert = true;
+				pattern = pattern.substring(1);
+			}
+			this.pattern = Pattern.compile(pattern);
+		}
+		
+		public Pattern getPattern() {
+			return pattern;
+		}
+		
+		public boolean isInvert() {
+			return invert;
+		}
+		
+		public boolean matches(String content) {
+			return invert ^ pattern.matcher(content).matches();
+		}
+		
+		public boolean find(String content) {
+			return invert ^ pattern.matcher(content).find();
+		}
+		
+		@Override
+		public String toString() {
+			return "" + pattern + (invert ? "/inverted" : "");
+		}
 	}
 }

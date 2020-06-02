@@ -97,12 +97,18 @@ public class ConfigurationTest {
 		// simple pattern:
 		Assert.assertFalse(config.isApplicable(testContent.getFileName().toString()));
 		Assert.assertFalse(config.isContentApplicable(testContent));
+		// use inverted pattern: apply to XML!!
+		testProps.put(Property.ignoreFileContentRegex.name(), "!(?is)^< *\\? *xml.*");
+		Assert.assertTrue(config.isContentApplicable(testContent));
 		
 		// multiple patterns:
 		config.getProperties().put(Property.ignoreFileNameRegex.name(), ".*\\.something;(?i).*\\.dcom");
 		config.getProperties().put(Property.ignoreFileContentRegex.name(), "something;(?is)^< *\\? *xml.*");
 		Assert.assertFalse(config.isApplicable(testContent.getFileName().toString()));
 		Assert.assertFalse(config.isContentApplicable(testContent));
+		// use inverted pattern: apply to XML!!
+		config.getProperties().put(Property.ignoreFileContentRegex.name(), "something;!(?is)^< *\\? *xml.*");
+		Assert.assertTrue(config.isContentApplicable(testContent));
 
 	}
 
