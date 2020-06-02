@@ -115,6 +115,7 @@ public class PreprocessorBean {
 
 				ModuleResult result = module.apply(path.toString(), config);
 				if (config.isMandatory() && !result.isValid()) {
+					log.info("failed mandatory module[" + config.getName() + "]: path=" + path + " result:" + result);
 					throw new ModuleException("mandatory module failed", result.getException());
 				}
 				log.info("done module[" + config.getName() + "]: path=" + path + " result:" + result);
