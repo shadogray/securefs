@@ -121,10 +121,12 @@ public class ModuleConfiguration implements Serializable {
 
 	public boolean isApplicable(String inputPath) throws IOException, ModuleException {
 		String ignoreFileNameRegex = getProperty(Property.ignoreFileNameRegex);
+		log.debug("isContentApplicable: regex=" + ignoreFileNameRegex + ", path=" + inputPath);
 		if (inputPath != null) {
 			try {
 				if (ignoreFileNameRegex != null && ignoreFileNameRegex.length() > 0) {
 					for (InvertiblePattern regEx : toPatterns(ignoreFileNameRegex)) {
+						log.debug("isContentApplicable: regEx=" + regEx + ", path=" + inputPath);
 						if (regEx != null && regEx.matches(inputPath)) {
 							log.info("ignoreFileNameRegex: regEx=" + regEx + " path=" + inputPath);
 							return false;
@@ -135,11 +137,13 @@ public class ModuleConfiguration implements Serializable {
 				log.info("cannot handle ignoreFileNameRegex: " + ignoreFileNameRegex + " : " + e, e);
 			}
 		}
+		log.debug("isContentApplicable: nope. regex=" + ignoreFileNameRegex + ", path=" + inputPath);
 		return true;
 	}
 
 	public boolean isContentApplicable(Path contentPath) throws IOException, ModuleException {
 		String ignoreFileContentRegex = getProperty(Property.ignoreFileContentRegex);
+		log.debug("isContentApplicable: regex=" + ignoreFileContentRegex + ", path=" + contentPath);
 		if (contentPath != null && Files.exists(contentPath)) {
 			try (InputStream in = Files.newInputStream(contentPath)) {
 				byte[] start = new byte[500];
@@ -147,6 +151,7 @@ public class ModuleConfiguration implements Serializable {
 				String content = new String(start, 0, bytes, Charset.forName("UTF-8"));
 				if (ignoreFileContentRegex != null && ignoreFileContentRegex.length() > 0) {
 					for (InvertiblePattern regEx : toPatterns(ignoreFileContentRegex)) {
+						log.debug("isContentApplicable: regEx=" + regEx + ", content=" + content);
 						if (regEx != null && regEx.find(content)) {
 							log.info("ignoreFileContentRegex: regEx=" + regEx + " path=" + contentPath);
 							return false;
@@ -157,6 +162,7 @@ public class ModuleConfiguration implements Serializable {
 				log.info("cannot handle ignoreFileContentRegex: " + ignoreFileContentRegex + " : " + e, e);
 			}
 		}
+		log.debug("isContentApplicable: nope. regex=" + ignoreFileContentRegex + ", path=" + contentPath);
 		return true;
 	}
 
