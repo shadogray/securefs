@@ -13,6 +13,7 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.UUID;
 
 import javax.inject.Inject;
 import javax.jws.WebMethod;
@@ -54,7 +55,7 @@ public class FileServiceBean implements FileService {
 
 		log.info("writing File: " + relPath);
 		try {
-			String tmpFileName = Paths.get(relPath).getFileName().toString() + System.currentTimeMillis();
+			String tmpFileName = Paths.get(relPath).getFileName().toString() + "_" + System.currentTimeMillis() + "_" + UUID.randomUUID();
 			Path tmpPath = Files.createFile(configuration.getTmpPath().resolve(tmpFileName));
 			try {
 				try (OutputStream os = Files.newOutputStream(tmpPath)) {
