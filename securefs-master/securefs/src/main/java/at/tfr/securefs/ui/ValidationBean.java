@@ -185,7 +185,7 @@ public class ValidationBean {
 	}
 
 	@Audit
-	@RolesAllowed(Role.ADMIN)
+	@RolesAllowed({Role.ADMIN, Role.OPERATOR})
 	public String activate() {
 		try {
 			validateShares();
