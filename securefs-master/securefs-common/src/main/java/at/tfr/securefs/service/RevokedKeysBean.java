@@ -6,6 +6,25 @@
  */
 package at.tfr.securefs.service;
 
+import at.tfr.securefs.Configuration;
+import at.tfr.securefs.Role;
+import at.tfr.securefs.beans.Logging;
+import at.tfr.securefs.event.KeyEvent;
+import at.tfr.securefs.event.SecfsEventType;
+import at.tfr.securefs.fs.SecureFiles;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.annotation.security.RunAs;
+import jakarta.ejb.DependsOn;
+import jakarta.ejb.Schedule;
+import jakarta.ejb.Singleton;
+import jakarta.ejb.Startup;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import org.jboss.logging.Logger;
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Files;
@@ -14,27 +33,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.annotation.security.RolesAllowed;
-import javax.annotation.security.RunAs;
-import javax.ejb.DependsOn;
-import javax.ejb.Schedule;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
-import javax.inject.Named;
-
-import org.jboss.logging.Logger;
-
-import at.tfr.securefs.Configuration;
-import at.tfr.securefs.Role;
-import at.tfr.securefs.beans.Logging;
-import at.tfr.securefs.event.KeyEvent;
-import at.tfr.securefs.event.SecfsEventType;
-import at.tfr.securefs.fs.SecureFiles;
 
 @Named
 @Startup

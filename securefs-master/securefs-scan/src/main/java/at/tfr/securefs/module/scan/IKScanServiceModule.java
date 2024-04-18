@@ -6,28 +6,25 @@
  */
 package at.tfr.securefs.module.scan;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.UUID;
-
-import javax.annotation.PostConstruct;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.inject.Inject;
-
-import org.apache.commons.lang3.StringUtils;
-
-import com.ikarus.ScanService.XMLExtractor;
-import com.ikarus.ScanService.XMLScanResult;
-
 import at.tfr.securefs.Configuration;
 import at.tfr.securefs.api.module.ModuleConfiguration;
 import at.tfr.securefs.api.module.ModuleException;
 import at.tfr.securefs.api.module.ModuleResult;
 import at.tfr.securefs.api.module.ServiceModule;
+import com.ikarus.ScanService.XMLExtractor;
+import com.ikarus.ScanService.XMLScanResult;
+import jakarta.annotation.PostConstruct;
+import jakarta.ejb.Stateless;
+import jakarta.ejb.TransactionManagement;
+import jakarta.ejb.TransactionManagementType;
+import jakarta.inject.Inject;
+import org.apache.commons.lang3.StringUtils;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.UUID;
 
 @Stateless
 @TransactionManagement(TransactionManagementType.BEAN)

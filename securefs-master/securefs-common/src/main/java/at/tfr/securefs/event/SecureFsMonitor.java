@@ -6,10 +6,10 @@
  */
 package at.tfr.securefs.event;
 
+import at.tfr.securefs.cache.ClusterState;
+
 import java.util.Map;
 import java.util.TreeMap;
-
-import at.tfr.securefs.cache.ClusterState;
 
 @SuppressWarnings("serial")
 public class SecureFsMonitor extends SecureFsEvent {

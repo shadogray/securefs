@@ -6,6 +6,22 @@
  */
 package at.tfr.securefs.ws;
 
+import at.tfr.securefs.Configuration;
+import at.tfr.securefs.api.FileService;
+import at.tfr.securefs.api.module.ModuleException;
+import at.tfr.securefs.fs.SecureFileSystemBean;
+import at.tfr.securefs.process.PreprocessorBean;
+import at.tfr.securefs.service.CrypterProvider;
+import jakarta.inject.Inject;
+import jakarta.jws.WebMethod;
+import jakarta.jws.WebParam;
+import jakarta.jws.WebResult;
+import jakarta.jws.WebService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.xml.ws.soap.MTOM;
+import org.apache.commons.io.IOUtils;
+import org.jboss.logging.Logger;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,24 +30,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
-
-import javax.inject.Inject;
-import javax.jws.WebMethod;
-import javax.jws.WebParam;
-import javax.jws.WebResult;
-import javax.jws.WebService;
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.ws.soap.MTOM;
-
-import org.apache.commons.io.IOUtils;
-import org.jboss.logging.Logger;
-
-import at.tfr.securefs.Configuration;
-import at.tfr.securefs.api.FileService;
-import at.tfr.securefs.api.module.ModuleException;
-import at.tfr.securefs.fs.SecureFileSystemBean;
-import at.tfr.securefs.process.PreprocessorBean;
-import at.tfr.securefs.service.CrypterProvider;
 
 @MTOM(enabled = true)
 @WebService(serviceName = "FileService", targetNamespace = "http://securefs.tfr.at/", portName = "FileServicePort")

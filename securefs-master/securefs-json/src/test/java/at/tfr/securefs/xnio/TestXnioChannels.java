@@ -6,21 +6,17 @@
  */
 package at.tfr.securefs.xnio;
 
+import org.junit.Assert;
+import org.junit.Test;
+import org.xnio.*;
+import org.xnio.channels.Channels;
+import org.xnio.channels.StreamSinkChannel;
+import org.xnio.channels.StreamSourceChannel;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Date;
-import org.junit.Assert;
-import org.junit.Test;
-import org.xnio.ChannelListener;
-import org.xnio.ChannelPipe;
-import org.xnio.IoUtils;
-import org.xnio.OptionMap;
-import org.xnio.Xnio;
-import org.xnio.XnioWorker;
-import org.xnio.channels.Channels;
-import org.xnio.channels.StreamSinkChannel;
-import org.xnio.channels.StreamSourceChannel;
 
 /**
  *

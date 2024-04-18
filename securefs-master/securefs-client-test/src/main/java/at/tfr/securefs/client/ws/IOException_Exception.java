@@ -1,7 +1,7 @@
 
 package at.tfr.securefs.client.ws;
 
-import javax.xml.ws.WebFault;
+import jakarta.xml.ws.WebFault;
 
 
 /**

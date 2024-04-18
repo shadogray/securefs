@@ -6,29 +6,25 @@
  */
 package at.tfr.securefs.fs;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import at.tfr.securefs.beans.Logging;
+import at.tfr.securefs.service.CrypterProvider;
+import at.tfr.securefs.service.SecretBean;
+import jakarta.inject.Inject;
+import org.apache.commons.lang.StringUtils;
+import org.jboss.logging.Logger;
+
+import java.io.*;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.inject.Inject;
-
-import org.apache.commons.lang.StringUtils;
-
-import at.tfr.securefs.beans.Logging;
-import at.tfr.securefs.service.CrypterProvider;
-import at.tfr.securefs.service.SecretBean;
-
 @Logging
 public class SecureFiles {
 
 	private static final Charset UTF8 = Charset.forName("UTF-8");
+	private Logger log = Logger.getLogger(getClass());
 
 	private CrypterProvider crypterProvider;
 	
@@ -73,7 +69,11 @@ public class SecureFiles {
                 }
             }
             return result;
-        }
+        } catch (Throwable e) {
+			log.info("cannot readLines: " + path + " : " + e);
+			log.debug("cannot readLines: " + path + " : " + e, e);
+			throw e;
+		}
     }
 
 	/**

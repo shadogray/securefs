@@ -9,10 +9,11 @@
 	<parent>
 		<groupId>at.tfr.securefs</groupId>
 		<artifactId>securefs-master</artifactId>
-		<version>true</version>
+		<version>2.0.1.Final</version>
 	</parent>
 	<artifactId>securefs-client</artifactId>
 	<packaging>jar</packaging>
+	<version>2.0.1.Final</version>
 
 	<dependencies>
 		<dependency>
@@ -21,9 +22,8 @@
 		</dependency>
 
 		<dependency>
-			<groupId>javax</groupId>
-			<artifactId>javaee-api</artifactId>
-			<scope>test</scope>
+			<groupId>jakarta.platform</groupId>
+			<artifactId>jakarta.jakartaee-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.logging</groupId>
@@ -31,14 +31,13 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>jboss</groupId>
-			<artifactId>jboss-client</artifactId>
+			<groupId>org.wildfly</groupId>
+			<artifactId>wildfly-client-all</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.jboss</groupId>
-			<artifactId>jboss-remote-naming</artifactId>
-			<scope>test</scope>
+			<groupId>org.wildfly</groupId>
+			<artifactId>wildfly-naming</artifactId>
 		</dependency>
 
 		<dependency>

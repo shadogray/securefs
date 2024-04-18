@@ -1,18 +1,19 @@
 package at.tfr.securefs.beans;
 
+import jakarta.annotation.Priority;
+import jakarta.enterprise.context.ContextNotActiveException;
+import jakarta.enterprise.inject.Instance;
+import jakarta.inject.Inject;
+import jakarta.interceptor.AroundInvoke;
+import jakarta.interceptor.Interceptor;
+import jakarta.interceptor.InvocationContext;
+import org.jboss.logging.Logger;
+
 import java.security.Principal;
 import java.util.Arrays;
 
-import javax.enterprise.context.ContextNotActiveException;
-import javax.enterprise.inject.Instance;
-import javax.inject.Inject;
-import javax.interceptor.AroundInvoke;
-import javax.interceptor.Interceptor;
-import javax.interceptor.InvocationContext;
-
-import org.jboss.logging.Logger;
-
 @Interceptor
+@Priority(Interceptor.Priority.APPLICATION)
 @Audit
 public class AuditInterceptor {
 

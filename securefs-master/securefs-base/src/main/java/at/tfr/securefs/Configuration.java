@@ -6,6 +6,24 @@
  */
 package at.tfr.securefs;
 
+import at.tfr.securefs.api.module.ModuleConfiguration;
+import at.tfr.securefs.key.KeyConstants;
+import jakarta.annotation.PostConstruct;
+import jakarta.ejb.Schedule;
+import jakarta.ejb.Singleton;
+import jakarta.ejb.Startup;
+import org.apache.commons.configuration2.FileBasedConfiguration;
+import org.apache.commons.configuration2.PropertiesConfiguration;
+import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
+import org.apache.commons.configuration2.builder.fluent.Parameters;
+import org.apache.commons.configuration2.builder.fluent.PropertiesBuilderParameters;
+import org.apache.commons.configuration2.convert.DefaultListDelimiterHandler;
+import org.apache.commons.lang.StringUtils;
+import org.jboss.logging.Logger;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.PBEKeySpec;
+import java.math.BigInteger;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,23 +36,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
-import javax.crypto.Cipher;
-import javax.crypto.spec.PBEKeySpec;
-import javax.ejb.Schedule;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-
-import org.apache.commons.configuration2.FileBasedConfiguration;
-import org.apache.commons.configuration2.PropertiesConfiguration;
-import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
-import org.apache.commons.configuration2.builder.fluent.Parameters;
-import org.apache.commons.configuration2.builder.fluent.PropertiesBuilderParameters;
-import org.apache.commons.lang.StringUtils;
-import org.jboss.logging.Logger;
-
-import at.tfr.securefs.api.module.ModuleConfiguration;
 
 @Startup
 @Singleton
@@ -106,6 +107,10 @@ public class Configuration {
 	 * Key for (de)activating PreProcessing, default true
 	 */
 	public static final String PRE_PROCESSING = "preProcessing";
+    public static final String SHARES = "shares";
+    public static final String NR_OF_SHARES = "nrOfShares";
+    public static final String THRESHOLD = "threshold";
+    public static final String MODULUS = "modulus";
 	/**
 	 * SecureFS Server Property Test, default true, enables Test-Configuration {@link #SECUREFS_SERVER_PFX}
 	 * @see KeyConstants#modulusForTest
@@ -128,9 +133,13 @@ public class Configuration {
     private int iterationCount = 128;
     private int keyStrength = 256;
     private String cacheName = "SecureFS";
-    private boolean test = true;
+    private boolean test = false;
     private boolean restrictedToBasePath;
     private boolean preProcessing = true;
+    private Integer nrOfShares = 20;
+    private Integer threshold = 3;
+    private BigInteger modulus = KeyConstants.DEFAULT_MODULUS;
+    private String[] shares;
     private org.apache.commons.configuration2.Configuration secConfig = null;
 
     @PostConstruct
@@ -174,6 +183,16 @@ public class Configuration {
         log.info("RestrictedToBasePath = " + restrictedToBasePath);
         preProcessing = secConfig.getBoolean(SECUREFS_SERVER_PFX + PRE_PROCESSING, preProcessing);
         log.info("PreProcessing = " + preProcessing);
+        shares = secConfig.getStringArray(SECUREFS_SERVER_PFX + SHARES);
+        log.info("Shares = " + Arrays.toString(shares));
+        if (shares != null) {
+            nrOfShares = secConfig.getInt(SECUREFS_SERVER_PFX + NR_OF_SHARES, nrOfShares);
+            log.info("NrOfShares = " + nrOfShares);
+            threshold = secConfig.getInt(SECUREFS_SERVER_PFX + THRESHOLD, threshold);
+            log.info("Threshold = " + threshold);
+            modulus = secConfig.getBigInteger(SECUREFS_SERVER_PFX + MODULUS, modulus);
+            log.info("Modulus = " + modulus);
+        }
      
         test = secConfig.getBoolean(SECUREFS_SERVER_PFX + TEST, test);
         log.info("Test = " + test);
@@ -227,7 +246,9 @@ public class Configuration {
 	private void loadSecureFsProperties(boolean initial) {
 		try {
 			URL url = Thread.currentThread().getContextClassLoader().getResource(SECUREFS_SERVER_PROPERTIES);
-			PropertiesBuilderParameters parameters = new Parameters().properties().setURL(url);
+			PropertiesBuilderParameters parameters = new Parameters().properties()
+                    .setURL(url)
+                    .setListDelimiterHandler(new DefaultListDelimiterHandler('|'));
 			FileBasedConfigurationBuilder<FileBasedConfiguration> builder = 
 					new FileBasedConfigurationBuilder<FileBasedConfiguration>(PropertiesConfiguration.class)
 					.configure(parameters);
@@ -349,7 +370,23 @@ public class Configuration {
     public void setPreProcessing(boolean preProcessing) {
 		this.preProcessing = preProcessing;
 	}
-    
+
+    public String[] getShares() {
+        return shares;
+    }
+
+    public Integer getNrOfShares() {
+        return nrOfShares;
+    }
+
+    public Integer getThreshold() {
+        return threshold;
+    }
+
+    public BigInteger getModulus() {
+        return modulus;
+    }
+
     /**
      * list of service module names
      * @return

@@ -9,11 +9,12 @@
    <parent>
       <groupId>at.tfr.securefs</groupId>
       <artifactId>securefs-master</artifactId>
-      <version>true</version>
+      <version>2.0.1.Final</version>
    </parent>
 
    <artifactId>securefs-json</artifactId>
    <packaging>war</packaging>
+   <version>2.0.1.Final</version>
 
    <name>securefs-json</name>
    <description>A JSON implementation of securefs</description>
@@ -27,14 +28,12 @@
 
       <!-- Common to JEE and Servlet containers -->
       <dependency>
-         <groupId>javax</groupId>
-         <artifactId>javaee-api</artifactId>
+         <groupId>jakarta.platform</groupId>
+         <artifactId>jakarta.jakartaee-api</artifactId>
       </dependency>
       <dependency>
-         <groupId>com.sun.faces</groupId>
-         <artifactId>jsf-api</artifactId>
-         <version>${mojarra.version}</version>
-         <scope>provided</scope>
+         <groupId>org.jboss.logging</groupId>
+         <artifactId>jboss-logging</artifactId>
       </dependency>
       <dependency>
          <groupId>com.tiemens</groupId>
@@ -42,32 +41,16 @@
          <version>1.4.2</version>
       </dependency>
       <dependency>
-         <groupId>jboss</groupId>
-         <artifactId>jboss-annotations-ejb3</artifactId>
-         <version>4.2.3.GA</version>
+         <groupId>jakarta.validation</groupId>
+         <artifactId>jakarta.validation-api</artifactId>
          <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>org.jboss.resteasy</groupId>
-         <artifactId>async-http-servlet-3.0</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>javax.validation</groupId>
-         <artifactId>validation-api</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.resteasy</groupId>
-         <artifactId>resteasy-jaxrs</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss.resteasy</groupId>
          <artifactId>resteasy-jackson2-provider</artifactId>
+         <scope>provided</scope>
       </dependency>
 
-      <dependency>
-         <groupId>io.undertow</groupId>
-         <artifactId>undertow-websockets-jsr</artifactId>
-      </dependency>
       <dependency>
          <groupId>org.jboss.xnio</groupId>
          <artifactId>xnio-nio</artifactId>
@@ -83,11 +66,11 @@
 
       <dependency>
          <groupId>org.apache.cxf</groupId>
-         <artifactId>cxf-bundle</artifactId>
+         <artifactId>cxf-core</artifactId>
       </dependency>
       <dependency>
-         <groupId>org.jboss.ws.cxf</groupId>
-         <artifactId>jbossws-cxf-transports-httpserver</artifactId>
+         <groupId>org.apache.cxf</groupId>
+         <artifactId>cxf-rt-transports-http</artifactId>
       </dependency>
       <dependency>
          <groupId>org.jboss.ws.cxf</groupId>
@@ -98,16 +81,12 @@
          <artifactId>resteasy-client</artifactId>
       </dependency>
       <dependency>
-         <groupId>org.java-websocket</groupId>
-         <artifactId>Java-WebSocket</artifactId>
+         <groupId>org.wildfly</groupId>
+         <artifactId>wildfly-client-all</artifactId>
       </dependency>
       <dependency>
-         <groupId>jboss</groupId>
-         <artifactId>jboss-client</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.jboss</groupId>
-         <artifactId>jboss-remote-naming</artifactId>
+         <groupId>org.wildfly</groupId>
+         <artifactId>wildfly-naming</artifactId>
       </dependency>
       <dependency>
          <groupId>junit</groupId>
@@ -126,11 +105,15 @@
       <plugins>
          <plugin>
             <artifactId>maven-compiler-plugin</artifactId>
-            <version>2.3.1</version>
+            <version>3.8.1</version>
             <configuration>
                <source>1.8</source>
                <target>1.8</target>
             </configuration>
+         </plugin>
+          <plugin>
+            <artifactId>maven-war-plugin</artifactId>
+            <version>3.3.1</version>
          </plugin>
       </plugins>
    </build>
@@ -148,19 +131,6 @@
                <groupId>org.jboss.weld.arquillian.container</groupId>
                <artifactId>arquillian-weld-ee-embedded-1.1</artifactId>
                <version>1.1.2.Final</version>
-               <scope>test</scope>
-            </dependency>
-            <!-- Arquillian Weld EE Embedded requires the EL and EJB 3.1 APIs; Weld runtime provided by weld-servlet -->
-            <dependency>
-               <groupId>javax.el</groupId>
-               <artifactId>el-api</artifactId>
-               <version>2.2.1-b04</version>
-               <scope>test</scope>
-            </dependency>
-            <dependency>
-               <groupId>org.jboss.spec.javax.ejb</groupId>
-               <artifactId>jboss-ejb-api_3.1_spec</artifactId>
-               <version>1.0.0.Final</version>
                <scope>test</scope>
             </dependency>
          </dependencies>

@@ -6,6 +6,23 @@
  */
 package at.tfr.securefs.xnio;
 
+import at.tfr.securefs.Configuration;
+import at.tfr.securefs.api.Constants;
+import at.tfr.securefs.api.json.Message;
+import at.tfr.securefs.api.json.Message.MessageType;
+import at.tfr.securefs.api.json.MessageHandler;
+import at.tfr.securefs.api.json.MessageSender;
+import at.tfr.securefs.key.SecretKeySpecBean;
+import at.tfr.securefs.xnio.ActiveStreams.StreamInfo;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.enterprise.context.ApplicationScoped;
+import org.jboss.logging.Logger;
+import org.xnio.*;
+import org.xnio.channels.Channels;
+import org.xnio.channels.StreamSinkChannel;
+import org.xnio.channels.StreamSourceChannel;
+
+import javax.crypto.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -19,40 +36,6 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-
-import javax.crypto.Cipher;
-import javax.crypto.CipherInputStream;
-import javax.crypto.CipherOutputStream;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.NullCipher;
-import javax.enterprise.context.ApplicationScoped;
-
-import org.jboss.logging.Logger;
-import org.xnio.ChannelListener;
-import org.xnio.ChannelPipe;
-import org.xnio.IoUtils;
-import org.xnio.OptionMap;
-import org.xnio.Xnio;
-import org.xnio.XnioWorker;
-import org.xnio.channels.Channels;
-import org.xnio.channels.StreamSinkChannel;
-import org.xnio.channels.StreamSourceChannel;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import at.tfr.securefs.Configuration;
-import at.tfr.securefs.api.Constants;
-import at.tfr.securefs.key.SecretKeySpecBean;
-import at.tfr.securefs.xnio.ActiveStreams.StreamInfo;
-import at.tfr.securefs.api.json.Message;
-import static at.tfr.securefs.api.json.Message.MessageSubType.READ;
-import at.tfr.securefs.api.json.Message.MessageType;
-import static at.tfr.securefs.api.json.Message.MessageType.CLOSE;
-import static at.tfr.securefs.api.json.Message.MessageType.DATA;
-import static at.tfr.securefs.api.json.Message.MessageType.ERROR;
-import static at.tfr.securefs.api.json.Message.MessageType.OPEN;
-import at.tfr.securefs.api.json.MessageHandler;
-import at.tfr.securefs.api.json.MessageSender;
 
 @ApplicationScoped
 public class MessageHandlerImpl implements MessageHandler {

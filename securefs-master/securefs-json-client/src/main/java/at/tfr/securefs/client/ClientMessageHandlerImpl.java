@@ -6,35 +6,27 @@
  */
 package at.tfr.securefs.client;
 
+import at.tfr.securefs.api.Constants;
+import at.tfr.securefs.api.json.Message;
+import at.tfr.securefs.api.json.Message.MessageSubType;
+import at.tfr.securefs.api.json.Message.MessageType;
+import at.tfr.securefs.api.json.MessageHandler;
+import at.tfr.securefs.api.json.MessageSender;
+import at.tfr.securefs.xnio.ActiveStreams;
+import at.tfr.securefs.xnio.ActiveStreams.StreamInfo;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.jboss.logging.Logger;
+import org.xnio.*;
+import org.xnio.channels.Channels;
+import org.xnio.channels.StreamSinkChannel;
+import org.xnio.channels.StreamSourceChannel;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.Arrays;
-
-
-import org.jboss.logging.Logger;
-import org.xnio.ChannelListener;
-import org.xnio.ChannelPipe;
-import org.xnio.IoUtils;
-import org.xnio.OptionMap;
-import org.xnio.Xnio;
-import org.xnio.XnioWorker;
-import org.xnio.channels.Channels;
-import org.xnio.channels.StreamSinkChannel;
-import org.xnio.channels.StreamSourceChannel;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import at.tfr.securefs.api.Constants;
-import at.tfr.securefs.xnio.ActiveStreams;
-import at.tfr.securefs.xnio.ActiveStreams.StreamInfo;
-import at.tfr.securefs.api.json.Message;
-import at.tfr.securefs.api.json.MessageHandler;
-import at.tfr.securefs.api.json.MessageSender;
-import at.tfr.securefs.api.json.Message.MessageSubType;
-import at.tfr.securefs.api.json.Message.MessageType;
 
 public class ClientMessageHandlerImpl implements MessageHandler {
 

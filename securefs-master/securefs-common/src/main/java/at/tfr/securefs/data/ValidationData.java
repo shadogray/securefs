@@ -6,16 +6,14 @@
  */
 package at.tfr.securefs.data;
 
+import at.tfr.securefs.key.UiShare;
+import com.tiemens.secretshare.engine.SecretShare;
+import jakarta.xml.bind.annotation.XmlRootElement;
+
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.xml.bind.annotation.XmlRootElement;
-
-import com.tiemens.secretshare.engine.SecretShare;
-
-import at.tfr.securefs.key.UiShare;
 
 @SuppressWarnings("serial")
 @XmlRootElement

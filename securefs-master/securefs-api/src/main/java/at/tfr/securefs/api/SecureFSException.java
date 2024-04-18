@@ -6,7 +6,7 @@
  */
 package at.tfr.securefs.api;
 
-import javax.ejb.ApplicationException;
+import jakarta.ejb.ApplicationException;
 
 @ApplicationException
 public class SecureFSException extends Exception {

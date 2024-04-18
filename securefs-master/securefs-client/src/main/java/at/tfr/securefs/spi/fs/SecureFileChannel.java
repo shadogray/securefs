@@ -6,6 +6,9 @@
  */
 package at.tfr.securefs.spi.fs;
 
+import at.tfr.securefs.api.Buffer;
+import at.tfr.securefs.api.SecureRemoteFile;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
@@ -15,9 +18,6 @@ import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
-
-import at.tfr.securefs.api.Buffer;
-import at.tfr.securefs.api.SecureRemoteFile;
 
 
 /**
@@ -62,7 +62,7 @@ public class SecureFileChannel extends FileChannel {
     }
 
     BasicFileAttributes getAttributes() throws IOException {
-        return path.getFileSystem().provider().readAttributes(path, BasicFileAttributes.class, null);
+        return path.getFileSystem().provider().readAttributes(path, BasicFileAttributes.class);
     }
 
 	@Override

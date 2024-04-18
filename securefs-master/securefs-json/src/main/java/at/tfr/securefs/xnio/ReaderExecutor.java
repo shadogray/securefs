@@ -6,9 +6,9 @@
  */
 package at.tfr.securefs.xnio;
 
-import java.io.InputStream;
+import jakarta.websocket.Session;
 
-import javax.websocket.Session;
+import java.io.InputStream;
 
 public interface ReaderExecutor {
 

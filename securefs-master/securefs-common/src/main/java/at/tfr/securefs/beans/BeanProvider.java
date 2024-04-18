@@ -6,10 +6,9 @@
  */
 package at.tfr.securefs.beans;
 
-import javax.ejb.EJB;
-import javax.enterprise.context.RequestScoped;
-
 import at.tfr.securefs.fs.SecureFileBean;
+import jakarta.ejb.EJB;
+import jakarta.enterprise.context.RequestScoped;
 
 /**
  *

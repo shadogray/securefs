@@ -1,15 +1,11 @@
 
 package at.tfr.securefs.client.ws;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import jakarta.xml.ws.*;
 
 import javax.xml.namespace.QName;
-import javax.xml.ws.Service;
-import javax.xml.ws.WebEndpoint;
-import javax.xml.ws.WebServiceClient;
-import javax.xml.ws.WebServiceException;
-import javax.xml.ws.WebServiceFeature;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 
 /**
@@ -76,7 +72,7 @@ public class FileService
     /**
      * 
      * @param features
-     *     A list of {@link javax.xml.ws.WebServiceFeature} to configure on the proxy.  Supported features not in the <code>features</code> parameter will have their default values.
+     *     A list of {@link jakarta.xml.ws.WebServiceFeature} to configure on the proxy.  Supported features not in the <code>features</code> parameter will have their default values.
      * @return
      *     returns FileServiceBean
      */

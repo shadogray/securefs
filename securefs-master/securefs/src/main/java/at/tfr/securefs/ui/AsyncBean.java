@@ -6,14 +6,13 @@
  */
 package at.tfr.securefs.ui;
 
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.Asynchronous;
-import javax.ejb.DependsOn;
-import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.inject.Named;
-
 import at.tfr.securefs.Role;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.ejb.Asynchronous;
+import jakarta.ejb.DependsOn;
+import jakarta.ejb.Stateless;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @Named
 @Stateless

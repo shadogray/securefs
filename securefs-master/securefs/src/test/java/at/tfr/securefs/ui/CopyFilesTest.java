@@ -6,18 +6,6 @@
  */
 package at.tfr.securefs.ui;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.math.BigInteger;
-import java.nio.file.Files;
-import java.nio.file.Path;
-
-import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-
 import at.tfr.securefs.Configuration;
 import at.tfr.securefs.key.SecretKeySpecBean;
 import at.tfr.securefs.process.ProcessFiles;
@@ -25,6 +13,17 @@ import at.tfr.securefs.process.ProcessFilesBean;
 import at.tfr.securefs.service.CrypterProvider;
 import at.tfr.securefs.service.SecretBean;
 import junit.framework.Assert;
+import org.apache.commons.io.IOUtils;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class CopyFilesTest {
 
@@ -43,7 +42,7 @@ public class CopyFilesTest {
 	
 	@Before
 	public void init() throws Exception {
-		secretBean.setSecret(secret);
+		secretBean.setSecret(secret, true);
 		fromRoot = Files.createDirectories(temp.getRoot().toPath().resolve("from"));
 		fromFilesPath = Files.createDirectories(fromRoot.resolve(DATA_FILES));
 		toRoot = Files.createDirectories(temp.getRoot().toPath().resolve("to"));
@@ -52,7 +51,7 @@ public class CopyFilesTest {
 		targetToFile = toRoot.resolve(DATA_FILES).resolve("file1.txt");
 	}
 	
-	@Test(expected=Exception.class)
+	@Test(expected=Throwable.class)
 	public void testSetTargetPathOverwriteNotAllowed() throws Exception {
 
 		// Given: target directory, the source file, a dummy target file

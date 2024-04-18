@@ -6,30 +6,19 @@
  */
 package at.tfr.securefs.client;
 
+import at.tfr.securefs.api.SecureFileSystemItf;
+import at.tfr.securefs.spi.fs.SecureProxyProvider;
+import org.junit.Assert;
+import org.junit.Test;
+
+import javax.naming.Context;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.nio.file.spi.FileSystemProvider;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-import java.util.Properties;
-
-import javax.naming.Context;
-
-import org.junit.Assert;
-import org.junit.Test;
-
-import at.tfr.securefs.api.SecureFileSystemItf;
-import at.tfr.securefs.spi.fs.SecureProxyProvider;
+import java.util.*;
 
 /**
  *
@@ -110,7 +99,6 @@ public class TestFileSystem {
     public void testProxyProvider() throws Exception {
         Properties props = new Properties();
         props.load(getClass().getResourceAsStream("/securefs.properties"));
-		props.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
 		try (SecureProxyProvider secureProxyProvider = new SecureProxyProvider(props)) {
 			SecureFileSystemItf proxy = secureProxyProvider.getProxy("./");
 	        String rootPath = proxy.getRootPath();

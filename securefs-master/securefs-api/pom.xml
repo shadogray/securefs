@@ -9,16 +9,17 @@
 	<parent>
 		<groupId>at.tfr.securefs</groupId>
 		<artifactId>securefs-master</artifactId>
-		<version>true</version>
+		<version>2.0.1.Final</version>
 	</parent>
 	<artifactId>securefs-api</artifactId>
 	<name>securefs-api</name>
 	<packaging>jar</packaging>
+	<version>2.0.1.Final</version>
 
 	<dependencies>
 		<dependency>
-			<groupId>javax</groupId>
-			<artifactId>javaee-api</artifactId>
+			<groupId>jakarta.platform</groupId>
+			<artifactId>jakarta.jakartaee-api</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		
@@ -26,12 +27,22 @@
 			<groupId>org.jboss.logging</groupId>
 			<artifactId>jboss-logging</artifactId>
 		</dependency>
-		
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
 		</dependency>
-		
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-configuration2</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.xnio</groupId>
+			<artifactId>xnio-nio</artifactId>
+		</dependency>
 	</dependencies>
 
 	<build>

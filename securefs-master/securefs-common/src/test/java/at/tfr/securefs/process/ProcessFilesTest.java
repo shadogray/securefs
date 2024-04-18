@@ -6,6 +6,19 @@
  */
 package at.tfr.securefs.process;
 
+import at.tfr.securefs.Configuration;
+import at.tfr.securefs.api.SecureFSError;
+import at.tfr.securefs.data.ProcessFilesData;
+import at.tfr.securefs.key.SecretKeySpecBean;
+import at.tfr.securefs.service.CrypterProvider;
+import at.tfr.securefs.service.SecretBean;
+import junit.framework.Assert;
+import org.apache.commons.io.IOUtils;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -14,20 +27,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.stream.IntStream;
-
-import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-
-import at.tfr.securefs.Configuration;
-import at.tfr.securefs.api.SecureFSError;
-import at.tfr.securefs.data.ProcessFilesData;
-import at.tfr.securefs.key.SecretKeySpecBean;
-import at.tfr.securefs.service.CrypterProvider;
-import at.tfr.securefs.service.SecretBean;
-import junit.framework.Assert;
 
 public class ProcessFilesTest {
 
@@ -50,7 +49,7 @@ public class ProcessFilesTest {
 	
 	@Before
 	public void init() throws Exception {
-		secretBean.setSecret(secret);
+		secretBean.setSecret(secret, true);
 		fromRoot = Files.createDirectories(temp.getRoot().toPath().resolve("from"));
 		fromFilesPath = Files.createDirectories(fromRoot.resolve(DATA_FILES));
 		toRoot = Files.createDirectories(temp.getRoot().toPath().resolve("to"));

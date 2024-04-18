@@ -6,12 +6,13 @@
  */
 package at.tfr.securefs.xnio;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 import org.xnio.ChannelPipe;
 import org.xnio.channels.StreamSinkChannel;
 import org.xnio.channels.StreamSourceChannel;
+
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ActiveStreams implements Serializable {
 

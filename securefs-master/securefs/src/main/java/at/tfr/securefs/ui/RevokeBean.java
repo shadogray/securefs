@@ -6,19 +6,17 @@
  */
 package at.tfr.securefs.ui;
 
-import java.math.BigInteger;
-import java.util.List;
-
-import javax.enterprise.inject.Model;
-import javax.faces.application.FacesMessage;
-import javax.faces.context.FacesContext;
-import javax.inject.Inject;
-
-import org.jboss.logging.Logger;
-
 import at.tfr.securefs.beans.Audit;
 import at.tfr.securefs.beans.Logging;
 import at.tfr.securefs.service.RevokedKeysBean;
+import jakarta.enterprise.inject.Model;
+import jakarta.faces.application.FacesMessage;
+import jakarta.faces.context.FacesContext;
+import jakarta.inject.Inject;
+import org.jboss.logging.Logger;
+
+import java.math.BigInteger;
+import java.util.List;
 
 @Model
 @Logging

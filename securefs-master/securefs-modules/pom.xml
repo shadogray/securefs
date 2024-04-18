@@ -9,11 +9,12 @@
 	<parent>
 		<groupId>at.tfr.securefs</groupId>
 		<artifactId>securefs-master</artifactId>
-		<version>true</version>
+		<version>2.0.1.Final</version>
 	</parent>
 	<artifactId>securefs-modules</artifactId>
 	<name>securefs-modules</name>
 	<packaging>war</packaging>
+	<version>2.0.1.Final</version>
 	<description>service modules for SecureFs extensions</description>
 
 	<dependencies>
@@ -28,8 +29,21 @@
 		</dependency>
 
 		<dependency>
-			<groupId>javax</groupId>
-			<artifactId>javaee-api</artifactId>
+			<groupId>jakarta.platform</groupId>
+			<artifactId>jakarta.jakartaee-api</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>xerces</groupId>
+			<artifactId>xercesImpl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>xalan</groupId>
+			<artifactId>xalan</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>xalan</groupId>
+			<artifactId>serializer</artifactId>
 		</dependency>
 		
 		<dependency>

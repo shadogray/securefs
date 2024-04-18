@@ -6,10 +6,9 @@
  */
 package at.tfr.securefs.util;
 
+import junit.framework.Assert;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
-
-import junit.framework.Assert;
 
 public class TestMain {
 

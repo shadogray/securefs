@@ -8,29 +8,26 @@ package at.tfr.securefs;
 
 import at.tfr.securefs.api.json.Message;
 import at.tfr.securefs.api.json.MessageSender;
+import at.tfr.securefs.key.SecretKeySpecBean;
+import at.tfr.securefs.xnio.MessageHandlerImpl;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.websocket.OnMessage;
+import jakarta.websocket.Session;
+import org.apache.commons.lang.StringUtils;
+import org.jboss.logging.Logger;
+
+import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.concurrent.ExecutionException;
-
-import javax.annotation.PostConstruct;
-import javax.crypto.NoSuchPaddingException;
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
-import javax.websocket.OnMessage;
-import javax.websocket.Session;
-
-import org.apache.commons.lang.StringUtils;
-import org.jboss.logging.Logger;
-
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import at.tfr.securefs.key.SecretKeySpecBean;
-import at.tfr.securefs.xnio.MessageHandlerImpl;
 
 @ApplicationScoped
 public class MessageHandlerBean extends MessageHandlerImpl {

@@ -6,38 +6,8 @@
  */
 package at.tfr.securefs.ui;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.TreeMap;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.annotation.security.PermitAll;
-import javax.annotation.security.RolesAllowed;
-import javax.annotation.security.RunAs;
-import javax.ejb.DependsOn;
-import javax.ejb.Schedule;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.enterprise.event.Observes;
-import javax.faces.model.CollectionDataModel;
-import javax.inject.Inject;
-import javax.inject.Named;
-
-import org.apache.commons.collections.KeyValue;
-import org.apache.commons.collections.keyvalue.DefaultKeyValue;
-import org.jboss.logging.Logger;
-
 import at.tfr.securefs.Configuration;
 import at.tfr.securefs.Role;
-import at.tfr.securefs.api.Constants;
 import at.tfr.securefs.api.Constants.Property;
 import at.tfr.securefs.beans.Logging;
 import at.tfr.securefs.cache.ClusterState;
@@ -50,6 +20,27 @@ import at.tfr.securefs.event.SecureFsMonitor;
 import at.tfr.securefs.process.PreprocessorBean;
 import at.tfr.securefs.service.RevokedKeysBean;
 import at.tfr.securefs.service.SecretBean;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.annotation.security.RunAs;
+import jakarta.ejb.DependsOn;
+import jakarta.ejb.Schedule;
+import jakarta.ejb.Singleton;
+import jakarta.ejb.Startup;
+import jakarta.enterprise.event.Observes;
+import jakarta.faces.model.CollectionDataModel;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import org.apache.commons.collections.KeyValue;
+import org.apache.commons.collections.keyvalue.DefaultKeyValue;
+import org.jboss.logging.Logger;
+import org.primefaces.event.TabChangeEvent;
+
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Named
 @Startup
@@ -153,6 +144,24 @@ public class StatusMonitor {
 	public CollectionDataModel<UiState> getClusterStates() {
 		updateUiStates();
 		return new CollectionDataModel<UiState>(uiStates.values());
+	}
+
+	public void onStatusTabChange(TabChangeEvent event) {
+		if (event != null && event.getTab() != null) {
+			if (event.getData() instanceof UiState) {
+				UiState us = (UiState) event.getData();
+				us.setCollapsed(!us.isCollapsed());
+			}
+		}
+	}
+	public String getActiveStatusIndex() {
+
+		List<Integer> indexes = new ArrayList<>();
+		List<String> locations = new ArrayList<>(uiStates.keySet());
+		for (int i=0; i< uiStates.size(); i++) {
+			if (!uiStates.get(locations.get(i)).isCollapsed()) indexes.add(i);
+		}
+		return indexes.toString();
 	}
 	
 	private void updateUiStates() {

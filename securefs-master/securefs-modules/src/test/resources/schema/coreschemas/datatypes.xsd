@@ -12,11 +12,10 @@ History:
 *******************************************************************************
 -->
 <xs:schema
-	xmlns:hl7v3="urn:hl7-org:v3"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:sch="http://www.ascc.net/xml/schematron"
-	targetNamespace="urn:hl7-org:v3"
-	elementFormDefault="qualified">
+    xmlns:hl7v3="urn:hl7-org:v3"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="urn:hl7-org:v3"
+    elementFormDefault="qualified">
 
 	<xs:annotation>
 		<xs:documentation>

@@ -6,17 +6,16 @@
  */
 package at.tfr.securefs.xnio;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-
+import at.tfr.securefs.api.Constants;
+import at.tfr.securefs.api.json.Message;
+import at.tfr.securefs.api.json.Message.MessageType;
 import org.jboss.logging.Logger;
 import org.xnio.ChannelListener;
 import org.xnio.IoUtils;
 import org.xnio.channels.StreamSourceChannel;
 
-import at.tfr.securefs.api.Constants;
-import at.tfr.securefs.api.json.Message;
-import at.tfr.securefs.api.json.Message.MessageType;
+import java.io.IOException;
+import java.nio.ByteBuffer;
 
 public abstract class SecureChannelWriterBase implements ChannelListener<StreamSourceChannel> {
 

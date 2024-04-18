@@ -6,18 +6,17 @@
  */
 package modules;
 
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import org.jboss.logging.Logger;
-import org.junit.Test;
-
 import at.tfr.securefs.Configuration;
 import at.tfr.securefs.api.module.ModuleConfiguration;
 import at.tfr.securefs.api.module.ModuleException;
 import at.tfr.securefs.module.validation.CdataProhibitedModule;
 import at.tfr.securefs.module.validation.SchemaValidationModule;
+import org.jboss.logging.Logger;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class ValidationTest {
 

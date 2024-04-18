@@ -6,11 +6,10 @@
  */
 package at.tfr.securefs.rs;
 
-import java.io.Serializable;
-
-import javax.xml.bind.annotation.XmlRootElement;
-
 import at.tfr.securefs.cache.ClusterState;
+import jakarta.xml.bind.annotation.XmlRootElement;
+
+import java.io.Serializable;
 
 @XmlRootElement
 @SuppressWarnings("serial")

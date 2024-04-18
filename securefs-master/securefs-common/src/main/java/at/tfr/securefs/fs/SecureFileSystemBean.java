@@ -6,40 +6,6 @@
  */
 package at.tfr.securefs.fs;
 
-import java.io.IOException;
-import java.nio.file.AccessMode;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.OpenOption;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.WatchService;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.nio.file.attribute.FileAttribute;
-import java.nio.file.attribute.FileAttributeView;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.annotation.Resource;
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.DependsOn;
-import javax.ejb.Remote;
-import javax.ejb.Remove;
-import javax.ejb.SessionContext;
-import javax.ejb.Stateful;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.inject.Inject;
-
-import org.jboss.annotation.ejb.cache.simple.CacheConfig;
-import org.jboss.logging.Logger;
-
 import at.tfr.securefs.Configuration;
 import at.tfr.securefs.Role;
 import at.tfr.securefs.api.SecureFSIOException;
@@ -52,6 +18,25 @@ import at.tfr.securefs.event.Events;
 import at.tfr.securefs.event.SecfsEventType;
 import at.tfr.securefs.event.SecureFsFile;
 import at.tfr.securefs.service.CrypterProvider;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.annotation.Resource;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.ejb.*;
+import jakarta.inject.Inject;
+import org.jboss.annotation.ejb.cache.simple.CacheConfig;
+import org.jboss.logging.Logger;
+
+import java.io.IOException;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.FileAttributeView;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 /**
  *

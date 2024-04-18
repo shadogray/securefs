@@ -6,6 +6,13 @@
  */
 package at.tfr.securefs.client;
 
+import at.tfr.securefs.client.ws.FileService;
+import jakarta.xml.ws.BindingProvider;
+import org.apache.commons.cli.*;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.joda.time.DateTime;
+
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -17,20 +24,6 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-import javax.xml.ws.BindingProvider;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.joda.time.DateTime;
-
-import at.tfr.securefs.client.ws.FileService;
 
 /**
  *

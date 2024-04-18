@@ -6,11 +6,11 @@
  */
 package at.tfr.securefs.api.json;
 
+import jakarta.xml.bind.annotation.XmlRootElement;
+
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-
-import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
 public class Message implements Serializable {

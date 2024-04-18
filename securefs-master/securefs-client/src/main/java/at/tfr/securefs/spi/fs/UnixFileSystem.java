@@ -39,14 +39,14 @@ import java.util.regex.Pattern;
 abstract class UnixFileSystem extends FileSystem {
 
     private final FileSystemProvider provider;
-    private final byte[] defaultDirectory;
+    private final String defaultDirectory;
     protected final UnixPath rootDirectory;
 
     // package-private
     UnixFileSystem(FileSystemProvider provider, String dir) {
         this.provider = provider;
-        this.defaultDirectory = Util.toBytes(UnixPath.normalizeAndCheck(dir));
-        if (this.defaultDirectory[0] != '/') {
+        this.defaultDirectory = UnixPath.normalizeAndCheck(dir);
+        if (!this.defaultDirectory.startsWith("/")) {
             throw new RuntimeException("default directory must be absolute");
         }
 
@@ -55,7 +55,7 @@ abstract class UnixFileSystem extends FileSystem {
     }
 
     // package-private
-    byte[] defaultDirectory() {
+    String defaultDirectory() {
         return defaultDirectory;
     }
 

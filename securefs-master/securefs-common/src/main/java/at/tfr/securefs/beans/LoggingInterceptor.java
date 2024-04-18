@@ -1,14 +1,15 @@
 package at.tfr.securefs.beans;
 
-import java.util.Arrays;
-
-import javax.interceptor.AroundInvoke;
-import javax.interceptor.Interceptor;
-import javax.interceptor.InvocationContext;
-
+import jakarta.annotation.Priority;
+import jakarta.interceptor.AroundInvoke;
+import jakarta.interceptor.Interceptor;
+import jakarta.interceptor.InvocationContext;
 import org.jboss.logging.Logger;
 
+import java.util.Arrays;
+
 @Interceptor
+@Priority(Interceptor.Priority.APPLICATION)
 @Logging
 public class LoggingInterceptor {
 

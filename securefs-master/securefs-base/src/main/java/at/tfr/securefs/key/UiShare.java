@@ -6,9 +6,9 @@
  */
 package at.tfr.securefs.key;
 
-import java.io.Serializable;
-
 import org.apache.commons.lang3.StringUtils;
+
+import java.io.Serializable;
 
 @SuppressWarnings("serial")
 public class UiShare implements Serializable {
@@ -83,9 +83,11 @@ public class UiShare implements Serializable {
 	}
 	
 	public UiShare toReal() {
-		realShare = share;
-		if (realShare != null) {
-			this.share = SHIELD;
+		if (!SHIELD.equals(share)) {
+			realShare = share;
+			if (realShare != null) {
+				this.share = SHIELD;
+			}
 		}
 		return this;
 	}

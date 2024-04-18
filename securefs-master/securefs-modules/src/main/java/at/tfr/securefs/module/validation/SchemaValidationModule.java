@@ -6,32 +6,30 @@
  */
 package at.tfr.securefs.module.validation;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import javax.annotation.PostConstruct;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.inject.Inject;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
-
-import org.apache.commons.lang3.StringUtils;
-import org.w3c.dom.ls.DOMImplementationLS;
-import org.xml.sax.SAXParseException;
-
 import at.tfr.securefs.Configuration;
 import at.tfr.securefs.api.module.ModuleConfiguration;
 import at.tfr.securefs.api.module.ModuleException;
 import at.tfr.securefs.api.module.ModuleResult;
 import at.tfr.securefs.api.module.ServiceModule;
+import jakarta.annotation.PostConstruct;
+import jakarta.ejb.Stateless;
+import jakarta.ejb.TransactionManagement;
+import jakarta.ejb.TransactionManagementType;
+import jakarta.inject.Inject;
+import org.apache.commons.lang3.StringUtils;
+import org.w3c.dom.ls.DOMImplementationLS;
+import org.xml.sax.SAXParseException;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Stateless
 @TransactionManagement(TransactionManagementType.BEAN)

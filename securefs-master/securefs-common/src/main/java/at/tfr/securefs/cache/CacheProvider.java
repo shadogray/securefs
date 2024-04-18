@@ -6,23 +6,22 @@
  */
 package at.tfr.securefs.cache;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.annotation.Resource;
-import javax.ejb.Singleton;
-import javax.enterprise.inject.Produces;
-import javax.inject.Inject;
-
+import at.tfr.securefs.annotation.SecureFs;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.annotation.Resource;
+import jakarta.ejb.Singleton;
+import jakarta.enterprise.inject.Produces;
+import jakarta.inject.Inject;
 import org.infinispan.AdvancedCache;
 import org.infinispan.Cache;
+import org.infinispan.commons.api.BasicCache;
+import org.infinispan.commons.dataconversion.MediaType;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
-import org.infinispan.context.Flag;
 import org.infinispan.manager.EmbeddedCacheManager;
 import org.jboss.logging.Logger;
-
-import at.tfr.securefs.annotation.SecureFs;
 
 @Singleton
 public class CacheProvider {
@@ -43,22 +42,30 @@ public class CacheProvider {
 	
 	@PostConstruct
 	private void init() {
-		cacheName = configuration.getCacheName();
-		Configuration cfg = new ConfigurationBuilder()
-				.clustering().cacheMode(CacheMode.REPL_ASYNC)
-				.stateTransfer().async()
-				.persistence().passivation(false)
-				.storeAsBinary().enable().storeValuesAsBinary(true)
-				.build();
-		cacheManager.defineConfiguration(cacheName, cfg);
-		Cache<String,Object> baseCache = cacheManager.getCache(cacheName, true);
-		cache = baseCache.getAdvancedCache()
-			.with(Thread.currentThread().getContextClassLoader())
-			.withFlags(Flag.SKIP_REMOTE_LOOKUP, Flag.IGNORE_RETURN_VALUES);
-		cache.addListener(cacheListener);
-		cache.getCacheManager().addListener(topologyListener);
+		try {
+			cacheName = configuration.getCacheName();
+			BasicCache<String, Object> baseCache;
+			if (!cacheManager.cacheExists(cacheName)) {
+				Configuration cfg = new ConfigurationBuilder()
+						.encoding().mediaType(MediaType.APPLICATION_OBJECT)
+						.clustering().cacheMode(CacheMode.REPL_ASYNC)
+						.stateTransfer().awaitInitialTransfer(true).fetchInMemoryState(true)
+						.persistence().passivation(false)
+						.build();
+				baseCache = cacheManager.createCache(cacheName, cfg);
+			} else {
+				baseCache = cacheManager.getCache(cacheName);
+			}
+			cache = (AdvancedCache<String, Object>) baseCache;
+			//cache.withFlags(Flag.SKIP_REMOTE_LOOKUP, Flag.IGNORE_RETURN_VALUES);
+			cache.addListener(cacheListener);
+			cache.getCacheManager().addListener(topologyListener);
+		} catch (Exception e) {
+			log.warn("cannot crate cache: " + e);
+			log.debug("cannot crate cache: " + e, e);
+		}
 	}
-	
+
 	@Produces
 	@SecureFs
 	public Cache<String, Object> getSecureFsCache() {

@@ -6,17 +6,29 @@
  */
 package at.tfr.securefs.key;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import com.tiemens.secretshare.engine.SecretShare;
 import com.tiemens.secretshare.engine.SecretShare.PublicInfo;
 import com.tiemens.secretshare.engine.SecretShare.ShareInfo;
 import com.tiemens.secretshare.math.BigIntUtilities;
 
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.stream.Stream;
+
 public class Shamir {
+
+	public BigInteger combine(int nrOfShares, int threshold, BigInteger modulus, String[] shares) {
+		List<UiShare> uiShares = new ArrayList<>();
+		Stream.of(shares).forEach(s -> {
+			String[] parts = s.split(":");
+			UiShare share = new UiShare(Integer.valueOf(parts[0]), parts[1]);
+			share.toReal();
+			uiShares.add(share);
+		});
+		return combine(nrOfShares, threshold, modulus, uiShares);
+	}
 
 	public BigInteger combine(int nrOfShares, int threshold, BigInteger modulus, List<UiShare> shares) {
 		List<ShareInfo> shareInfos = new ArrayList<>();

@@ -6,18 +6,12 @@
  */
 package at.tfr.securefs.event;
 
-import javax.annotation.security.PermitAll;
-import javax.annotation.security.RunAs;
-import javax.ejb.Asynchronous;
-import javax.ejb.ConcurrencyManagement;
-import javax.ejb.ConcurrencyManagementType;
-import javax.ejb.Stateless;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.enterprise.event.Event;
-import javax.inject.Inject;
-
 import at.tfr.securefs.Role;
+import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RunAs;
+import jakarta.ejb.*;
+import jakarta.enterprise.event.Event;
+import jakarta.inject.Inject;
 
 @Stateless
 @PermitAll

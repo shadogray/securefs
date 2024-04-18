@@ -1,11 +1,11 @@
 package at.tfr.securefs.process;
 
+import at.tfr.securefs.data.ProcessFilesData;
+import at.tfr.securefs.service.CrypterProvider;
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.file.Path;
-
-import at.tfr.securefs.data.ProcessFilesData;
-import at.tfr.securefs.service.CrypterProvider;
 
 public interface ProcessFiles {
 

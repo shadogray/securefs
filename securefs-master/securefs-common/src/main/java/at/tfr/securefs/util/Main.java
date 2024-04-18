@@ -6,11 +6,17 @@
  */
 package at.tfr.securefs.util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
+import at.tfr.securefs.Configuration;
+import at.tfr.securefs.key.KeyConstants;
+import at.tfr.securefs.key.SecretKeySpecBean;
+import at.tfr.securefs.key.Shamir;
+import at.tfr.securefs.key.UiShare;
+import at.tfr.securefs.service.SecretBean;
+import org.apache.commons.io.IOUtils;
+
+import javax.crypto.Cipher;
+import javax.crypto.CipherOutputStream;
+import java.io.*;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URL;
@@ -18,18 +24,6 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-
-import javax.crypto.Cipher;
-import javax.crypto.CipherOutputStream;
-
-import org.apache.commons.io.IOUtils;
-
-import at.tfr.securefs.Configuration;
-import at.tfr.securefs.key.KeyConstants;
-import at.tfr.securefs.key.SecretKeySpecBean;
-import at.tfr.securefs.key.Shamir;
-import at.tfr.securefs.key.UiShare;
-import at.tfr.securefs.service.SecretBean;
 
 public class Main {
 
@@ -69,7 +63,7 @@ public class Main {
 
 		secret = new Shamir().combine(nrOfShares, threshold, modulus, shares);
 		
-		secretBean.setSecret(secret);
+		secretBean.setSecret(secret, true);
 		Path filePath = basePath.resolve(file);
 
 		cipher = sksBean.getCipher(configuration.getSalt(), mode);

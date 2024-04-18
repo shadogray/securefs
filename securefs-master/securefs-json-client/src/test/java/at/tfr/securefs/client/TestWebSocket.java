@@ -6,24 +6,22 @@
  */
 package at.tfr.securefs.client;
 
-import at.tfr.securefs.Configuration;
 import at.tfr.securefs.api.json.Message;
 import at.tfr.securefs.api.json.Message.MessageType;
 import at.tfr.securefs.api.json.MessageSender;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.java_websocket.client.WebSocketClient;
+import org.java_websocket.handshake.ServerHandshake;
+import org.jboss.logging.Logger;
+import org.junit.Ignore;
+import org.junit.Test;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import org.java_websocket.client.WebSocketClient;
-import org.java_websocket.handshake.ServerHandshake;
-import org.jboss.logging.Logger;
-import org.junit.Test;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Ignore;
 
 public class TestWebSocket {
 
@@ -50,7 +48,6 @@ public class TestWebSocket {
         private Path basePath;
         private Message m;
         private ObjectMapper om = new ObjectMapper();
-        private Configuration configuration = new Configuration();
         private MessageSender messageSender = new TestMessageSender();
 
         private ClientMessageHandlerImpl messageHandler = new ClientMessageHandlerImpl("./", om, messageSender);
@@ -62,20 +59,19 @@ public class TestWebSocket {
             super(uri);
             this.m = m;
             this.basePath = basePath;
-            configuration.setBasePath(basePath);
         }
 
         @Override
         public void onOpen(ServerHandshake handshakedata) {
             System.out.println("onOpen: handshake=" + handshakedata);
             try {
-                InputStream is = Files.newInputStream(configuration.getBasePath().resolve(path));
+                InputStream is = Files.newInputStream(basePath.resolve(path));
                 messageHandler.write(is, path);
 
                 Thread.sleep(2000);
 
                 String outPath = path + ".out";
-                OutputStream os = Files.newOutputStream(configuration.getBasePath().resolve(outPath));
+                OutputStream os = Files.newOutputStream(basePath.resolve(outPath));
                 messageHandler.read(os, path);
 
             } catch (Exception e) {

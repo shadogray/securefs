@@ -9,11 +9,12 @@
 	<parent>
 		<groupId>at.tfr.securefs</groupId>
 		<artifactId>securefs-master</artifactId>
-		<version>true</version>
+		<version>2.0.1.Final</version>
 	</parent>
 
 	<artifactId>securefs</artifactId>
 	<packaging>war</packaging>
+	<version>2.0.1.Final</version>
 
 	<name>securefs</name>
 
@@ -26,15 +27,8 @@
 
 		<!-- Common to JEE and Servlet containers -->
 		<dependency>
-			<groupId>javax</groupId>
-			<artifactId>javaee-api</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.sun.faces</groupId>
-			<artifactId>jsf-api</artifactId>
-			<version>${mojarra.version}</version>
-			<scope>provided</scope>
+			<groupId>jakarta.platform</groupId>
+			<artifactId>jakarta.jakartaee-api</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.tiemens</groupId>
@@ -48,28 +42,14 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.jboss.resteasy</groupId>
-			<artifactId>async-http-servlet-3.0</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>javax.validation</groupId>
-			<artifactId>validation-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.jboss.resteasy</groupId>
-			<artifactId>resteasy-jaxrs</artifactId>
-			<scope>test</scope>
+			<groupId>jakarta.validation</groupId>
+			<artifactId>jakarta.validation-api</artifactId>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.jboss.resteasy</groupId>
 			<artifactId>resteasy-jackson2-provider</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.richfaces</groupId>
-			<artifactId>richfaces</artifactId>
-			<version>4.5.12.Final</version>
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
@@ -95,18 +75,19 @@
 			<artifactId>commons-collections</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.infinispan</groupId>
-			<artifactId>infinispan-core</artifactId>
+			<groupId>org.primefaces</groupId>
+			<artifactId>primefaces</artifactId>
+			<classifier>jakarta</classifier>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-bundle</artifactId>
+			<artifactId>cxf-core</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.jboss.ws.cxf</groupId>
-			<artifactId>jbossws-cxf-transports-httpserver</artifactId>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-transports-http</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -130,18 +111,14 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.java-websocket</groupId>
-			<artifactId>Java-WebSocket</artifactId>
+			<groupId>org.wildfly</groupId>
+			<artifactId>wildfly-client-all</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>jboss</groupId>
-			<artifactId>jboss-client</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.jboss</groupId>
-			<artifactId>jboss-remote-naming</artifactId>
+			<groupId>org.wildfly</groupId>
+			<artifactId>wildfly-naming</artifactId>
+			<version>${wildfly.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -161,11 +138,13 @@
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>2.3.1</version>
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
 				</configuration>
+			</plugin>
+			<plugin>
+					<artifactId>maven-war-plugin</artifactId>
 			</plugin>
 		</plugins>
 	</build>

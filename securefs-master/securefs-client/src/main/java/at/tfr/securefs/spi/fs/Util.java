@@ -27,11 +27,8 @@ package at.tfr.securefs.spi.fs;
 
 import java.nio.charset.Charset;
 import java.nio.file.LinkOption;
-import java.security.AccessController;
 import java.util.HashSet;
 import java.util.Set;
-
-import sun.security.action.GetPropertyAction;
 
 /**
  * Utility methods
@@ -40,8 +37,7 @@ import sun.security.action.GetPropertyAction;
 class Util {
     private Util() { }
 
-    private static final Charset jnuEncoding = Charset.forName(
-        AccessController.doPrivileged(new GetPropertyAction("sun.jnu.encoding")));
+    private static final Charset jnuEncoding = Charset.forName("UTF8");
 
     /**
      * Returns {@code Charset} corresponding to the sun.jnu.encoding property

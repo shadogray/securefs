@@ -6,21 +6,20 @@
  */
 package at.tfr.securefs.module.validation;
 
+import at.tfr.securefs.api.module.ModuleConfiguration;
+import at.tfr.securefs.api.module.ModuleException;
+import at.tfr.securefs.api.module.ModuleResult;
+import at.tfr.securefs.api.module.ServiceModule;
+import jakarta.ejb.Stateless;
+import jakarta.ejb.TransactionManagement;
+import jakarta.ejb.TransactionManagementType;
+
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Scanner;
-
-import javax.ejb.Stateless;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-
-import at.tfr.securefs.api.module.ModuleConfiguration;
-import at.tfr.securefs.api.module.ModuleException;
-import at.tfr.securefs.api.module.ModuleResult;
-import at.tfr.securefs.api.module.ServiceModule;
 
 @Stateless
 @TransactionManagement(TransactionManagementType.BEAN)

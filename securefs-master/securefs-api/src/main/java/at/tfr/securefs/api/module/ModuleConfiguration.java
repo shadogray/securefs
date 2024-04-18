@@ -6,6 +6,10 @@
  */
 package at.tfr.securefs.api.module;
 
+import at.tfr.securefs.api.Constants.Property;
+import org.apache.commons.io.IOUtils;
+import org.jboss.logging.Logger;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -13,17 +17,9 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import org.apache.commons.io.IOUtils;
-import org.jboss.logging.Logger;
-
-import at.tfr.securefs.api.Constants.Property;
 
 public class ModuleConfiguration implements Serializable {
 

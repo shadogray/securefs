@@ -6,21 +6,18 @@
  */
 package at.tfr.securefs;
 
-import java.nio.charset.Charset;
+import at.tfr.securefs.api.Constants;
+import at.tfr.securefs.api.Constants.Property;
+import at.tfr.securefs.api.module.ModuleConfiguration;
+import junit.framework.Assert;
+import org.junit.Test;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Properties;
 import java.util.stream.Collectors;
-
-import org.apache.commons.io.IOUtils;
-import org.junit.Test;
-
-import at.tfr.securefs.api.Constants;
-import at.tfr.securefs.api.Constants.Property;
-import at.tfr.securefs.api.module.ModuleConfiguration;
-import junit.framework.Assert;
 
 public class ConfigurationTest {
 
@@ -76,6 +73,10 @@ public class ConfigurationTest {
 		Assert.assertEquals(3, test222.getProperties().size());
 		Assert.assertEquals(test222.getProperties().getProperty("someProp"), "someValue");
 		Assert.assertEquals(test222.getProperties().getProperty("lastValue"), "end");
+
+		// read shares:
+		Assert.assertNotNull("Failed to read shares", config.getShares());
+
 	}
 
 	@Test
@@ -109,7 +110,6 @@ public class ConfigurationTest {
 		// use inverted pattern: apply to XML!!
 		config.getProperties().put(Property.ignoreFileContentRegex.name(), "something;!(?is)^< *\\? *xml.*");
 		Assert.assertTrue(config.isContentApplicable(testContent));
-
 	}
 
 	

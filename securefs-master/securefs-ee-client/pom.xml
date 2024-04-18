@@ -9,10 +9,11 @@
 	<parent>
 		<groupId>at.tfr.securefs</groupId>
 		<artifactId>securefs-master</artifactId>
-		<version>true</version>
+		<version>2.0.1.Final</version>
 	</parent>
 	<artifactId>securefs-ee-client</artifactId>
 	<packaging>war</packaging>
+	<version>2.0.1.Final</version>
 	<name>securefs-ee-client</name>
 	<description>simple SecureFS FileSystem test client</description>
 
@@ -28,19 +29,12 @@
 		</dependency>
 
 		<dependency>
-			<groupId>javax</groupId>
-			<artifactId>javaee-api</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		
-		<dependency>
-			<groupId>org.wildfly</groupId>
-			<artifactId>wildfly-ejb3</artifactId>
-			<version>10.0.0.Final</version>
-			<scope>test</scope>
+			<groupId>jakarta.platform</groupId>
+			<artifactId>jakarta.jakartaee-api</artifactId>
 		</dependency>
 		
 	</dependencies>
+
 	<build>
 		<finalName>securefs-ee-client</finalName>
 		<plugins>

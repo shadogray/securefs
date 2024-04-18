@@ -6,6 +6,12 @@
  */
 package at.tfr.securefs.spi.fs;
 
+import at.tfr.securefs.api.SecureFileSystemItf;
+import at.tfr.securefs.spi.SecureFileSystemConstants;
+
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.file.FileSystemNotFoundException;
@@ -13,13 +19,6 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-
-import at.tfr.securefs.api.SecureFileSystemItf;
-import at.tfr.securefs.spi.SecureFileSystemConstants;
 
 /**
  *

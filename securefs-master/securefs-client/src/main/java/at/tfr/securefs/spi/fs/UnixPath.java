@@ -32,13 +32,7 @@ import java.nio.CharBuffer;
 import java.nio.charset.CharsetEncoder;
 import java.nio.charset.CoderResult;
 import java.nio.charset.CodingErrorAction;
-import java.nio.file.InvalidPathException;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
-import java.nio.file.ProviderMismatchException;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
+import java.nio.file.*;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -837,7 +831,7 @@ class UnixPath extends AbstractPath {
             sm.checkPropertyAccess("user.dir");
         }
         return new UnixPath(getFileSystem(),
-                resolve(getFileSystem().defaultDirectory(), path));
+                resolve(Util.toBytes(getFileSystem().defaultDirectory()), path));
     }
 
     @Override

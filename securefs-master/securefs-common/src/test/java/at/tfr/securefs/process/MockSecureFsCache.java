@@ -1,8 +1,8 @@
 package at.tfr.securefs.process;
 
-import java.io.Serializable;
-
 import at.tfr.securefs.cache.SecureFsCache;
+
+import java.io.Serializable;
 
 public class MockSecureFsCache implements SecureFsCache {
 

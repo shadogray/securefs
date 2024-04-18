@@ -6,14 +6,13 @@
  */
 package at.tfr.securefs.ui.authentication;
 
-import java.security.Principal;
-
-import javax.annotation.Resource;
-import javax.ejb.SessionContext;
-import javax.ejb.Stateless;
-import javax.enterprise.inject.Produces;
-
 import at.tfr.securefs.annotation.SecureFs;
+import jakarta.annotation.Resource;
+import jakarta.ejb.SessionContext;
+import jakarta.ejb.Stateless;
+import jakarta.enterprise.inject.Produces;
+
+import java.security.Principal;
 
 @Stateless
 public class UserProvider {

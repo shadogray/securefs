@@ -6,6 +6,9 @@
  */
 package at.tfr.securefs.spi.fs;
 
+import at.tfr.securefs.api.SecureFileSystemItf;
+
+import javax.naming.NamingException;
 import java.io.IOException;
 import java.nio.file.FileStore;
 import java.nio.file.Path;
@@ -18,10 +21,6 @@ import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
-import javax.naming.NamingException;
-
-import at.tfr.securefs.api.SecureFileSystemItf;
 
 /**
  *

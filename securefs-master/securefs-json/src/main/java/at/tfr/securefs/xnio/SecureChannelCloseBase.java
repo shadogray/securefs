@@ -8,7 +8,6 @@ package at.tfr.securefs.xnio;
 
 import at.tfr.securefs.api.json.Message;
 import at.tfr.securefs.api.json.Message.MessageType;
-
 import org.xnio.ChannelListener;
 import org.xnio.channels.StreamSourceChannel;
 

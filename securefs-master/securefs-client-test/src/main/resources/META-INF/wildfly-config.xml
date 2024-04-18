@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- see: https://github.com/wildfly/quickstart/blob/main/ejb-remote/src/test/resources/META-INF/wildfly-config.xml -->
+<configuration>
+    <authentication-client xmlns="urn:elytron:1.0">
+        <authentication-rules>
+            <rule use-configuration="default" />
+        </authentication-rules>
+        <authentication-configurations>
+            <configuration name="default">
+                <sasl-mechanism-selector selector="#ALL" />
+                <set-mechanism-properties>
+                    <property key="wildfly.sasl.local-user.quiet-auth" value="true" />
+                </set-mechanism-properties>
+                <providers>
+                    <use-service-loader/>
+                </providers>
+                <!-- Used for EJB over HTTP, remoting invocations will use transparent auth-->
+                <set-user-name name="user" />
+                <credentials>
+                    <clear-password password="User0815!" />
+                </credentials>
+            </configuration>
+        </authentication-configurations>
+    </authentication-client>
+</configuration>

@@ -8,14 +8,15 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>at.tfr.securefs</groupId>
 	<artifactId>securefs-master</artifactId>
-	<version>true</version>
+	<version>2.0.1.Final</version>
 	<packaging>pom</packaging>
 	<properties>
+		<wildfly.version>31.0.1.Final</wildfly.version>
 		<weld-servlet.version>1.1.0.Final</weld-servlet.version>
 		<arquillian.version>1.0.0.Alpha4</arquillian.version>
 		<mojarra.version>2.2.1</mojarra.version>
-		<infinispan.version>8.1.0.Final</infinispan.version>
-		<undertow.version>1.3.15.Final</undertow.version>
+		<infinispan.version>14.0.24.Final</infinispan.version>
+		<undertow.version>2.3.12.Final</undertow.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
@@ -41,6 +42,11 @@
 			</dependency>
 			<dependency>
 				<groupId>at.tfr.securefs</groupId>
+				<artifactId>securefs-json</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>at.tfr.securefs</groupId>
 				<artifactId>securefs-client</artifactId>
 				<version>${project.version}</version>
 			</dependency>
@@ -51,54 +57,65 @@
 			</dependency>
 
 			<dependency>
+				<groupId>com.tiemens</groupId>
+				<artifactId>secretshare</artifactId>
+				<version>1.4.2</version>
+			</dependency>
+			<dependency>
 				<groupId>org.wildfly.bom</groupId>
-				<artifactId>wildfly-javaee7</artifactId>
-				<version>10.0.0.Final</version>
+				<artifactId>wildfly-ee</artifactId>
+				<version>${wildfly.version}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
 			<dependency>
-				<groupId>javax</groupId>
-				<artifactId>javaee-api</artifactId>
-				<version>7.0</version>
+				<groupId>org.wildfly</groupId>
+				<artifactId>wildfly-clustering-infinispan</artifactId>
+				<version>${wildfly.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.wildfly</groupId>
+				<artifactId>wildfly-client-all</artifactId>
+				<version>${wildfly.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.wildfly</groupId>
+				<artifactId>wildfly-naming</artifactId>
+				<version>${wildfly.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>jakarta.platform</groupId>
+				<artifactId>jakarta.jakartaee-api</artifactId>
+				<version>10.0.0</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-				<groupId>org.jboss.logging</groupId>
-				<artifactId>jboss-logging</artifactId>
-				<version>3.1.4.GA</version>
+				<groupId>io.undertow</groupId>
+				<artifactId>undertow-core</artifactId>
+				<version>${undertow.version}</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-			        <groupId>io.undertow</groupId>
-			        <artifactId>undertow-core</artifactId>
-			        <version>${undertow.version}</version>
+				<groupId>io.undertow</groupId>
+				<artifactId>undertow-servlet</artifactId>
+				<version>${undertow.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
-			        <groupId>io.undertow</groupId>
-			        <artifactId>undertow-servlet</artifactId>
-			        <version>${undertow.version}</version>
-			</dependency>
-			<dependency>
-			        <groupId>io.undertow</groupId>
-			        <artifactId>undertow-websockets-jsr</artifactId>
-			        <version>${undertow.version}</version>
+				<groupId>io.undertow</groupId>
+				<artifactId>undertow-websockets-jsr</artifactId>
+				<version>${undertow.version}</version>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.jboss.xnio</groupId>
 				<artifactId>xnio-nio</artifactId>
-				<version>3.3.2.Final</version>
-			</dependency>
-			<dependency>
-				<groupId>org.infinispan</groupId>
-				<artifactId>infinispan-core</artifactId>
-				<version>${infinispan.version}</version>
+				<version>3.8.13.Final</version>
 				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.infinispan</groupId>
-				<artifactId>infinispan-cdi</artifactId>
-				<version>8.0.2.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>commons-io</groupId>
@@ -125,17 +142,44 @@
 				<artifactId>commons-configuration2</artifactId>
 				<version>2.0</version>
 			</dependency>
+			<dependency>
+				<groupId>jakarta.websocket</groupId>
+				<artifactId>jakarta.websocket-client-api</artifactId>
+				<version>2.1.1</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>xerces</groupId>
+				<artifactId>xercesImpl</artifactId>
+				<version>2.12.2</version>
+			</dependency>
+			<dependency>
+				<groupId>xalan</groupId>
+				<artifactId>xalan</artifactId>
+				<version>2.7.3</version>
+			</dependency>
+			<dependency>
+				<groupId>xalan</groupId>
+				<artifactId>serializer</artifactId>
+				<version>2.7.3</version>
+			</dependency>
+			<dependency>
+				<groupId>org.primefaces</groupId>
+				<artifactId>primefaces</artifactId>
+				<classifier>jakarta</classifier>
+				<version>13.0.7</version>
+			</dependency>
 
 			<dependency>
 				<groupId>org.apache.cxf</groupId>
-				<artifactId>cxf-bundle</artifactId>
-				<version>2.7.11</version>
+				<artifactId>cxf-core</artifactId>
+				<version>4.0.4</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
-				<groupId>org.jboss.ws.cxf</groupId>
-				<artifactId>jbossws-cxf-transports-httpserver</artifactId>
-				<version>4.2.4.Final</version>
+				<groupId>org.apache.cxf</groupId>
+				<artifactId>cxf-rt-transports-http</artifactId>
+				<version>4.0.4</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
@@ -147,31 +191,7 @@
 			<dependency>
 				<groupId>org.jboss.resteasy</groupId>
 				<artifactId>resteasy-client</artifactId>
-				<version>3.0.13.Final</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.java-websocket</groupId>
-				<artifactId>Java-WebSocket</artifactId>
-				<version>1.3.0</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>jboss</groupId>
-				<artifactId>jboss-client</artifactId>
-				<version>4.0.2</version>
-				<exclusions>
-					<exclusion>
-						<groupId>org.jboss.xnio</groupId>
-						<artifactId>xnio-nio</artifactId>
-					</exclusion>
-				</exclusions>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.jboss</groupId>
-				<artifactId>jboss-remote-naming</artifactId>
-				<version>2.0.4.Final</version>
+				<version>6.2.8.Final</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
@@ -190,26 +210,77 @@
 		</dependencies>
 	</dependencyManagement>
 
-	<modules>
-		<module>securefs-api</module>
-		<module>securefs-base</module>
-		<module>securefs-common</module>
-		<module>securefs</module>
-		<module>securefs-client</module>
-		<module>securefs-json</module>
-		<module>securefs-modules</module>
-		<module>securefs-ee-client</module>
-		<module>securefs-scan</module>
-		<module>securefs-client-test</module>
-		<!--<module>securefs-json-client</module> -->
-	</modules>
+	<profiles>
+		<profile>
+			<id>development</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<modules>
+				<module>securefs-api</module>
+				<module>securefs-base</module>
+				<module>securefs-common</module>
+				<module>securefs</module>
+				<module>securefs-client</module>
+				<module>securefs-json</module>
+				<module>securefs-modules</module>
+				<module>securefs-ee-client</module>
+				<module>securefs-scan</module>
+			</modules>
+		</profile>
+		<profile>
+			<id>integration</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<modules>
+				<module>securefs-api</module>
+				<module>securefs-base</module>
+				<module>securefs-common</module>
+				<module>securefs</module>
+				<module>securefs-client</module>
+				<module>securefs-json</module>
+				<module>securefs-modules</module>
+				<module>securefs-ee-client</module>
+				<module>securefs-scan</module>
+				<module>securefs-client-test</module>
+				<module>securefs-json-client</module>
+			</modules>
+		</profile>
+	</profiles>
 
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.13.0</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>3.3.0</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-war-plugin</artifactId>
+					<version>3.4.0</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
 	<reporting>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.3.0</version>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.10.4</version>
+				<version>3.6.3</version>
 				<configuration>
 					<additionalparam>-Xdoclint:none</additionalparam>
 				</configuration>

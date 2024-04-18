@@ -6,10 +6,10 @@
  */
 package at.tfr.securefs.api.module;
 
+import jakarta.ejb.Remote;
+
 import java.io.IOException;
 import java.io.InputStream;
-
-import javax.ejb.Remote;
 
 @Remote
 public interface ServiceModule {

@@ -6,14 +6,12 @@
  */
 package at.tfr.securefs.module.validation;
 
-import java.nio.file.Path;
-
-import javax.inject.Inject;
-
-import org.jboss.logging.Logger;
-
 import at.tfr.securefs.Configuration;
 import at.tfr.securefs.api.module.ModuleStatistics;
+import jakarta.inject.Inject;
+import org.jboss.logging.Logger;
+
+import java.nio.file.Path;
 
 public class ModuleBase {
 

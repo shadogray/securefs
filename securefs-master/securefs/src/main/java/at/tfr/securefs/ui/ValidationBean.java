@@ -6,25 +6,6 @@
  */
 package at.tfr.securefs.ui;
 
-import java.io.IOException;
-import java.math.BigInteger;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.DependsOn;
-import javax.ejb.Singleton;
-import javax.enterprise.event.Observes;
-import javax.faces.model.DataModel;
-import javax.faces.model.ListDataModel;
-import javax.inject.Inject;
-import javax.inject.Named;
-
-import org.apache.commons.lang.StringUtils;
-import org.jboss.logging.Logger;
-
 import at.tfr.securefs.Configuration;
 import at.tfr.securefs.Role;
 import at.tfr.securefs.beans.Audit;
@@ -39,6 +20,23 @@ import at.tfr.securefs.key.UiShare;
 import at.tfr.securefs.service.RevokedKeysBean;
 import at.tfr.securefs.service.SecretBean;
 import at.tfr.securefs.ui.util.UI;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.ejb.DependsOn;
+import jakarta.ejb.Singleton;
+import jakarta.enterprise.event.Observes;
+import jakarta.faces.model.DataModel;
+import jakarta.faces.model.ListDataModel;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
+import org.apache.commons.lang.StringUtils;
+import org.jboss.logging.Logger;
+
+import java.io.IOException;
+import java.math.BigInteger;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Named
 @Singleton
@@ -189,7 +187,7 @@ public class ValidationBean {
 	public String activate() {
 		try {
 			validateShares();
-			secretBean.setSecret(secret);
+			secretBean.setSecret(secret, true);
 			reset();
 		} catch (Exception e) {
 			log.error("Activation failed: " + e, e);
@@ -202,8 +200,19 @@ public class ValidationBean {
 	@Audit
 	public String activateNewSecret() {
 		try {
-			secretBean.setSecret(secret);
+			secretBean.setSecret(secret, true);
 			reset();
+		} catch (Exception e) {
+			log.error("Activation failed: " + e, e);
+			UI.error(e.getMessage());
+			return null;
+		}
+		return UI.redirect();
+	}
+
+	public String validateCurrentKey() {
+		try {
+			List<String> revokedeys = revokedKeysBean.readAndValidate();
 		} catch (Exception e) {
 			log.error("Activation failed: " + e, e);
 			UI.error(e.getMessage());

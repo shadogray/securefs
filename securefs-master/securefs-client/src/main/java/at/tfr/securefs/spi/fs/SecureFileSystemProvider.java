@@ -6,6 +6,14 @@
  */
 package at.tfr.securefs.spi.fs;
 
+import at.tfr.securefs.api.SecureFileSystemItf;
+import at.tfr.securefs.spi.SecureFileSystemConstants;
+import at.tfr.securefs.spi.SecureFileSystemProviderMXBean;
+
+import javax.management.MBeanServer;
+import javax.management.ObjectName;
+import javax.naming.Context;
+import javax.naming.NamingException;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,40 +22,16 @@ import java.net.URI;
 import java.net.URL;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.SeekableByteChannel;
-import java.nio.file.AccessMode;
-import java.nio.file.CopyOption;
-import java.nio.file.DirectoryStream;
+import java.nio.file.*;
 import java.nio.file.DirectoryStream.Filter;
-import java.nio.file.FileStore;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystemNotFoundException;
-import java.nio.file.LinkOption;
-import java.nio.file.OpenOption;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.FileAttributeView;
 import java.nio.file.spi.FileSystemProvider;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.management.MBeanServer;
-import javax.management.ObjectName;
-import javax.naming.Context;
-import javax.naming.NamingException;
-
-import at.tfr.securefs.api.SecureFileSystemItf;
-import at.tfr.securefs.spi.SecureFileSystemConstants;
-import at.tfr.securefs.spi.SecureFileSystemProviderMXBean;
 
 /**
  *
@@ -91,7 +75,7 @@ public class SecureFileSystemProvider extends FileSystemProvider implements Secu
 				.valueOf(secProperties.getProperty(SecureFileSystemConstants.SECUREFS_MAXINSTANCES, "" + maxInstances));
 		// setup the ejb: namespace URL factory
 		secProperties.put(Context.URL_PKG_PREFIXES, "org.jboss.ejb.client.naming");
-		secProperties.put(Context.INITIAL_CONTEXT_FACTORY, "org.jboss.naming.remote.client.InitialContextFactory");
+		secProperties.put(Context.INITIAL_CONTEXT_FACTORY, "org.wildfly.naming.client.WildFlyInitialContextFactory");
 		try {
 			URL propUrl = getClass().getResource(SecureFileSystemConstants.SEC_PROPERTIES);
 			if (propUrl != null) {

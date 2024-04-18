@@ -6,26 +6,15 @@
  */
 package at.tfr.securefs.client.ee;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.ejb.*;
+import org.jboss.logging.Logger;
+
 import java.io.IOException;
 import java.net.URI;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.*;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.annotation.PostConstruct;
-import javax.ejb.Schedule;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-
-import org.jboss.logging.Logger;
 
 @Startup
 @Singleton
@@ -33,7 +22,7 @@ import org.jboss.logging.Logger;
 public class FileSystemClient {
 
 	private Logger log = Logger.getLogger(getClass());
-	private String baseDirectory = "sec:///tmp/SECUREFS";
+	private String baseDirectory = "sec://"+System.getProperty("java.io.tmpdir")+"/SECUREFS";
 	private Map<String,String> env = new HashMap<>();
 
 	@PostConstruct

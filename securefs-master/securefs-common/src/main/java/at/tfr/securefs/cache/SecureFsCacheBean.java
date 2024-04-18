@@ -6,19 +6,17 @@
  */
 package at.tfr.securefs.cache;
 
-import java.io.Serializable;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-
-import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
-import javax.inject.Inject;
-
+import at.tfr.securefs.annotation.SecureFs;
+import jakarta.ejb.Stateless;
+import jakarta.ejb.TransactionAttribute;
+import jakarta.ejb.TransactionAttributeType;
+import jakarta.inject.Inject;
 import org.infinispan.Cache;
 import org.jboss.logging.Logger;
 
-import at.tfr.securefs.annotation.SecureFs;
+import java.io.Serializable;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 @Stateless
 public class SecureFsCacheBean implements SecureFsCache {

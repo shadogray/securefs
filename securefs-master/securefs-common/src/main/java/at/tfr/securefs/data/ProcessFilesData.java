@@ -6,15 +6,14 @@
  */
 package at.tfr.securefs.data;
 
+import jakarta.xml.bind.annotation.XmlRootElement;
+import org.apache.commons.lang.StringUtils;
+
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
-
-import javax.xml.bind.annotation.XmlRootElement;
-
-import org.apache.commons.lang.StringUtils;
 
 @SuppressWarnings("serial")
 @XmlRootElement

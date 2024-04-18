@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE html>
-<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:f="http://java.sun.com/jsf/core" xmlns:ui="http://java.sun.com/jsf/facelets"
-	xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j" template="/resources/template.xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core" xmlns:ui="http://xmlns.jcp.org/jsf/facelets" xmlns:p="http://primefaces.org/ui">
+<ui:composition template="/resources/template.xhtml">
 
 	<ui:define name="container1">
 		<h:panelGroup id="restricted" rendered="#{!(request.isUserInRole('operator') || request.isUserInRole('admin'))}">
@@ -17,7 +16,7 @@
 			<p></p>
 			<h2>Monitor</h2>
 			<h:form id="statusForm">
-				<a4j:poll render="@form" interval="5000" enabled="#{statusMonitor.active}" />
+				<p:poll render="@form" interval="5000" enabled="#{statusMonitor.active}" />
 
 				<h:panelGrid columns="2" styleClass="table-bordered table-hover">
 					<h:panelGroup>
@@ -35,24 +34,18 @@
 					<h:outputLabel value="ClusterNodes" />
 					<h:outputText value="#{statusMonitor.clusterAddresses}" />
 				</h:panelGrid>
-				<rich:dataTable id="statusTable" value="#{statusMonitor.clusterStates}" var="item" styleClass="table-bordered table-hover">
-					<rich:column colspan="6">
-						<h:commandLink actionListener="#{item.toggleCollapsed()}">
-							<f:ajax render="statusTable"/>
-							<rich:collapsibleSubTableToggler for="subTable" />
-						</h:commandLink>
-						<h:outputText value="#{item.location}" />
-					</rich:column>
-					<rich:collapsibleSubTable id="subTable" value="#{item.list}" var="entry" expanded="#{!item.collapsed}"
-						expandMode="ajax">
-						<rich:column>
-							<h:outputText value="#{entry.key}" />
-						</rich:column>
-						<rich:column>
-							<h:outputText value="#{entry.value}" />
-						</rich:column>
-					</rich:collapsibleSubTable>
-				</rich:dataTable>
+				<p:accordionPanel id="statusAccordion" value="#{statusMonitor.clusterStates}" var="item" activeIndex="#{statusMonitor.activeStatusIndex}">
+					<p:tab id="statusTab" title="#{item.location}" closable="true">
+						<p:dataTable id="subTable" value="#{item.list}" var="entry">
+							<p:column>
+								<h:outputText value="#{entry.key}" />
+							</p:column>
+							<p:column>
+								<h:outputText value="#{entry.value}" />
+							</p:column>
+						</p:dataTable>
+					</p:tab>
+				</p:accordionPanel>
 				<h:panelGroup id="processFiles" rendered="#{not empty statusMonitor.processFilesData and statusMonitor.processFilesData.processActive}">
 					<h:panelGrid columns="2">
 						<h:outputLabel value="ProcessFilesStatus:" />
@@ -69,3 +62,4 @@
 		</h:panelGroup>
 	</ui:define>
 </ui:composition>
+</html>

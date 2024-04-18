@@ -6,9 +6,9 @@
  */
 package at.tfr.securefs.api;
 
-import java.io.IOException;
+import jakarta.ejb.ApplicationException;
 
-import javax.ejb.ApplicationException;
+import java.io.IOException;
 
 @ApplicationException(inherited=true, rollback=true)
 public class SecureFSIOException extends IOException {

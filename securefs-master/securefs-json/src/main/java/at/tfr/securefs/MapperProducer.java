@@ -7,7 +7,7 @@
 package at.tfr.securefs;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import javax.enterprise.inject.Produces;
+import jakarta.enterprise.inject.Produces;
 
 /**
  *

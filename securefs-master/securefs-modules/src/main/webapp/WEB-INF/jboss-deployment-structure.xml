@@ -1,8 +1,6 @@
 <jboss-deployment-structure>
 	<deployment>
 		<dependencies>
-			<module name="org.apache.xerces" optional="false" />
-			<module name="org.apache.xalan" optional="false" />
 			<module name="at.tfr.securefs.configuration" optional="true" />
 		</dependencies>
 	</deployment>

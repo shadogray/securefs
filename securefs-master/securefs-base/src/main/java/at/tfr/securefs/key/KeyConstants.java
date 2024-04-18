@@ -6,22 +6,24 @@
  */
 package at.tfr.securefs.key;
 
+import com.tiemens.secretshare.engine.SecretShare;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.tiemens.secretshare.engine.SecretShare;
-
 public class KeyConstants {
 
 	public static final Map<String, BigInteger> moduli = new HashMap<String, BigInteger>();
 
+	public static final BigInteger DEFAULT_MODULUS = SecretShare.getPrimeUsedFor4096bigSecretPayload();
+
 	static {
 		moduli.put("For192Bit", SecretShare.getPrimeUsedFor192bitSecretPayload());
 		moduli.put("For384Bit", SecretShare.getPrimeUsedFor384bitSecretPayload());
-		moduli.put("For4096Bit", SecretShare.getPrimeUsedFor4096bigSecretPayload());
+		moduli.put("For4096Bit", DEFAULT_MODULUS);
 	}
 
 	// for TEST

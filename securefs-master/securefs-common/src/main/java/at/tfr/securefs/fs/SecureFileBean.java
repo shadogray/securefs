@@ -6,6 +6,23 @@
  */
 package at.tfr.securefs.fs;
 
+import at.tfr.securefs.api.Buffer;
+import at.tfr.securefs.api.SecureRemoteFile;
+import at.tfr.securefs.beans.Logging;
+import at.tfr.securefs.event.Events;
+import at.tfr.securefs.event.SecfsEventType;
+import at.tfr.securefs.event.SecureFsFile;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import jakarta.annotation.Resource;
+import jakarta.annotation.security.PermitAll;
+import jakarta.ejb.*;
+import jakarta.inject.Inject;
+import jakarta.persistence.PostLoad;
+import org.jboss.annotation.ejb.cache.simple.CacheConfig;
+import org.jboss.logging.Logger;
+
+import javax.imageio.IIOException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -13,32 +30,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.annotation.Resource;
-import javax.annotation.security.PermitAll;
-import javax.ejb.DependsOn;
-import javax.ejb.LocalBean;
-import javax.ejb.Remote;
-import javax.ejb.Remove;
-import javax.ejb.SessionContext;
-import javax.ejb.Stateful;
-import javax.ejb.TransactionManagement;
-import javax.ejb.TransactionManagementType;
-import javax.imageio.IIOException;
-import javax.inject.Inject;
-import javax.persistence.PostLoad;
-
-import org.jboss.annotation.ejb.cache.simple.CacheConfig;
-import org.jboss.logging.Logger;
-
-import at.tfr.securefs.api.Buffer;
-import at.tfr.securefs.api.SecureRemoteFile;
-import at.tfr.securefs.beans.Logging;
-import at.tfr.securefs.event.Events;
-import at.tfr.securefs.event.SecfsEventType;
-import at.tfr.securefs.event.SecureFsFile;
 
 /**
  *

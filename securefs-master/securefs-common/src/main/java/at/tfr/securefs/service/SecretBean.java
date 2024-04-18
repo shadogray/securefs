@@ -6,21 +6,6 @@
  */
 package at.tfr.securefs.service;
 
-import java.math.BigInteger;
-import java.util.List;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.security.PermitAll;
-import javax.annotation.security.RolesAllowed;
-import javax.ejb.DependsOn;
-import javax.ejb.Schedule;
-import javax.ejb.Singleton;
-import javax.enterprise.event.Observes;
-import javax.inject.Inject;
-
-import org.infinispan.Cache;
-import org.jboss.logging.Logger;
-
 import at.tfr.securefs.Configuration;
 import at.tfr.securefs.Role;
 import at.tfr.securefs.annotation.SecureFs;
@@ -33,6 +18,19 @@ import at.tfr.securefs.event.SecfsEventType;
 import at.tfr.securefs.key.KeyConstants;
 import at.tfr.securefs.key.Shamir;
 import at.tfr.securefs.key.UiShare;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.ejb.DependsOn;
+import jakarta.ejb.Schedule;
+import jakarta.ejb.Singleton;
+import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
+import org.infinispan.Cache;
+import org.jboss.logging.Logger;
+
+import java.math.BigInteger;
+import java.util.List;
 
 @Singleton
 @RolesAllowed(Role.ADMIN)
@@ -43,6 +41,7 @@ public class SecretBean {
 
 	public static final String SECRET_CACHE_KEY = "securefs.secret.cacheKey";
 	private transient BigInteger secret;
+	private transient boolean secretVerified;
 	private Configuration configuration;
 	private Events events;
 	private Cache<String, Object> cache;
@@ -59,6 +58,13 @@ public class SecretBean {
 		this.configuration = configuration;
 		this.events = events;
 		this.cache = cache;
+		if (configuration.getShares() != null && configuration.getShares().length > 0) {
+			try {
+				secret = new Shamir().combine(configuration.getNrOfShares(), configuration.getThreshold(), configuration.getModulus(), configuration.getShares());
+			} catch (Throwable e) {
+				log.warn("cannot use config: " + e);
+			}
+		}
 	}
 
 	@PostConstruct
@@ -84,31 +90,31 @@ public class SecretBean {
 
 	private void retrieveSecret() {
 		if (cache != null) {
-			if (secret == null) {
+			if (secret == null || !secretVerified) {
 				Object cached = cache.get(SECRET_CACHE_KEY);
 				if (cached instanceof BigInteger && !BigInteger.ZERO.equals(cached)) {
 					secret = (BigInteger) cached;
-					log.info("retrieved secret from cache.");
+					log.debug("retrieved secret from cache.");
 				}
-			}
-			if (secret == null) {
-				cache.put(SECRET_CACHE_KEY, BigInteger.ZERO);
-				log.info("sent NoSecret to cache.");
+			} else {
+				cache.put(SECRET_CACHE_KEY, secret);
+				log.debug("sent Secret to cache.");
 			}
 		}
 	}
 
 	@RolesAllowed(Role.ADMIN)
 	public BigInteger getSecret() {
-		if (secret == null) {
+		if (secret == null || BigInteger.ZERO.equals(secret)) {
 			throw new SecureFSKeyNotInitializedError("SecretKey not available.");
 		}
 		return secret;
 	}
 
 	@RolesAllowed({ Role.ADMIN, Role.OPERATOR })
-	public void setSecret(BigInteger secret) {
+	public void setSecret(BigInteger secret, boolean verified) {
 		this.secret = secret;
+		this.secretVerified = verified;
 		if (cache != null) {
 			cache.put(SECRET_CACHE_KEY, secret);
 		}
@@ -118,9 +124,13 @@ public class SecretBean {
 	}
 
 	@PermitAll
-	@Logging
 	public boolean hasSecret() {
 		return secret != null;
+	}
+
+	@PermitAll
+	public boolean isSecretVerified() {
+		return secretVerified;
 	}
 
 	@RolesAllowed({ Role.ADMIN, Role.OPERATOR, Role.MONITOR })

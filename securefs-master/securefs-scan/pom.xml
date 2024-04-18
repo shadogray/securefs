@@ -4,11 +4,12 @@
 	<parent>
 		<groupId>at.tfr.securefs</groupId>
 		<artifactId>securefs-master</artifactId>
-		<version>true</version>
+		<version>2.0.1.Final</version>
 	</parent>
 	<artifactId>securefs-scan</artifactId>
 	<packaging>war</packaging>
 	<name>securefs-scan</name>
+	<version>2.0.1.Final</version>
 	<description>SecureFS virus scanning module</description>
 
 	<dependencies>
@@ -28,8 +29,8 @@
 		</dependency>
 
 		<dependency>
-			<groupId>javax</groupId>
-			<artifactId>javaee-api</artifactId>
+			<groupId>jakarta.platform</groupId>
+			<artifactId>jakarta.jakartaee-api</artifactId>
 		</dependency>
 
 		<dependency>

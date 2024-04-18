@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://java.sun.com/jsf/html"
-	xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:h="http://xmlns.jcp.org/jsf/html"
+    xmlns:p="http://primefaces.org/ui">
 <h:head>
 	<meta charset="utf-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -52,7 +52,7 @@
 		<div class="row">
 			<div id="navbar" class="navbar-collapse collapse">
 				<h:form class="navbar-form navbar-right">
-					<rich:focus/>
+					<p:focus/>
 					<div class="form-group">
 						<h:inputText placeholder="Username" class="form-control" value="#{loginBean.username}"/>
 					</div>
@@ -66,11 +66,5 @@
 		</div>
 	</div>
 	<!-- /container -->
-
-
-	<!-- Bootstrap core JavaScript
-    ================================================== -->
-	<!-- Placed at the end of the document so the pages load faster -->
-	<h:outputScript library="js" name="jquery.min.js" />
 </h:body>
 </html>
