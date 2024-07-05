@@ -242,7 +242,7 @@ public class ProcessFilesTest {
 		cfd.setLastError((String)null);
 		pf.verifyDecryption(generateSomeFile(fromRoot), cp, newSecret, cfd);
 		Assert.assertTrue("no error on validation", cfd.getErrors().size() == 1);
-		Assert.assertTrue("no error on validation", cfd.getErrors().entrySet().iterator().next().getValue().contains("IOException"));
+		Assert.assertTrue("no error on validation", cfd.getErrors().iterator().next().getInfo().contains("IOException"));
 		Assert.assertTrue("no error on validation", cfd.getLastError().contains("IOException"));
 		
 	}
@@ -268,7 +268,7 @@ public class ProcessFilesTest {
 		cfd.setLastError((String)null);
 		pf.verifyDecryption(generateSomeFile(toRoot), cp, secret, cfd);
 		Assert.assertTrue("no error on validation", cfd.getErrors().size() == 1);
-		Assert.assertTrue("no error on validation", cfd.getErrors().entrySet().iterator().next().getValue().contains("IOException"));
+		Assert.assertTrue("no error on validation", cfd.getErrors().iterator().next().getInfo().contains("IOException"));
 		Assert.assertTrue("no error on validation", cfd.getLastError().contains("IOException"));
 		
 	}

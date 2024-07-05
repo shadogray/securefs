@@ -6,30 +6,47 @@
  */
 package at.tfr.securefs.data;
 
+import at.tfr.securefs.cache.StateInfo;
 import jakarta.xml.bind.annotation.XmlRootElement;
 import org.apache.commons.lang.StringUtils;
+import org.infinispan.protostream.annotations.ProtoField;
 
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 
 @SuppressWarnings("serial")
 @XmlRootElement
 public class ProcessFilesData implements Serializable {
 
-	private String node;
-	private String principal;
-	private boolean processActive;
-	private boolean update, allowOverwriteExisting;
-	private ValidationData validationData = new ValidationData();
-	private String fromRootPath;
-	private String toRootPath;
-	private String currentFromPath;
-	private String currentToPath;
-	private String lastError;
-	private LinkedHashMap<String, String> errors = new SizeLimitedHashMap();
+	@ProtoField(number = 1)
+	String node;
+	@ProtoField(number = 2)
+	String principal;
+	@ProtoField(number = 3, required = true)
+	boolean processActive;
+	@ProtoField(number = 4, required = true)
+	boolean update;
+	@ProtoField(number = 5, required = true)
+	boolean allowOverwriteExisting;
+	@ProtoField(number = 6)
+	ValidationData validationData = new ValidationData();
+	@ProtoField(number = 7)
+	String fromRootPath;
+	@ProtoField(number = 8)
+	String toRootPath;
+	@ProtoField(number = 9)
+	String currentFromPath;
+	@ProtoField(number = 10)
+	String currentToPath;
+	@ProtoField(number = 11)
+	String lastError;
+	@ProtoField(number = 12)
+	List<StateInfo> errors = new ArrayList<>();
 	
 	public ProcessFilesData reset() {
 		setProcessActive(false);
@@ -137,12 +154,12 @@ public class ProcessFilesData implements Serializable {
 		return this;
 	}
 	
-	public LinkedHashMap<String, String> getErrors() {
+	public List<StateInfo> getErrors() {
 		return errors;
 	}
 	
 	public void putError(Path path, Exception e) {
-		errors.put(path.toString(), abbreviate(e));
+		errors.add(new StateInfo(path.toString(), abbreviate(e)));
 	}
 	
 	public String getLastErrorStackTrace() {
