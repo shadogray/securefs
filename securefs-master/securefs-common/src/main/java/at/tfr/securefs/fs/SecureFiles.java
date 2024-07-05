@@ -9,6 +9,7 @@ package at.tfr.securefs.fs;
 import at.tfr.securefs.beans.Logging;
 import at.tfr.securefs.service.CrypterProvider;
 import at.tfr.securefs.service.SecretBean;
+import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.logging.Logger;
@@ -21,16 +22,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Logging
+@Stateless
 public class SecureFiles {
 
 	private static final Charset UTF8 = Charset.forName("UTF-8");
 	private Logger log = Logger.getLogger(getClass());
 
 	private CrypterProvider crypterProvider;
-	
-	public SecureFiles() {
-	}
-	
+
+	public SecureFiles() {}
+
 	@Inject
     public SecureFiles(CrypterProvider crypterProvider) {
 		this.crypterProvider = crypterProvider;

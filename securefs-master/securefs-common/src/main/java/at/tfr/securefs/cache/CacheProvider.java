@@ -17,9 +17,11 @@ import org.infinispan.AdvancedCache;
 import org.infinispan.Cache;
 import org.infinispan.commons.api.BasicCache;
 import org.infinispan.commons.dataconversion.MediaType;
+import org.infinispan.commons.marshall.ProtoStreamMarshaller;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.cache.ConfigurationBuilder;
+import org.infinispan.configuration.global.GlobalConfigurationBuilder;
 import org.infinispan.manager.EmbeddedCacheManager;
 import org.jboss.logging.Logger;
 
@@ -43,6 +45,7 @@ public class CacheProvider {
 	@PostConstruct
 	private void init() {
 		try {
+
 			cacheName = configuration.getCacheName();
 			BasicCache<String, Object> baseCache;
 			if (!cacheManager.cacheExists(cacheName)) {
@@ -82,9 +85,11 @@ public class CacheProvider {
 			log.warn("cannot remove CacheListener", e);
 		}
 		try {
-			EmbeddedCacheManager cacheManager = cache.getCacheManager();
-			if (cacheManager != null) {
-				cacheManager.removeListener(topologyListener);
+			if (cache != null) {
+				EmbeddedCacheManager cacheManager = cache.getCacheManager();
+				if (cacheManager != null) {
+					cacheManager.removeListener(topologyListener);
+				}
 			}
 		} catch (Exception e) {
 			log.warn("cannot remove CacheTopologyListener", e);

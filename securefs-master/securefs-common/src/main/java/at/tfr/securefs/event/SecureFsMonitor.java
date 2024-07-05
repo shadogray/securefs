@@ -36,7 +36,7 @@ public class SecureFsMonitor extends SecureFsEvent {
 
 	public SecureFsMonitor add(String entryKey, String valueKey, String valueValue) {
 		ClusterState entry = getOrCreateEntry(entryKey);
-		entry.getStateInfo().put(valueKey, valueValue);
+		entry.putStateInfo(valueKey, valueValue);
 		return this;
 	}
 

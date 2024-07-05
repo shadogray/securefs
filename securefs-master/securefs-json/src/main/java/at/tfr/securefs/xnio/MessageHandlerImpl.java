@@ -16,6 +16,7 @@ import at.tfr.securefs.key.SecretKeySpecBean;
 import at.tfr.securefs.xnio.ActiveStreams.StreamInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.json.Json;
 import org.jboss.logging.Logger;
 import org.xnio.*;
 import org.xnio.channels.Channels;
@@ -44,16 +45,14 @@ public class MessageHandlerImpl implements MessageHandler {
 	private Charset utf8 = Charset.forName("utf-8");
 	protected ActiveStreams activeStreams = new ActiveStreams();
 	protected XnioWorker xnioWorker;
-	protected ObjectMapper objectMapper;
 	protected Configuration configuration;
 	protected SecretKeySpecBean sksBean;
 
 	public MessageHandlerImpl() {
 	}
 
-	public MessageHandlerImpl(Configuration configuration, ObjectMapper objectMapper, SecretKeySpecBean sksBean) {
+	public MessageHandlerImpl(Configuration configuration, SecretKeySpecBean sksBean) {
 		this.configuration = configuration;
-		this.objectMapper = objectMapper;
 		this.sksBean = sksBean;
 		try {
 			xnioWorker = Xnio.getInstance().createWorker(OptionMap.EMPTY);
@@ -70,7 +69,7 @@ public class MessageHandlerImpl implements MessageHandler {
 	public void handleMessage(String json, MessageSender messageSender) throws IOException {
 
 		log.debug("handleMessage: " + json);
-		final Message message = objectMapper.readValue(json, Message.class);
+		final Message message = new ObjectMapper().readValue(json, Message.class);
 
 		Path path = configuration.getBasePath().resolve(message.getPath());
 		if (!path.relativize(configuration.getBasePath()).toString().equals("..")) {
@@ -236,11 +235,7 @@ public class MessageHandlerImpl implements MessageHandler {
 	}
 
 	public ObjectMapper getObjectMapper() {
-		return objectMapper;
-	}
-
-	public void setObjectMapper(ObjectMapper objectMapper) {
-		this.objectMapper = objectMapper;
+		return new ObjectMapper();
 	}
 
 	public Configuration getConfiguration() {

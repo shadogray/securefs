@@ -38,8 +38,8 @@ public class MessageHandlerBean extends MessageHandlerImpl {
 	}
 
 	@Inject
-	public MessageHandlerBean(Configuration configuration, ObjectMapper objectMapper, SecretKeySpecBean sksBean) {
-		super(configuration, objectMapper, sksBean);
+	public MessageHandlerBean(Configuration configuration, SecretKeySpecBean sksBean) {
+		super(configuration, sksBean);
 	}
 
 	@PostConstruct
@@ -68,7 +68,7 @@ public class MessageHandlerBean extends MessageHandlerImpl {
 		@Override
 		public void send(Message message) {
 			try {
-				session.getBasicRemote().sendText(objectMapper.writeValueAsString(message));
+				session.getBasicRemote().sendText(getObjectMapper().writeValueAsString(message));
 			} catch (IOException e) {
 				log.warn("cannot write message=" + message, e);
 			}

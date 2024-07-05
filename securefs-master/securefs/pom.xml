@@ -75,6 +75,11 @@
 			<artifactId>commons-collections</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.infinispan.protostream</groupId>
+			<artifactId>protostream</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.primefaces</groupId>
 			<artifactId>primefaces</artifactId>
 			<classifier>jakarta</classifier>

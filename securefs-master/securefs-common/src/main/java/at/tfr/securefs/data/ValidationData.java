@@ -9,6 +9,7 @@ package at.tfr.securefs.data;
 import at.tfr.securefs.key.UiShare;
 import com.tiemens.secretshare.engine.SecretShare;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import org.infinispan.protostream.annotations.ProtoField;
 
 import java.io.Serializable;
 import java.math.BigInteger;
@@ -18,11 +19,15 @@ import java.util.List;
 @SuppressWarnings("serial")
 @XmlRootElement
 public class ValidationData implements Serializable {
-	
-	private BigInteger modulus = SecretShare.getPrimeUsedFor4096bigSecretPayload();
-	private int threshold;
-	private int nrOfShares;
-	private List<UiShare> uiShares = new ArrayList<>();
+
+	@ProtoField(number = 1)
+	String modulus = SecretShare.getPrimeUsedFor4096bigSecretPayload().toString();
+	@ProtoField(number = 2, required = true)
+	int threshold;
+	@ProtoField(number = 3, required = true)
+	int nrOfShares;
+	@ProtoField(number = 4)
+	List<UiShare> uiShares = new ArrayList<>();
 
 	public ValidationData() {
 	}
@@ -39,11 +44,11 @@ public class ValidationData implements Serializable {
 	}
 
 	public BigInteger getModulus() {
-		return modulus;
+		return modulus != null ? new BigInteger(modulus) : null;
 	}
 
 	public void setModulus(BigInteger modulus) {
-		this.modulus = modulus;
+		this.modulus = modulus != null ? modulus.toString() : null;
 	}
 
 	public int getThreshold() {

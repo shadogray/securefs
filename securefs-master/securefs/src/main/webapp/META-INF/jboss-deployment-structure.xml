@@ -3,6 +3,7 @@
 		<dependencies>
 			<module name="org.infinispan"/>
 			<module name="org.infinispan.commons"/>
+			<module name="org.infinispan.protostream"/>
 			<module name="org.infinispan.client.hotrod"/>
 			<module name="io.undertow.websocket"/>
 			<module name="org.jboss.xnio"/>

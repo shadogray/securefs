@@ -7,6 +7,7 @@
 package at.tfr.securefs.key;
 
 import org.apache.commons.lang3.StringUtils;
+import org.infinispan.protostream.annotations.ProtoField;
 
 import java.io.Serializable;
 
@@ -14,8 +15,11 @@ import java.io.Serializable;
 public class UiShare implements Serializable {
 
 	public static final String SHIELD = "xxxxxxxxxxx";
+	@ProtoField(number = 1, required = true)
 	int index;
+	@ProtoField(number = 2)
 	String share;
+	@ProtoField(number = 3)
 	String realShare;
 
 	public UiShare() {

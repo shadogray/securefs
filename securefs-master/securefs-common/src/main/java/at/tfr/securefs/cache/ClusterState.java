@@ -6,20 +6,31 @@
  */
 package at.tfr.securefs.cache;
 
+import org.infinispan.protostream.annotations.ProtoField;
+
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("serial")
 public class ClusterState implements Serializable {
-	private Map<String, String> stateInfo = new TreeMap<>();
-	private String node;
-	private String clusterKey;
-	private boolean hasSecret;
-	private int secretHash;
+
+	@ProtoField(number = 1)
+	StateInfo[] stateInfo = new StateInfo[0];
+	@ProtoField(number = 2)
+	String node;
+	@ProtoField(number = 3)
+	String clusterKey;
+	@ProtoField(number = 4, required = true)
+	boolean hasSecret;
+	@ProtoField(number = 5, required = true)
+	int secretHash;
 
 	public Map<String, String> getStateInfo() {
-		return stateInfo;
+		return Arrays.stream(stateInfo).collect(Collectors.toMap(StateInfo::getHost, StateInfo::getInfo));
 	}
 	
 	public String getNode() {
@@ -41,8 +52,14 @@ public class ClusterState implements Serializable {
 	}
 	
 	public ClusterState setStateInfo(Map<String, String> stateInfo) {
-		this.stateInfo = stateInfo;
+		this.stateInfo = stateInfo.entrySet().stream().map(e -> new StateInfo(e.getKey(), e.getValue())).collect(Collectors.toList()).toArray(new StateInfo[0]);
 		return this;
+	}
+
+	public void putStateInfo(String key, String value) {
+		var map = getStateInfo();
+		map.put(key, value);
+		setStateInfo(map);
 	}
 
 	public ClusterState setHasSecret(boolean hasSecret) {
@@ -66,6 +83,6 @@ public class ClusterState implements Serializable {
 	@Override
 	public String toString() {
 		return "ClusterState [node=" + node + ", hasSecret=" + hasSecret + ", secretHash=" + secretHash + ", stateInfo="
-				+ stateInfo + "]";
+				+ (stateInfo != null ? Arrays.toString(stateInfo) : "null") + "]";
 	}
 }
